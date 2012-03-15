@@ -1,0 +1,133 @@
+_read_nolock ---> _read
+
+_unlock_fhandle
+
+
+============================================
+
+_read:
+
+     _read_nolock
+     _unlock_fhandle [call _unlock_fhandle da parte di _read NON intercettata]
+
+==============================================
+
+_setmbcp: subcall senza falso longjmp
+
+
+=================================================
+
+   73: /* define normal version that locks/unlocks, validates fh */
+    74: int __cdecl _read (
+    75:         int fh,
+    76:         void *buf,
+    77:         unsigned cnt
+    78:         )
+    79: {
+00E62617 6A 10                push        10h  
+00E62619 68 48 C2 E6 00       push        0E6C248h  
+00E6261E E8 8D 04 FF FF       call        __SEH_prolog4 (0E52AB0h)  
+    80:         int r;                          /* return value */
+    81: 
+    82:         /* validate handle */
+    83:         _CHECK_FH_CLEAR_OSSERR_RETURN( fh, EBADF, -1 );
+00E62623 8B 5D 08             mov         ebx,dword ptr [ebp+8]  
+00E62626 83 FB FE             cmp         ebx,0FFFFFFFEh  
+00E62629 75 1B                jne         _read+2Fh (0E62646h)  
+00E6262B E8 B6 03 FF FF       call        __doserrno (0E529E6h)  
+00E62630 83 20 00             and         dword ptr [eax],0  
+00E62633 E8 9B 03 FF FF       call        _errno (0E529D3h)  
+00E62638 C7 00 09 00 00 00    mov         dword ptr [eax],9  
+00E6263E 83 C8 FF             or          eax,0FFFFFFFFh  
+00E62641 E9 B6 00 00 00       jmp         $LN16+3 (0E626FCh)  
+    84:         _VALIDATE_CLEAR_OSSERR_RETURN((fh >= 0 && (unsigned)fh < (unsigned)_nhandle), EBADF, -1);
+00E62646 85 DB                test        ebx,ebx  
+00E62648 78 08                js          _read+3Bh (0E62652h)  
+00E6264A 3B 1D 70 EE E6 00    cmp         ebx,dword ptr [__nhandle (0E6EE70h)]  
+00E62650 72 1A                jb          _read+55h (0E6266Ch)  
+00E62652 E8 8F 03 FF FF       call        __doserrno (0E529E6h)  
+00E62657 83 20 00             and         dword ptr [eax],0  
+00E6265A E8 74 03 FF FF       call        _errno (0E529D3h)  
+00E6265F C7 00 09 00 00 00    mov         dword ptr [eax],9  
+00E62665 E8 DE 02 FF FF       call        _invalid_parameter_noinfo (0E52948h)  
+00E6266A EB D2                jmp         _read+27h (0E6263Eh)  
+    85:         _VALIDATE_CLEAR_OSSERR_RETURN((_osfile(fh) & FOPEN), EBADF, -1);
+00E6266C 8B C3                mov         eax,ebx  
+00E6266E C1 F8 05             sar         eax,5  
+00E62671 8D 3C 85 C0 EE E6 00 lea         edi,___pioinfo (0E6EEC0h)[eax*4]  
+00E62678 8B F3                mov         esi,ebx  
+00E6267A 83 E6 1F             and         esi,1Fh  
+00E6267D C1 E6 06             shl         esi,6  
+00E62680 8B 07                mov         eax,dword ptr [edi]  
+00E62682 0F BE 44 30 04       movsx       eax,byte ptr [eax+esi+4]  
+00E62687 83 E0 01             and         eax,1  
+00E6268A 74 C6                je          _read+3Bh (0E62652h)  
+    86:         _VALIDATE_CLEAR_OSSERR_RETURN((cnt <= INT_MAX), EINVAL, -1);
+00E6268C B8 FF FF FF 7F       mov         eax,7FFFFFFFh  
+00E62691 3B 45 10             cmp         eax,dword ptr [ebp+10h]  
+00E62694 1B C0                sbb         eax,eax  
+00E62696 40                   inc         eax  
+00E62697 75 15                jne         _read+97h (0E626AEh)  
+00E62699 E8 48 03 FF FF       call        __doserrno (0E529E6h)  
+00E6269E 83 20 00             and         dword ptr [eax],0  
+00E626A1 E8 2D 03 FF FF       call        _errno (0E529D3h)  
+00E626A6 C7 00 16 00 00 00    mov         dword ptr [eax],16h  
+00E626AC EB B7                jmp         _read+4Eh (0E62665h)  
+    87: 
+    88:         _lock_fh(fh);                   /* lock file */
+00E626AE 53                   push        ebx  
+00E626AF E8 D7 A3 FF FF       call        __lock_fhandle (0E5CA8Bh)  
+00E626B4 59                   pop         ecx  
+    89: 
+    90:         __try {
+00E626B5 83 65 FC 00          and         dword ptr [ebp-4],0  
+    91:             if ( _osfile(fh) & FOPEN )
+00E626B9 8B 07                mov         eax,dword ptr [edi]  
+00E626BB F6 44 30 04 01       test        byte ptr [eax+esi+4],1  
+00E626C0 74 14                je          _read+0BFh (0E626D6h)  
+    92:                 r = _read_nolock(fh, buf, cnt); /* read bytes */
+00E626C2 FF 75 10             push        dword ptr [ebp+10h]  
+00E626C5 FF 75 0C             push        dword ptr [ebp+0Ch]  
+00E626C8 53                   push        ebx  
+00E626C9 E8 92 F9 FF FF       call        _read_nolock (0E62060h)  
+00E626CE 83 C4 0C             add         esp,0Ch  
+00E626D1 89 45 E4             mov         dword ptr [ebp-1Ch],eax  
+    93:             else {
+00E626D4 EB 17                jmp         _read+0D6h (0E626EDh)  
+    94:                 errno = EBADF;
+00E626D6 E8 F8 02 FF FF       call        _errno (0E529D3h)  
+00E626DB C7 00 09 00 00 00    mov         dword ptr [eax],9  
+    95:                 _doserrno = 0;
+00E626E1 E8 00 03 FF FF       call        __doserrno (0E529E6h)  
+00E626E6 83 20 00             and         dword ptr [eax],0  
+    96:                 r = -1;
+00E626E9 83 4D E4 FF          or          dword ptr [ebp-1Ch],0FFFFFFFFh  
+    97:                 _ASSERTE(("Invalid file descriptor. File possibly closed by a different thread",0));
+    98:             }
+    99:         }
+   100:         __finally {
+00E626ED C7 45 FC FE FF FF FF mov         dword ptr [ebp-4],0FFFFFFFEh  
+00E626F4 E8 0C 00 00 00       call        $LN15 (0E62705h)  ****************************
+   102:         }
+   103: 
+   104:         return r;
+00E626F9 8B 45 E4             mov         eax,dword ptr [ebp-1Ch]  
+   105: }
+00E626FC E8 F4 03 FF FF       call        __SEH_epilog4 (0E52AF5h)  
+00E62701 C3                   ret  ---------------------------------------------------------------> fino a qui !!!!!
+
+
+
+
+    97:                 _ASSERTE(("Invalid file descriptor. File possibly closed by a different thread",0));
+    98:             }
+    99:         }
+   100:         __finally {
+00E62702 8B 5D 08             mov         ebx,dword ptr [ebp+8]  
+   101:             _unlock_fh(fh);             /* unlock file */
+**************
+00E62705 53                   push        ebx  
+00E62706 E8 1F A4 FF FF       call        _unlock_fhandle (0E5CB2Ah)  
+00E6270B 59                   pop         ecx  
+$LN14:
+00E6270C C3     
