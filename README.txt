@@ -1,3 +1,18 @@
+
+k-Calling Context Forest profiling pintool
+-------------------------------------------
+
+Author: Vladislav K. Valtchev (vladi32@gmail.com)
+Date: March, 2012
+
+Based on the research of: 
+Giorgio Ausiello, Camil Demetrescu, Irene Finocchi, Donatella Firmani
+	
+Sapienza University of Rome
+
+
+
+
 BUILDING
 ---------------
 
@@ -16,3 +31,4 @@ Under Windows:
 4. Build as every other project
 
 
+Warning: Windows support is EXPERIMENTAL.
