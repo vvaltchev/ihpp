@@ -1,21 +1,13 @@
 
-- Sotto windows:
-riconoscimento FALSI longjmp SEMBRA ok.
-riconoscimento VERI longjmp SEMBRA ok.
+- analizzare prestazioni di join forest e inverse forest
 
 
-- Sotto linux:
-il riconoscimento VERI longjmp SEMBRA ok.
-
-==================================================
+-----------------------------------------------------------------------
 
 
-
-- provare sotto linux 64
+- provare sotto linux 64 [ ok ]
 
 - finire di scrivere debug.h [ ok ]
-
-- analizzare prestazioni di join forest e inverse forest
 
 - ripulire il codice anche dalle #ifdef troppo pesanti [ ok ]
 
@@ -23,8 +15,7 @@ il riconoscimento VERI longjmp SEMBRA ok.
 	se possibile, condividere il codice, magari facendo in modo che la funcMode sia attiva in parallelo alla tradMode
 	e che la tradMode possa in qualche modo usarne i risultati: eventuali modifiche in futuro porteranno benefici ad entrambe
 
-- tradurre tutti i debug msgs in inglese
-
+- tradurre tutti i debug msgs in inglese [ OK ]
 
 - JOIN fra le kSF delle stesse funzioni fra piu' thread: [ OK ]
 
@@ -39,6 +30,6 @@ il riconoscimento VERI longjmp SEMBRA ok.
 - inserire l'opzione -endFunc: funzione dalla quale in poi non tracciare piu' [ ok ]
 
 
-- scrivere una help di base per i parametri
+- scrivere una help di base per i parametri [ OK ]
 
 - implementare l'opzione ROLL-LOOPS	[ OK ]
