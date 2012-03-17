@@ -120,7 +120,7 @@ inline node<keyT,valueT>* forest<keyT,valueT>::getTreeRef(keyT k) {
 
 	treesIterator it;
 
-	//Ricerca lineare
+	//Forced linear search
 	for (it=getTreesIteratorBegin(); it != getTreesIteratorEnd(); it++)
 		if (it->getKey() == k)
 			return &(*it);
