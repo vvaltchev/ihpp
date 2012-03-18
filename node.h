@@ -6,6 +6,9 @@
 #include <vector>
 #include <iostream>
 
+#include "dataStructures.h"
+
+
 using namespace std;
 
 namespace kCCFLib { 
@@ -22,7 +25,7 @@ protected:
 	valueT val;
 	keyT key;
 	
-	map< keyT, node<keyT,valueT> > children;
+	kNodeChildrenContainer< keyT, node<keyT,valueT> > children;
 	unsigned int counter;
 	bool valid;
 
@@ -33,32 +36,7 @@ protected:
 public:
 
 
-	class nodesIterator {
-	
-		friend class node<keyT,valueT>;
-
-		bool valid;
-
-		typename map< keyT, node<keyT,valueT> >::iterator _it;
-		nodesIterator(typename map< keyT, node<keyT,valueT> >::iterator baseIt) { _it=baseIt; valid=true; }
-
-	public:
-
-		nodesIterator() { valid=false; }
-		node<keyT,valueT> &operator *() { return _it->second; }
-		node<keyT,valueT> *operator->() { return &_it->second; }
-
-		void operator++() { ++_it; }
-		void operator--() { --_it; }
-		void operator++(int dummy) { _it++; }
-		void operator--(int dummy) { _it--; }
-
-		bool operator==(nodesIterator _it2) { return _it==_it2._it; }
-		bool operator!=(nodesIterator _it2) { return _it!=_it2._it; }
-		bool operator<(nodesIterator _it2) { return _it<_it2._it; }
-		bool operator<=(nodesIterator _it2) { return _it<=_it2._it; }
-		bool operator>(nodesIterator _it2) { return _it>_it2._it; }
-	};
+	typedef typename kNodeChildrenContainer<keyT, node<keyT,valueT> >::iterator nodesIterator;
 
 	node(); 
 	node(keyT key, valueT val, unsigned int counter=0);
