@@ -9,7 +9,7 @@ namespace kCCFLib {
 template <typename keyT, typename valueT>
 class forest {
 
-	map< keyT, node<keyT,valueT> > trees;
+	kNodeChildrenContainer< keyT, node<keyT,valueT> > trees;
 	static void _joinChildren(forest<keyT, valueT> &res, node<keyT, valueT> &t1, node<keyT, valueT> &t2);
 
 public:
@@ -18,32 +18,7 @@ public:
 	static forest<keyT, valueT> join(forest<keyT, valueT> &f1, forest<keyT, valueT> &f2);
 	static forest<keyT, valueT> join(forest<keyT, valueT> &f1, node<keyT, valueT> &t2);
 
-	class treesIterator {
-	
-		friend class forest<keyT,valueT>;
-
-		bool valid;
-
-		typename map< keyT, node<keyT,valueT> >::iterator _it;
-		treesIterator(typename map< keyT, node<keyT,valueT> >::iterator baseIt) { _it=baseIt; valid=true; }
-
-	public:
-
-		treesIterator() { valid=false; }
-		node<keyT,valueT> &operator *() { return _it->second; }
-		node<keyT,valueT> *operator->() { return &_it->second; }
-
-		void operator++() { ++_it; }
-		void operator--() { --_it; }
-		void operator++(int dummy) { _it++; }
-		void operator--(int dummy) { _it--; }
-
-		bool operator==(treesIterator _it2) { return _it==_it2._it; }
-		bool operator!=(treesIterator _it2) { return _it!=_it2._it; }
-		bool operator<(treesIterator _it2) { return _it<_it2._it; }
-		bool operator<=(treesIterator _it2) { return _it<=_it2._it; }
-		bool operator>(treesIterator _it2) { return _it>_it2._it; }
-	};
+	typedef typename kNodeChildrenContainer< keyT, node<keyT,valueT> >::iterator treesIterator;
 
 	forest();
 	forest(node<keyT,valueT> n);
@@ -100,7 +75,7 @@ inline node<keyT,valueT>* forest<keyT,valueT>::addTree(node<keyT,valueT> &n) {
 
 	assert(!getTreeRef(n.getKey()));
 	
-	return &(trees[n.getKey()]=n); 
+	return &trees.insert(n.getKey(), n); 
 }
 
 template <typename keyT, typename valueT>
@@ -120,10 +95,10 @@ inline node<keyT,valueT>* forest<keyT,valueT>::getTreeRef(keyT k) {
 
 	treesIterator it;
 
-	//Forced linear search
-	for (it=getTreesIteratorBegin(); it != getTreesIteratorEnd(); it++)
-		if (it->getKey() == k)
-			return &(*it);
+	it = trees.find(k);
+
+	if (it != getTreesIteratorEnd())
+		return &(*it);
 
 	return 0;
 }

@@ -6,13 +6,16 @@
 #include <vector>
 #include <iostream>
 
+#include "dataStructures.h"
+
+
 using namespace std;
 
 namespace kCCFLib { 
 
 
 template <typename keyT, typename valueT>
-class node {
+class node : public kObjectWithKey<keyT> {
 
 private:
 	node< keyT, valueT > *parent; 
@@ -22,7 +25,7 @@ protected:
 	valueT val;
 	keyT key;
 	
-	map< keyT, node<keyT,valueT> > children;
+	kNodeChildrenContainer< keyT, node<keyT,valueT> > children;
 	unsigned int counter;
 	bool valid;
 
@@ -33,32 +36,7 @@ protected:
 public:
 
 
-	class nodesIterator {
-	
-		friend class node<keyT,valueT>;
-
-		bool valid;
-
-		typename map< keyT, node<keyT,valueT> >::iterator _it;
-		nodesIterator(typename map< keyT, node<keyT,valueT> >::iterator baseIt) { _it=baseIt; valid=true; }
-
-	public:
-
-		nodesIterator() { valid=false; }
-		node<keyT,valueT> &operator *() { return _it->second; }
-		node<keyT,valueT> *operator->() { return &_it->second; }
-
-		void operator++() { ++_it; }
-		void operator--() { --_it; }
-		void operator++(int dummy) { _it++; }
-		void operator--(int dummy) { _it--; }
-
-		bool operator==(nodesIterator _it2) { return _it==_it2._it; }
-		bool operator!=(nodesIterator _it2) { return _it!=_it2._it; }
-		bool operator<(nodesIterator _it2) { return _it<_it2._it; }
-		bool operator<=(nodesIterator _it2) { return _it<=_it2._it; }
-		bool operator>(nodesIterator _it2) { return _it>_it2._it; }
-	};
+	typedef typename kNodeChildrenContainer<keyT, node<keyT,valueT> >::iterator nodesIterator;
 
 	node(); 
 	node(keyT key, valueT val, unsigned int counter=0);
@@ -275,7 +253,7 @@ inline node<keyT,valueT>* node<keyT,valueT>::addChild(node<keyT,valueT> &n) {
 
 	assert(!getChildRef(n.getKey()));
 
-	t = &(children[n.getKey()]=n);
+	t = &children.insert(n.getKey(), n);
 	t->parent=this;
 
 	return t;
@@ -288,7 +266,7 @@ inline node<keyT, valueT>* node<keyT,valueT>::replaceChild(node<keyT,valueT> &n)
 
 	assert(getChildRef(n.getKey()));
 
-	t = &(children[n.getKey()]=n);
+	t = &children.replace(n.getKey(), n);
 	t->parent=this;
 
 	return t;	
@@ -299,10 +277,10 @@ inline node<keyT, valueT>* node<keyT,valueT>::getChildRef(keyT k) {
 
 	nodesIterator it;
 
-	//Forced linear search
-	for (it=getNodesIteratorBegin(); it != getNodesIteratorEnd(); it++)
-		if (it->getKey() == k)
-			return &(*it);
+	it = children.find(k);
+	
+	if (it != getNodesIteratorEnd())
+		return &(*it);
 
 	return 0;
 }

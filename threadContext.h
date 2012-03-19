@@ -1,5 +1,6 @@
 
 #include "specialfuncs.h"
+#include "dataStructures.h"
 
 #ifndef __THREAD_CTX_HEADER__
 #define __THREAD_CTX_HEADER__
@@ -30,7 +31,7 @@ public:
 	
 	unsigned int counter;
 
-	stack<ShadowStackType> shadowStack;
+	kStack<ShadowStackType> shadowStack;
 
 	kCCFAbstractContext() : rootKey(0), counter(0) 
 	{ 
