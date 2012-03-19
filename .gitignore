@@ -4,3 +4,5 @@
 /obj-ia32
 /VC2010/x64
 /obj-intel64
+/VC2010/kCCF.vcxproj.user
+/VC2010/kCCF.vcxproj.filters
