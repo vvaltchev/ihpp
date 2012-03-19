@@ -15,7 +15,7 @@ namespace kCCFLib {
 
 
 template <typename keyT, typename valueT>
-class node {
+class node : public kObjectWithKey<keyT> {
 
 private:
 	node< keyT, valueT > *parent; 
@@ -253,7 +253,7 @@ inline node<keyT,valueT>* node<keyT,valueT>::addChild(node<keyT,valueT> &n) {
 
 	assert(!getChildRef(n.getKey()));
 
-	t = &(children[n.getKey()]=n);
+	t = &children.insert(n.getKey(), n);
 	t->parent=this;
 
 	return t;
@@ -266,7 +266,7 @@ inline node<keyT, valueT>* node<keyT,valueT>::replaceChild(node<keyT,valueT> &n)
 
 	assert(getChildRef(n.getKey()));
 
-	t = &(children[n.getKey()]=n);
+	t = &children.replace(n.getKey(), n);
 	t->parent=this;
 
 	return t;	
@@ -277,10 +277,10 @@ inline node<keyT, valueT>* node<keyT,valueT>::getChildRef(keyT k) {
 
 	nodesIterator it;
 
-	//Forced linear search
-	for (it=getNodesIteratorBegin(); it != getNodesIteratorEnd(); it++)
-		if (it->getKey() == k)
-			return &(*it);
+	it = children.find(k);
+	
+	if (it != getNodesIteratorEnd())
+		return &(*it);
 
 	return 0;
 }

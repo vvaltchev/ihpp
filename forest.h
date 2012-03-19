@@ -75,7 +75,7 @@ inline node<keyT,valueT>* forest<keyT,valueT>::addTree(node<keyT,valueT> &n) {
 
 	assert(!getTreeRef(n.getKey()));
 	
-	return &(trees[n.getKey()]=n); 
+	return &trees.insert(n.getKey(), n); 
 }
 
 template <typename keyT, typename valueT>
@@ -95,10 +95,10 @@ inline node<keyT,valueT>* forest<keyT,valueT>::getTreeRef(keyT k) {
 
 	treesIterator it;
 
-	//Forced linear search
-	for (it=getTreesIteratorBegin(); it != getTreesIteratorEnd(); it++)
-		if (it->getKey() == k)
-			return &(*it);
+	it = trees.find(k);
+
+	if (it != getTreesIteratorEnd())
+		return &(*it);
 
 	return 0;
 }
