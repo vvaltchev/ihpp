@@ -5,6 +5,8 @@
 #include <vector>
 #include <stack>
 #include <map>
+#include <list>
+#include <assert.h>
 
 //Abstract class
 
@@ -58,6 +60,7 @@ public:
 	public:
 
 		iterator() { valid=false; }
+		bool isValid() { return valid; }
 		valueT &operator *() { return _it->second; }
 		valueT *operator->() { return &_it->second; }
 
@@ -87,28 +90,28 @@ public:
 
 
 /*
-	valueT is assumed to be an kObjectWithKey
-	and valueT is assumed to be NOT a pointer
+	valueT is assumed to be an kObjectWithKey and to be NOT a pointer.
 */
 template <typename keyT, typename valueT>
-class kNodeChildrenContainerVec {
+class kNodeChildrenContainerList {
 
-	std::vector<valueT> _data;
+	std::list<valueT> _data;
 
 public:
 
 	class iterator {
 	
-		friend class kNodeChildrenContainerVec<keyT, valueT>;
+		friend class kNodeChildrenContainerList<keyT, valueT>;
 
 		bool valid;
 
-		typename std::vector< valueT >::iterator _it;
-		iterator(typename std::vector< valueT >::iterator baseIt) { _it=baseIt; valid=true; }
+		typename std::list< valueT >::iterator _it;
+		iterator(typename std::list< valueT >::iterator baseIt) { _it=baseIt; valid=true; }
 
 	public:
 
 		iterator() { valid=false; }
+		bool isValid() { return valid; }
 		valueT &operator *() { return *_it; }
 		valueT *operator->() { return &(*_it); }
 
@@ -124,41 +127,38 @@ public:
 		bool operator>(iterator _it2) { return _it>_it2._it; }
 	};
 
+	size_t size() { return _data.size(); }
 	iterator begin() { return iterator(_data.begin()); }
 	iterator end() { return iterator(_data.end()); }
 	
 	iterator find(keyT key) { 
 		
-		for (iterator it = begin(); it != end(); it++) {
-		
-			valueT val = *it;
-			kObjectWithKey<keyT> *objk = dynamic_cast< kObjectWithKey<keyT> * >(&val);
-
-			assert(objk);
-
-			if (objk->getKey() == key)
+		iterator it;
+		for (it = begin(); it != end(); it++) 
+			if (it->getKey() == key)
 				return it;
-		}
 
 		return end();
 	}
 
-	size_t size() { return _data.size(); }
-	
-	valueT& insert(keyT key, valueT val) { _data.push_back(val); return _data.back(); }
+
+	valueT& insert(keyT key, valueT val) {
+		
+		_data.push_back(val);
+		return _data.back();
+	}
+
 	valueT& replace(keyT key, valueT val) { 
 	
 		iterator it = find(key);
 
 		assert(it != end());
 
-		*it = val;
-
-		return *it;
+		return *it = val;
 	}
+
 };
 
-
-#define kNodeChildrenContainer kNodeChildrenContainerVec
+#define kNodeChildrenContainer kNodeChildrenContainerList
 
 #endif
