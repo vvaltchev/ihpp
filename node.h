@@ -13,7 +13,9 @@ using namespace std;
 
 namespace kCCFLib { 
 
-
+/*
+	valueT is assumed to be a POINTER to a kObjectWithKey object.
+*/
 template <typename keyT, typename valueT>
 class node : public kObjectWithKey<keyT> {
 
@@ -23,13 +25,10 @@ private:
 protected:
 
 	valueT val;
-	keyT key;
-	
+	size_t counter;
+
 	kNodeChildrenContainer< keyT, node<keyT,valueT> > children;
-	unsigned int counter;
-	bool valid;
-
-
+	
 	void clearLevelKCounters(unsigned int k, unsigned int deepth);
 	void getAllTreeNodesRef(vector< node<keyT,valueT>* > &vec);
 
@@ -57,10 +56,10 @@ public:
 
 	void autoSetParents();
 
-	keyT getKey() { return key; }
-	valueT getValue() { return val; }
-	bool isValid() { return valid; }
+	bool isValid() { return val != 0; }
 
+	keyT getKey() { assert(isValid()); return val->getKey(); }
+	valueT getValue() { assert(isValid()); return val; }
 	
 	nodesIterator getNodesIteratorBegin() { return nodesIterator(children.begin()); }
 	nodesIterator getNodesIteratorEnd() { return nodesIterator(children.end()); }	
@@ -74,7 +73,7 @@ public:
 
 	inline void clearLevelKCounters(unsigned int k);
 
-	operator bool() { return valid; }
+	operator bool() { return isValid(); }
 	
 	node<keyT,valueT> &operator=(node<keyT,valueT> n);
 
@@ -87,9 +86,7 @@ inline node<keyT,valueT> &node<keyT,valueT>::operator=(node<keyT,valueT> n) {
 	
 		
 	val=n.val;
-	key=n.key;
 	children=n.children;
-	valid=n.valid;
 	counter=n.counter;
 	parent=0;
 
@@ -103,9 +100,7 @@ inline node<keyT,valueT>::node(const node<keyT,valueT> &n) {
 	
 		
 	val=n.val;
-	key=n.key;
 	children=n.children;
-	valid=n.valid;
 	counter=n.counter;
 	parent=0;
 
@@ -116,7 +111,7 @@ inline node<keyT,valueT>::node(const node<keyT,valueT> &n) {
 template <typename keyT, typename valueT>
 inline node<keyT,valueT>::node() { 
 
-	valid=false; 
+	val=0;
 	parent=0;
 
 	BM_inc_empty_nodes_created(); 
@@ -125,24 +120,22 @@ inline node<keyT,valueT>::node() {
 template <typename keyT, typename valueT>
 inline node<keyT,valueT>::node(keyT key, valueT val, unsigned int counter) {
 
-	this->key=key;
 	this->val=val;
 	this->counter=counter;
 	this->parent=0;
-	valid=true;
+
+	assert(val);
+	assert(key == val->getKey());
 
 	BM_inc_nodes_created();
 }
 
 
 template <typename keyT, typename valueT>
-inline node<keyT,valueT>::~node() {
-
-}
+inline node<keyT,valueT>::~node() { }
 
 template <typename keyT, typename valueT>
 inline ostream& operator << (ostream& s, node<keyT, valueT> n) { return n ? s << n.getKey() : s << "(null)"; }
-
 
 
 template <typename keyT, typename valueT>
@@ -208,16 +201,16 @@ node<keyT, valueT> node<keyT,valueT>::kpathR(unsigned int k) {
 	unsigned int i=0;
 	
 	if (!k)
-		return node(key,val,counter);
+		return node(getKey(),val,counter);
 
-	res = node(key,val,counter);
+	res = node(getKey(),val,counter);
 	ptr=&res;
 
 	curr=this->parent;
 
-	while (curr && curr->valid && i < k) {
+	while (curr && curr->isValid() && i < k) {
 	
-		ptr=ptr->addChildByVal(node(curr->key,curr->val,counter));
+		ptr=ptr->addChildByVal(node(curr->getKey(),curr->val,counter));
 		curr=curr->parent;
 		i++;
 	}
@@ -234,15 +227,15 @@ node<keyT, valueT> node<keyT,valueT>::kpath(unsigned int k) {
 	stack<node> list;
 
 	if (!k)
-		return node(key,val,counter);
+		return node(getKey(),val,counter);
 
-	list.push(node(key,val,counter));
+	list.push(node(getKey(),val,counter));
 
 	curr=this->parent;
 
-	while (curr && curr->valid && i < k) {
+	while (curr && curr->isValid() && i < k) {
 	
-		list.push(node(curr->key,curr->val,counter));
+		list.push(node(curr->getKey(),curr->val,counter));
 		curr=curr->parent;
 		i++;
 	}

@@ -1,5 +1,5 @@
 
-
+#include "dataStructures.h"
 
 namespace kCCFLib {
 
@@ -13,7 +13,7 @@ inline string operator +(string str, INT32 n) {
 
 
 template <typename keyT>
-class TracingObject {
+class TracingObject : public kObjectWithKey<keyT> {
 
 protected:
 

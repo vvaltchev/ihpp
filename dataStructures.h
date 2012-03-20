@@ -23,10 +23,6 @@ public:
 template <typename T>
 class kStack {
 
-/*
-	sizeof(std::stack<ADDRINT>) is 24, on x86 arch
-	sizeof(std::vector<ADDRINT>) is 16, on x86 arch
-*/
 	std::vector<T> _data;
 
 public:
