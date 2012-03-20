@@ -71,6 +71,8 @@ void a() {
 
 int main(int argc, char ** argv) {
 
+int i,x=0;
+   
 getchar();
 
 printf("ptr: %u bits\n", 8*sizeof(void*));
@@ -83,9 +85,9 @@ varfunc(2, 80, 90);
 
 a();
 
-int x=0;
 
-for (int i=1; i <= 3; i++) {
+
+for (i=1; i <= 3; i++) {
 	printf("x=%i\n",x);
 	x+=i;
 }
