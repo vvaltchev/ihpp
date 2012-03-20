@@ -39,6 +39,7 @@ public:
 	typedef typename kNodeChildrenContainer<keyT, node<keyT,valueT> >::iterator nodesIterator;
 
 	node(); 
+	node(const node& n);
 	node(keyT key, valueT val, unsigned int counter=0);
 	~node();
 	
@@ -96,6 +97,21 @@ inline node<keyT,valueT> &node<keyT,valueT>::operator=(node<keyT,valueT> n) {
 	
 	return *this;
 }
+
+template <typename keyT, typename valueT>
+inline node<keyT,valueT>::node(const node<keyT,valueT> &n) {
+	
+		
+	val=n.val;
+	key=n.key;
+	children=n.children;
+	valid=n.valid;
+	counter=n.counter;
+	parent=0;
+
+	BM_inc_nodes_copied();
+}
+
 
 template <typename keyT, typename valueT>
 inline node<keyT,valueT>::node() { 

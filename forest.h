@@ -21,6 +21,7 @@ public:
 	typedef typename kNodeChildrenContainer< keyT, node<keyT,valueT> >::iterator treesIterator;
 
 	forest();
+	forest(const forest &f);
 	forest(node<keyT,valueT> n);
 
 	node<keyT,valueT>* getTreeRef(keyT k);
@@ -50,6 +51,12 @@ public:
 template <typename keyT, typename valueT>
 inline forest<keyT,valueT>::forest() { }
 
+template <typename keyT, typename valueT>
+inline forest<keyT,valueT>::forest(const forest<keyT,valueT> &f) { 
+
+	trees = f.trees;
+	BM_inc_forests_copied();
+}
 
 template <typename keyT, typename valueT>
 inline forest<keyT,valueT>::forest(node<keyT,valueT> n) { 
