@@ -33,7 +33,7 @@ protected:
 public:
 
 
-	typedef typename kNodeChildrenContainer<keyT, node<keyT>>::iterator nodesIterator;
+	typedef typename kNodeChildrenContainer< keyT, node<keyT> >::iterator nodesIterator;
 
 	node(); 
 	node(const node& n);
