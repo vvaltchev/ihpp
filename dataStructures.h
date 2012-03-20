@@ -74,6 +74,7 @@ public:
 		bool operator<(iterator _it2) { return _it<_it2._it; }
 		bool operator<=(iterator _it2) { return _it<=_it2._it; }
 		bool operator>(iterator _it2) { return _it>_it2._it; }
+		bool operator>=(iterator _it2) { return _it>=_it2._it; }
 	};
 
 	iterator begin() { return iterator(_data.begin()); }
@@ -125,6 +126,7 @@ public:
 		bool operator<(iterator _it2) { return _it<_it2._it; }
 		bool operator<=(iterator _it2) { return _it<=_it2._it; }
 		bool operator>(iterator _it2) { return _it>_it2._it; }
+		bool operator>=(iterator _it2) { return _it>=_it2._it; }
 	};
 
 	size_t size() { return _data.size(); }
@@ -142,11 +144,7 @@ public:
 	}
 
 
-	valueT& insert(keyT key, valueT val) {
-		
-		_data.push_back(val);
-		return _data.back();
-	}
+	valueT& insert(keyT key, valueT val) { _data.push_back(val); return _data.back(); }
 
 	valueT& replace(keyT key, valueT val) { 
 	

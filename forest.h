@@ -239,13 +239,20 @@ forest<keyT, valueT> forest<keyT, valueT>::inverseK(unsigned int k) {
 	forest<keyT, valueT> res;
 	vector< node<keyT, valueT>* > tmp;
 	typename vector< node<keyT, valueT>* >::iterator it2;
-	unsigned int i=1;
+	
+	size_t i=1;
+	size_t count = recursiveAllNodesCount();
+	bool showInfo=false;
 
-	cerr << "FOREST: inverseK of forest with " << recursiveAllNodesCount() << " nodes" << endl;
+	if (count > 100)
+		showInfo=true;
+
+	if (showInfo)
+		cerr << "Warning: computing inverseK of forest with " << count << " nodes: it could take a while..." << endl;
 
 	for (it = getTreesIteratorBegin(); it != getTreesIteratorEnd(); it++) {
 	
-		if (treesCount() > 1)
+		if (showInfo && treesCount() > 1)
 			cerr << "join path " << i++ << " of " << treesCount() << endl;
 
 		it->autoSetParents();

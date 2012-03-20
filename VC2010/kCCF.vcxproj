@@ -111,6 +111,7 @@
   <ItemGroup>
     <ClInclude Include="..\benchmark.h" />
     <ClInclude Include="..\config.h" />
+    <ClInclude Include="..\dataStructures.h" />
     <ClInclude Include="..\debug.h" />
     <ClInclude Include="..\experimentalCode.h" />
     <ClInclude Include="..\forest.h" />

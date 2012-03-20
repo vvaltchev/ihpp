@@ -334,8 +334,7 @@ VOID Fini(INT32 code, VOID *v)
 		for (FuncsMapIt it = ctx->allFuncs.begin(); it != ctx->allFuncs.end(); it++) {
 		
 			FunctionObj fc = *it->second;
-			//kCCFTradModeContext *tradCtx = ctx->threadContexts[0]->getFunctionCtx(fc.functionAddress());
-
+			
 			ctx->OutFile << "function: ";
 			ctx->OutFile.width(maxFuncLen+4);
 			ctx->OutFile << left << fc;
@@ -356,9 +355,11 @@ void funcTraceDebugDump(kCCFContextClass *globalCtx, FunctionObj *fc,
 
 	for (unsigned int i=0; i < ctx->shadowStack.size(); i++)
 		globalCtx->OutFile << "    ";
-		
-	globalCtx->OutFile << fc->functionName() << endl;
-	//globalCtx->OutFile << hex << " (0x" << reg_sp << ")" << dec << endl;
 	
+	if (globalCtx->threadContexts.size() > 1)
+		globalCtx->OutFile << "[ Thread: " << PIN_ThreadUid() << " ] " << fc->functionName() << endl;
+	else
+		globalCtx->OutFile << fc->functionName() << endl;
+		
 	globalCtx->OutFile << " ----------------------------------------------------------------------------------------------- \n";
 }
