@@ -37,7 +37,7 @@ public:
 
 	node(); 
 	node(const node& n);
-	node(keyT key, kObjectWithKey * val, unsigned int counter=0);
+	node(keyT key, kObjectWithKey<keyT>* val, unsigned int counter=0);
 	~node();
 	
 	node<keyT>* getChildRef(keyT k);
@@ -57,7 +57,7 @@ public:
 	bool isValid() { return val != 0; }
 
 	keyT getKey() { assert(isValid()); return val->getKey(); }
-	kObjectWithKey * getValue() { assert(isValid()); return val; }
+	kObjectWithKey<keyT> * getValue() { assert(isValid()); return val; }
 	
 	nodesIterator getNodesIteratorBegin() { return nodesIterator(children.begin()); }
 	nodesIterator getNodesIteratorEnd() { return nodesIterator(children.end()); }	
@@ -76,7 +76,7 @@ public:
 	node<keyT> &operator=(node<keyT> n);
 
 	//for this to work, typeof(*val) MUST BE castable to string
-	operator string() { return (val && valid) ? (string)*getValue() : string(); }
+	operator string() { return (val) ? (string)*getValue() : string(); }
 };
 
 template <typename keyT>
@@ -116,7 +116,7 @@ inline node<keyT>::node() {
 }
 
 template <typename keyT>
-inline node<keyT>::node(keyT key, kObjectWithKey* val, unsigned int counter) {
+inline node<keyT>::node(keyT key, kObjectWithKey<keyT>* val, unsigned int counter) {
 
 	this->val=val;
 	this->counter=counter;
