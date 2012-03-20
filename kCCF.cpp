@@ -518,6 +518,7 @@ int main(int argc, char ** argv) {
 
 	IMG_AddInstrumentFunction(ImageLoad, (void*)globalSharedContext);
 	
+	//Experimental only imageload function, don't use it
 	//IMG_AddInstrumentFunction(ImageLoad2, (void*)globalSharedContext);
 
     PIN_AddFiniFunction(Fini, (void*)globalSharedContext);

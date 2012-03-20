@@ -155,7 +155,7 @@ void branchOrCall(kCCFContextClass *globalCtx, ADDRINT insAddr, ADDRINT targetAd
 	
 	/*
 		This often produces false positives: under win32 when a JMP with a target which is outside current function is met,
-		this doesn't mean that that's is a long jmp: often JMP is used as a light function-call convention..
+		this doesn't mean that that's is a long jmp: sometimes JMP is used as a light function-call convention..
 	*/
 	if (insCat == XED_CATEGORY_UNCOND_BR)
 		if (traceTarget && targetFuncAddr != currentFuncAddr && !FUNC_IS_TEXT(currentFuncName)) {
@@ -164,8 +164,25 @@ void branchOrCall(kCCFContextClass *globalCtx, ADDRINT insAddr, ADDRINT targetAd
 			
 			if (ctx->shadowStack.size() > 1) {
 				
+#if INS_JMP_OUTSIDE_FUNC_PARENTS_CHECK
+
+				for (size_t i=1; i < ctx->shadowStack.size(); i++) {
+
+					ADDRINT beforeLastTop = ctx->shadowStack.top(i).treeTop->getKey();
+					
+					if (targetFuncAddr == beforeLastTop) {
+				
+						ctx->popShadowStack();
+						break;
+					} 
+
+				}
+#else
+
 				ctx->popShadowStack();
-			
+#endif
+				
+				
 			} else {
 
 				dbg_brcall_cantpop();

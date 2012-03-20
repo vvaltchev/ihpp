@@ -65,7 +65,6 @@ void branch(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRI
 
 	if (!targetFuncAddr) {
 	
-		//e' sicuramente un indirizzo del kernel
 
 		cerr << "[cod3]: no target info\n";
 		return;
@@ -84,19 +83,38 @@ void branch(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRI
 
 
 	}
-	/*
+	
 	if (insCat == XED_CATEGORY_UNCOND_BR)
 		if (targetFuncAddr != currentFuncAddr && !FUNC_IS_TEXT(currentFuncName)) {
 	
 			dbg_brcall_jmp();
 
-			if (ctx->shadowStack.size() > 1)
-				funcMode_ret(globalCtx);
+			if (ctx->shadowStack.size() > 1) {
+				
+				
+#if INS_JMP_OUTSIDE_FUNC_PARENTS_CHECK
 
+				for (size_t i=1; i < ctx->shadowStack.size(); i++) {
+
+					ADDRINT beforeLastTop = ctx->shadowStack.top(i).treeTop->getKey();
+					
+					if (targetFuncAddr == beforeLastTop) {
+				
+						funcMode_ret(globalCtx);
+						//ctx->popShadowStack();
+						break;
+					} 
+
+				}
+#else
+				funcMode_ret(globalCtx);
+				//ctx->popShadowStack();
+#endif
+			}
 			
 		} 
 
-		*/
+	
 
 	if (FUNC_IS_TEXT(currentFuncName)) {
 	
