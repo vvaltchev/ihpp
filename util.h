@@ -12,16 +12,16 @@ namespace kCCFLib {
 
 
 
-template <typename keyT, typename valueT>
-void dump(node<keyT,valueT> &n, ostream& out=cerr, int ident=0) {
+template <typename keyT>
+void dump(node<keyT> &n, ostream& out=cerr, int ident=0) {
 
 	for (int i=0; i < ident; i++)
 		out << "   ";
 
 	out << "| " << n << "," << n.getCounter() << endl;
 
-	typename node<keyT,valueT>::nodesIterator it = n.getNodesIteratorBegin();
-	typename node<keyT,valueT>::nodesIterator end = n.getNodesIteratorEnd();
+	typename node<keyT>::nodesIterator it = n.getNodesIteratorBegin();
+	typename node<keyT>::nodesIterator end = n.getNodesIteratorEnd();
 
 	while (it != end) {
 	
@@ -31,11 +31,11 @@ void dump(node<keyT,valueT> &n, ostream& out=cerr, int ident=0) {
 
 }
 
-template <typename keyT, typename valueT>
-void dump(forest<keyT,valueT> &f, ostream& out=cerr) {
+template <typename keyT>
+void dump(forest<keyT> &f, ostream& out=cerr) {
 
-	typename forest<keyT,valueT>::treesIterator it = f.getTreesIteratorBegin();
-	typename forest<keyT,valueT>::treesIterator end = f.getTreesIteratorEnd();
+	typename forest<keyT>::treesIterator it = f.getTreesIteratorBegin();
+	typename forest<keyT>::treesIterator end = f.getTreesIteratorEnd();
 
 	while (it != end) {
 	
@@ -50,10 +50,10 @@ void dump(forest<keyT,valueT> &f, ostream& out=cerr) {
 }
 
 
-template <typename keyT, typename valueT>
-void nodeDump(node<keyT, valueT> n, ostream& out) {
+template <typename keyT>
+void nodeDump(node<keyT> n, ostream& out) {
 
-	node<keyT, valueT> *ptr = &n;
+	node<keyT> *ptr = &n;
 
 	out << "\"" << n << "," << n.getCounter();
 	out << " (";

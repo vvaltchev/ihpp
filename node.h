@@ -13,43 +13,41 @@ using namespace std;
 
 namespace kCCFLib { 
 
-/*
-	valueT is assumed to be a POINTER to a kObjectWithKey object.
-*/
-template <typename keyT, typename valueT>
+
+template <typename keyT>
 class node : public kObjectWithKey<keyT> {
 
 private:
-	node< keyT, valueT > *parent; 
+	node<keyT> *parent; 
 
 protected:
 
-	valueT val;
+	kObjectWithKey<keyT> *val;
 	size_t counter;
 
-	kNodeChildrenContainer< keyT, node<keyT,valueT> > children;
+	kNodeChildrenContainer< keyT, node<keyT> > children;
 	
 	void clearLevelKCounters(unsigned int k, unsigned int deepth);
-	void getAllTreeNodesRef(vector< node<keyT,valueT>* > &vec);
+	void getAllTreeNodesRef(vector< node<keyT>* > &vec);
 
 public:
 
 
-	typedef typename kNodeChildrenContainer<keyT, node<keyT,valueT> >::iterator nodesIterator;
+	typedef typename kNodeChildrenContainer<keyT, node<keyT>>::iterator nodesIterator;
 
 	node(); 
 	node(const node& n);
-	node(keyT key, valueT val, unsigned int counter=0);
+	node(keyT key, kObjectWithKey * val, unsigned int counter=0);
 	~node();
 	
-	node<keyT, valueT>* getChildRef(keyT k);
-	node<keyT, valueT>* addChild(node<keyT,valueT> &n);
-	node<keyT, valueT>* replaceChild(node<keyT,valueT> &n);
-	node<keyT, valueT>* addChildByVal(node<keyT,valueT> n) { return addChild(n); }
+	node<keyT>* getChildRef(keyT k);
+	node<keyT>* addChild(node<keyT> &n);
+	node<keyT>* replaceChild(node<keyT> &n);
+	node<keyT>* addChildByVal(node<keyT> n) { return addChild(n); }
 
-	node<keyT, valueT>* getParentRef() { return (parent && *parent) ?  parent : 0; }
+	node<keyT>* getParentRef() { return (parent && *parent) ?  parent : 0; }
 
-	inline vector< node<keyT,valueT>* > getAllTreeNodesRef();
+	inline vector< node<keyT>* > getAllTreeNodesRef();
 
 	size_t childrenCount() { return children.size(); }
 	size_t recursiveAllNodesCount();
@@ -59,7 +57,7 @@ public:
 	bool isValid() { return val != 0; }
 
 	keyT getKey() { assert(isValid()); return val->getKey(); }
-	valueT getValue() { assert(isValid()); return val; }
+	kObjectWithKey * getValue() { assert(isValid()); return val; }
 	
 	nodesIterator getNodesIteratorBegin() { return nodesIterator(children.begin()); }
 	nodesIterator getNodesIteratorEnd() { return nodesIterator(children.end()); }	
@@ -68,21 +66,21 @@ public:
 	unsigned int getCounter() { return counter; }
 	void setCounter(unsigned int c) { counter=c; }
 
-	node<keyT, valueT> kpath(unsigned int k);
-	node<keyT, valueT> kpathR(unsigned int k);
+	node<keyT> kpath(unsigned int k);
+	node<keyT> kpathR(unsigned int k);
 
 	inline void clearLevelKCounters(unsigned int k);
 
 	operator bool() { return isValid(); }
 	
-	node<keyT,valueT> &operator=(node<keyT,valueT> n);
+	node<keyT> &operator=(node<keyT> n);
 
-	//for this to work, valueT MUST BE a POINTER and typeof(*valueT) MUST BE castable to string
+	//for this to work, typeof(*val) MUST BE castable to string
 	operator string() { return (val && valid) ? (string)*getValue() : string(); }
 };
 
-template <typename keyT, typename valueT>
-inline node<keyT,valueT> &node<keyT,valueT>::operator=(node<keyT,valueT> n) {
+template <typename keyT>
+inline node<keyT> &node<keyT>::operator=(node<keyT> n) {
 	
 		
 	val=n.val;
@@ -95,8 +93,8 @@ inline node<keyT,valueT> &node<keyT,valueT>::operator=(node<keyT,valueT> n) {
 	return *this;
 }
 
-template <typename keyT, typename valueT>
-inline node<keyT,valueT>::node(const node<keyT,valueT> &n) {
+template <typename keyT>
+inline node<keyT>::node(const node<keyT> &n) {
 	
 		
 	val=n.val;
@@ -108,8 +106,8 @@ inline node<keyT,valueT>::node(const node<keyT,valueT> &n) {
 }
 
 
-template <typename keyT, typename valueT>
-inline node<keyT,valueT>::node() { 
+template <typename keyT>
+inline node<keyT>::node() { 
 
 	val=0;
 	parent=0;
@@ -117,8 +115,8 @@ inline node<keyT,valueT>::node() {
 	BM_inc_empty_nodes_created(); 
 }
 
-template <typename keyT, typename valueT>
-inline node<keyT,valueT>::node(keyT key, valueT val, unsigned int counter) {
+template <typename keyT>
+inline node<keyT>::node(keyT key, kObjectWithKey* val, unsigned int counter) {
 
 	this->val=val;
 	this->counter=counter;
@@ -131,15 +129,15 @@ inline node<keyT,valueT>::node(keyT key, valueT val, unsigned int counter) {
 }
 
 
-template <typename keyT, typename valueT>
-inline node<keyT,valueT>::~node() { }
+template <typename keyT>
+inline node<keyT>::~node() { }
 
-template <typename keyT, typename valueT>
-inline ostream& operator << (ostream& s, node<keyT, valueT> n) { return n ? s << n.getKey() : s << "(null)"; }
+template <typename keyT>
+inline ostream& operator << (ostream& s, node<keyT> n) { return n ? s << n.getKey() : s << "(null)"; }
 
 
-template <typename keyT, typename valueT>
-void node<keyT,valueT>::clearLevelKCounters(unsigned int k, unsigned int deepth) {
+template <typename keyT>
+void node<keyT>::clearLevelKCounters(unsigned int k, unsigned int deepth) {
 
 	nodesIterator it;
 
@@ -152,8 +150,8 @@ void node<keyT,valueT>::clearLevelKCounters(unsigned int k, unsigned int deepth)
 		it->clearLevelKCounters(k, deepth+1);
 }
 
-template <typename keyT, typename valueT>
-size_t node<keyT,valueT>::recursiveAllNodesCount() {
+template <typename keyT>
+size_t node<keyT>::recursiveAllNodesCount() {
 
 	nodesIterator it;
 	size_t count=1;
@@ -164,14 +162,14 @@ size_t node<keyT,valueT>::recursiveAllNodesCount() {
 	return count;
 }
 
-template <typename keyT, typename valueT>
-inline void node<keyT,valueT>::clearLevelKCounters(unsigned int k) {
+template <typename keyT>
+inline void node<keyT>::clearLevelKCounters(unsigned int k) {
 
 	clearLevelKCounters(k, 0);
 }
 
-template <typename keyT, typename valueT>
-void node<keyT,valueT>::getAllTreeNodesRef(vector< node<keyT,valueT>* > &vec) {
+template <typename keyT>
+void node<keyT>::getAllTreeNodesRef(vector< node<keyT>* > &vec) {
 
 	nodesIterator it;
 
@@ -182,8 +180,8 @@ void node<keyT,valueT>::getAllTreeNodesRef(vector< node<keyT,valueT>* > &vec) {
 }
 
 
-template <typename keyT, typename valueT>
-inline vector< node<keyT,valueT>* > node<keyT,valueT>::getAllTreeNodesRef() {
+template <typename keyT>
+inline vector< node<keyT>* > node<keyT>::getAllTreeNodesRef() {
 
 	vector< node* > res;
 	getAllTreeNodesRef(res);
@@ -193,8 +191,8 @@ inline vector< node<keyT,valueT>* > node<keyT,valueT>::getAllTreeNodesRef() {
 
 
 
-template <typename keyT, typename valueT>
-node<keyT, valueT> node<keyT,valueT>::kpathR(unsigned int k) {
+template <typename keyT>
+node<keyT> node<keyT>::kpathR(unsigned int k) {
 
 	node res;
 	node *curr,*ptr;
@@ -218,8 +216,8 @@ node<keyT, valueT> node<keyT,valueT>::kpathR(unsigned int k) {
 	return res;
 }
 
-template <typename keyT, typename valueT>
-node<keyT, valueT> node<keyT,valueT>::kpath(unsigned int k) {
+template <typename keyT>
+node<keyT> node<keyT>::kpath(unsigned int k) {
 
 	node res;
 	node *curr,*ptr;
@@ -255,8 +253,8 @@ node<keyT, valueT> node<keyT,valueT>::kpath(unsigned int k) {
 }
 
 
-template <typename keyT, typename valueT>
-inline node<keyT,valueT>* node<keyT,valueT>::addChild(node<keyT,valueT> &n) {
+template <typename keyT>
+inline node<keyT>* node<keyT>::addChild(node<keyT> &n) {
 
 	register node *t;
 
@@ -268,8 +266,8 @@ inline node<keyT,valueT>* node<keyT,valueT>::addChild(node<keyT,valueT> &n) {
 	return t;
 }
 
-template <typename keyT, typename valueT>
-inline node<keyT, valueT>* node<keyT,valueT>::replaceChild(node<keyT,valueT> &n) {
+template <typename keyT>
+inline node<keyT>* node<keyT>::replaceChild(node<keyT> &n) {
 
 	register node *t;
 
@@ -281,8 +279,8 @@ inline node<keyT, valueT>* node<keyT,valueT>::replaceChild(node<keyT,valueT> &n)
 	return t;	
 }
 
-template <typename keyT, typename valueT>
-inline node<keyT, valueT>* node<keyT,valueT>::getChildRef(keyT k) {
+template <typename keyT>
+inline node<keyT>* node<keyT>::getChildRef(keyT k) {
 
 	nodesIterator it;
 
@@ -294,8 +292,8 @@ inline node<keyT, valueT>* node<keyT,valueT>::getChildRef(keyT k) {
 	return 0;
 }
 
-template <typename keyT, typename valueT>
-void node<keyT,valueT>::autoSetParents() {
+template <typename keyT>
+void node<keyT>::autoSetParents() {
 
 	nodesIterator it;
 

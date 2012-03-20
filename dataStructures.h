@@ -8,8 +8,10 @@
 #include <list>
 #include <assert.h>
 
-//Abstract class
-
+/* 
+	Abstract class (also called 'interface'): 
+	node<keyT> and TracingObject<keyT> implement this interface
+*/
 template <typename keyT>
 class kObjectWithKey {
 

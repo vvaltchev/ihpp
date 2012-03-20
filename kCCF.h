@@ -96,11 +96,11 @@ inline bool kCCFContextClass::hasToTrace(string funcName, ADDRINT funcAddr)
 }
 
 
-template <typename keyT, typename valueT>
-void kSlabForestKLevelCountersClear(forest<keyT,valueT> &f, keyT &rootKey, unsigned int k) {
+template <typename keyT>
+void kSlabForestKLevelCountersClear(forest<keyT> &f, keyT &rootKey, unsigned int k) {
 
-	typename forest<keyT,valueT>::treesIterator it = f.getTreesIteratorBegin();
-	typename forest<keyT,valueT>::treesIterator end = f.getTreesIteratorEnd();
+	typename forest<keyT>::treesIterator it = f.getTreesIteratorBegin();
+	typename forest<keyT>::treesIterator end = f.getTreesIteratorEnd();
 
 	while (it != end) {
 	

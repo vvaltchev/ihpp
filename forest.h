@@ -6,29 +6,29 @@
 
 namespace kCCFLib { 
 
-template <typename keyT, typename valueT>
+template <typename keyT>
 class forest {
 
-	kNodeChildrenContainer< keyT, node<keyT,valueT> > trees;
-	static void _joinChildren(forest<keyT, valueT> &res, node<keyT, valueT> &t1, node<keyT, valueT> &t2);
+	kNodeChildrenContainer< keyT, node<keyT> > trees;
+	static void _joinChildren(forest<keyT> &res, node<keyT>  &t1, node<keyT>  &t2);
 
 public:
 	
-	static forest<keyT, valueT> join(node<keyT, valueT> &t1, node<keyT, valueT> &t2);
-	static forest<keyT, valueT> join(forest<keyT, valueT> &f1, forest<keyT, valueT> &f2);
-	static forest<keyT, valueT> join(forest<keyT, valueT> &f1, node<keyT, valueT> &t2);
+	static forest<keyT> join(node<keyT>  &t1, node<keyT>  &t2);
+	static forest<keyT> join(forest<keyT> &f1, forest<keyT> &f2);
+	static forest<keyT> join(forest<keyT> &f1, node<keyT>  &t2);
 
-	typedef typename kNodeChildrenContainer< keyT, node<keyT,valueT> >::iterator treesIterator;
+	typedef typename kNodeChildrenContainer< keyT, node<keyT>  >::iterator treesIterator;
 
 	forest();
 	forest(const forest &f);
-	forest(node<keyT,valueT> n);
+	forest(node<keyT>  n);
 
-	node<keyT,valueT>* getTreeRef(keyT k);
-	node<keyT,valueT>* toTree();
+	node<keyT> * getTreeRef(keyT k);
+	node<keyT> * toTree();
 
-	inline node<keyT,valueT>* addTree(node<keyT,valueT> &n);
-	node<keyT,valueT>* addTreeByVal(node<keyT,valueT> n) { return addTree(n); }
+	inline node<keyT> * addTree(node<keyT>  &n);
+	node<keyT> * addTreeByVal(node<keyT>  n) { return addTree(n); }
 
 	treesIterator getTreesIteratorBegin() { return treesIterator(trees.begin()); }
 	treesIterator getTreesIteratorEnd() { return treesIterator(trees.end()); }
@@ -38,36 +38,36 @@ public:
 
 	void autoSetParents();
 
-	forest<keyT, valueT> inverseK(unsigned int k);
-	forest<keyT, valueT> join(forest<keyT, valueT> &f2) { return join(*this, f2); }
-	forest<keyT, valueT> joinByVal(forest<keyT, valueT> f2) { return join(*this, f2); }
-	forest<keyT, valueT> join(node<keyT, valueT> &t2) { return join(*this, t2); }
-	forest<keyT, valueT> joinByVal(node<keyT, valueT> t2) { return join(*this, t2); }
+	forest<keyT> inverseK(unsigned int k);
+	forest<keyT> join(forest<keyT> &f2) { return join(*this, f2); }
+	forest<keyT> joinByVal(forest<keyT> f2) { return join(*this, f2); }
+	forest<keyT> join(node<keyT>  &t2) { return join(*this, t2); }
+	forest<keyT> joinByVal(node<keyT>  t2) { return join(*this, t2); }
 
-	inline forest<keyT,valueT> &operator=(forest<keyT,valueT> f);
+	inline forest<keyT> &operator=(forest<keyT> f);
 };
 
 
-template <typename keyT, typename valueT>
-inline forest<keyT,valueT>::forest() { }
+template <typename keyT>
+inline forest<keyT>::forest() { }
 
-template <typename keyT, typename valueT>
-inline forest<keyT,valueT>::forest(const forest<keyT,valueT> &f) { 
+template <typename keyT>
+inline forest<keyT>::forest(const forest<keyT> &f) { 
 
 	trees = f.trees;
 	BM_inc_forests_copied();
 }
 
-template <typename keyT, typename valueT>
-inline forest<keyT,valueT>::forest(node<keyT,valueT> n) { 
+template <typename keyT>
+inline forest<keyT>::forest(node<keyT>  n) { 
 
 	addTree(n); 
 
 	BM_inc_forests_copied();
 }
 
-template <typename keyT, typename valueT>
-inline forest<keyT,valueT> &forest<keyT,valueT>::operator=(forest<keyT,valueT> f) {
+template <typename keyT>
+inline forest<keyT> &forest<keyT>::operator=(forest<keyT> f) {
 
 	trees=f.trees;
 
@@ -77,16 +77,16 @@ inline forest<keyT,valueT> &forest<keyT,valueT>::operator=(forest<keyT,valueT> f
 }
 
 
-template <typename keyT, typename valueT>
-inline node<keyT,valueT>* forest<keyT,valueT>::addTree(node<keyT,valueT> &n) { 
+template <typename keyT>
+inline node<keyT>* forest<keyT>::addTree(node<keyT>  &n) { 
 
 	assert(!getTreeRef(n.getKey()));
 	
 	return &trees.insert(n.getKey(), n); 
 }
 
-template <typename keyT, typename valueT>
-size_t forest<keyT,valueT>::recursiveAllNodesCount() {
+template <typename keyT>
+size_t forest<keyT>::recursiveAllNodesCount() {
 
 	treesIterator it;
 	size_t count=0;
@@ -97,8 +97,8 @@ size_t forest<keyT,valueT>::recursiveAllNodesCount() {
 	return count;
 }
 
-template <typename keyT, typename valueT>
-inline node<keyT,valueT>* forest<keyT,valueT>::getTreeRef(keyT k) {
+template <typename keyT>
+inline node<keyT>* forest<keyT>::getTreeRef(keyT k) {
 
 	treesIterator it;
 
@@ -110,16 +110,16 @@ inline node<keyT,valueT>* forest<keyT,valueT>::getTreeRef(keyT k) {
 	return 0;
 }
 
-template <typename keyT, typename valueT>
-node<keyT,valueT>* forest<keyT, valueT>::toTree() {
+template <typename keyT>
+node<keyT>* forest<keyT>::toTree() {
 
 	assert(treesCount() == 1);
 
 	return &(*getTreesIteratorBegin());
 }
 
-template <typename keyT, typename valueT>
-void forest<keyT, valueT>::autoSetParents() {
+template <typename keyT>
+void forest<keyT>::autoSetParents() {
 
 	treesIterator it;
 	
@@ -130,14 +130,14 @@ void forest<keyT, valueT>::autoSetParents() {
 
 
 
-template <typename keyT, typename valueT>
-void forest<keyT, valueT>::
-	_joinChildren(forest<keyT, valueT> &res, node<keyT, valueT> &t1, node<keyT, valueT> &t2) {
+template <typename keyT>
+void forest<keyT>::
+	_joinChildren(forest<keyT> &res, node<keyT>  &t1, node<keyT>  &t2) {
 
-	node<keyT, valueT> *root;
-	node<keyT, valueT> *t2Node;
+	node<keyT>  *root;
+	node<keyT>  *t2Node;
 
-	typename node<keyT, valueT>::nodesIterator it;
+	typename node<keyT> ::nodesIterator it;
 
 	root = res.getTreeRef(t1.getKey());
 
@@ -155,11 +155,11 @@ void forest<keyT, valueT>::
 }
 
 
-template <typename keyT, typename valueT>
-forest<keyT, valueT> forest<keyT, valueT>::join(node<keyT, valueT> &t1, node<keyT, valueT> &t2) {
+template <typename keyT>
+forest<keyT> forest<keyT>::join(node<keyT> &t1, node<keyT> &t2) {
 
-	forest<keyT, valueT> res;
-	node<keyT, valueT> *n;
+	forest<keyT> res;
+	node<keyT>  *n;
 
 	if (t1.getKey() != t2.getKey()) {
 	
@@ -180,12 +180,12 @@ forest<keyT, valueT> forest<keyT, valueT>::join(node<keyT, valueT> &t1, node<key
 	return res;
 }
 
-template <typename keyT, typename valueT>
-forest<keyT, valueT> forest<keyT, valueT>::join(forest<keyT, valueT> &f1, forest<keyT, valueT> &f2) {
+template <typename keyT>
+forest<keyT> forest<keyT>::join(forest<keyT> &f1, forest<keyT> &f2) {
 
-	forest<keyT, valueT> res;
-	typename forest<keyT, valueT>::treesIterator it;
-	node<keyT, valueT> *n2;
+	forest<keyT> res;
+	typename forest<keyT>::treesIterator it;
+	node<keyT>  *n2;
 
 
 	for (it=f1.getTreesIteratorBegin(); it != f1.getTreesIteratorEnd(); it++) {
@@ -216,11 +216,11 @@ forest<keyT, valueT> forest<keyT, valueT>::join(forest<keyT, valueT> &f1, forest
 	return res;
 }
 
-template <typename keyT, typename valueT>
-forest<keyT, valueT> forest<keyT, valueT>::join(forest<keyT, valueT> &f1, node<keyT, valueT> &t2) {
+template <typename keyT>
+forest<keyT> forest<keyT>::join(forest<keyT> &f1, node<keyT>  &t2) {
 
-	forest<keyT, valueT> res;
-	typename forest<keyT, valueT>::treesIterator it;
+	forest<keyT> res;
+	typename forest<keyT>::treesIterator it;
 
 	for (it=f1.getTreesIteratorBegin(); it != f1.getTreesIteratorEnd(); it++) {
 	
@@ -239,13 +239,13 @@ forest<keyT, valueT> forest<keyT, valueT>::join(forest<keyT, valueT> &f1, node<k
 	return res;
 }
 
-template <typename keyT, typename valueT>
-forest<keyT, valueT> forest<keyT, valueT>::inverseK(unsigned int k) {
+template <typename keyT>
+forest<keyT> forest<keyT>::inverseK(unsigned int k) {
 
 	treesIterator it;
-	forest<keyT, valueT> res;
-	vector< node<keyT, valueT>* > tmp;
-	typename vector< node<keyT, valueT>* >::iterator it2;
+	forest<keyT> res;
+	vector< node<keyT> * > tmp;
+	typename vector< node<keyT> * >::iterator it2;
 	
 	size_t i=1;
 	size_t count = recursiveAllNodesCount();
