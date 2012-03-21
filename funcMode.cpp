@@ -113,7 +113,7 @@ before_ret:
 	
 		ctx->forwardJmpHappened=false;
 		ctx->shadowStack.top().fjmps = ctx->lastfjmps+1;
-		cerr << "FUNC_MODE: current func has " << ctx->lastfjmps+1 << " fjmps!\n";
+		dbg_functr_fjmps_set();
 	}
 
 #endif

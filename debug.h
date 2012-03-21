@@ -56,6 +56,8 @@
 	#define dbg_brcall_tracejmp()				if (ctx->jumpTargetFuncAddr != targetFuncAddr) \
 													cerr << "INS: current func: " << currentFuncName << ", setting jump to: " << targetFuncName << endl;
 
+	#define dbg_brcall_fjmp_found1()			cerr << "INS: [cod9] found FORWARD jmp" << endl;
+	#define dbg_brcall_fjmp_found2()			cerr << "INS: [cod9] can't pop, but record FORWARD jmp" << endl;
 #else
 
 	#define dbg_brcall_jmp()					
@@ -63,7 +65,9 @@
 	#define dbg_brcall_ifret()					
 	#define dbg_brcall_keepoldjumpaddr()		
 	#define dbg_brcall_subcall()				
-	#define dbg_brcall_tracejmp()				
+	#define dbg_brcall_tracejmp()	
+	#define dbg_brcall_fjmp_found1()
+	#define dbg_brcall_fjmp_found2()
 
 #endif
 
@@ -87,6 +91,7 @@
 
 	#define dbg_functr_regsp_gt()					cerr << "FUNC_MODE: reg_sp >= topstackptr [cod4]\n";
 	#define dbg_functr_pop()						cerr << "FUNC_MODE: pop()\n";
+	#define dbg_functr_fjmps_set()					cerr << "FUNC_MODE: current func has " << ctx->lastfjmps+1 << " fjmps!\n";
 
 #else
 
@@ -94,6 +99,7 @@
 	#define dbg_functr_stackptr()
 	#define dbg_functr_regsp_gt()					
 	#define dbg_functr_pop()						
+	#define dbg_functr_fjmps_set()
 
 #endif
 
