@@ -1,4 +1,6 @@
 
+*.s
+*.asm
 *.exe
 *.cod
 *.ilk

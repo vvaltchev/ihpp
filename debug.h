@@ -117,7 +117,7 @@
 
 #if DEBUG && DEBUG_TRAD_TRACE
 
-	#define dbg_tradtr_begin()						cerr << "\nTRAD_MODE: tracing block: " << *bb << endl; \
+	#define dbg_tradtr_begin()						cerr << "\nTRAD_MODE: tracing block: " << *bb << ", addr: 0x" << hex << (void*)bb->blockAddress() << dec << endl; \
 													cerr << "TRAD_MODE: reg_sp = " << reg_sp << endl;
 	
 	#define dbg_tradtr_nlog_skip()					cerr << "\nTRAD_MODE: SKIPPING block: " << *bb << endl;
