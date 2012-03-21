@@ -117,6 +117,8 @@ before_ret:
 	}
 
 #endif
+
+	return;
 }
 
 
