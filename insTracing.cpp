@@ -164,7 +164,9 @@ void branchOrCall(kCCFContextClass *globalCtx, ADDRINT insAddr, ADDRINT targetAd
 			
 			if (ctx->shadowStack.size() > 1) {
 				
-#if INS_JMP_OUTSIDE_FUNC_PARENTS_CHECK
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
+
+				bool found=false;
 
 				for (size_t i=1; i < ctx->shadowStack.size(); i++) {
 
@@ -172,10 +174,18 @@ void branchOrCall(kCCFContextClass *globalCtx, ADDRINT insAddr, ADDRINT targetAd
 					
 					if (targetFuncAddr == beforeLastTop) {
 				
+						found=true;
 						ctx->popShadowStack();
 						break;
 					} 
 
+				}
+
+				if (!found) {
+					cerr << "INS: [cod9] found FORWARD jmp" << endl;
+					ctx->forwardJmpHappened=true;
+					ctx->fjmpsFuncAddr=targetFuncAddr;
+					ctx->lastfjmps = ctx->shadowStack.top().fjmps;
 				}
 #else
 
@@ -185,6 +195,12 @@ void branchOrCall(kCCFContextClass *globalCtx, ADDRINT insAddr, ADDRINT targetAd
 				
 			} else {
 
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
+				cerr << "INS: [cod9] can't pop, but record FORWARD jmp" << endl;
+				ctx->forwardJmpHappened=true;
+				ctx->fjmpsFuncAddr=targetFuncAddr;
+				ctx->lastfjmps = ctx->shadowStack.top().fjmps;
+#endif				
 				dbg_brcall_cantpop();
 			}
 
@@ -198,6 +214,8 @@ void branchOrCall(kCCFContextClass *globalCtx, ADDRINT insAddr, ADDRINT targetAd
 		dbg_brcall_keepoldjumpaddr();
 
 		ctx->jumpTargetFuncAddr = ctx->lastJumpTargetFuncAddr;
+		
+		cerr << "INS: branchOrCall END" << endl;
 		return;
 	}
 
@@ -214,6 +232,9 @@ void branchOrCall(kCCFContextClass *globalCtx, ADDRINT insAddr, ADDRINT targetAd
 		ctx->lastJumpTargetFuncAddr = ctx->jumpTargetFuncAddr;
 		ctx->jumpTargetFuncAddr = targetFuncAddr;
 	}
+
+
+	cerr << "INS: branchOrCall END" << endl;
 }
 
 #endif

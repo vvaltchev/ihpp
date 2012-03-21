@@ -33,8 +33,8 @@ public:
 
 	void push(T val) { _data.push_back(val); }
 	void pop() { _data.pop_back(); }
-	T top() { return _data.back(); }
-	T top(size_t i) { return _data.at(_data.size()-1-i); }
+	T& top() { return _data.back(); }
+	T& top(size_t i) { return _data.at(_data.size()-1-i); }
 	size_t size() { return _data.size(); }
 };
 

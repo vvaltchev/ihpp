@@ -104,6 +104,7 @@
 	#define dbg_funcret_pop()						cerr << "FUNC_MODE: RETURN -> pop()\n";
 	#define dbg_funcret_stack_after_pop()			cerr << "FUNC_MODE: stack size after pop() = " << ctx->shadowStack.size() << endl;
 	#define dbg_funcret_new_call()					if (!ctx->shadowStack.size()) cerr << "LAST RETURN, next call will be a NEW CALL\n";
+	#define dbg_funcret_fjmps()						if (ctx->shadowStack.top().fjmps) cerr << "FUNC RET: [cod10], fjmps: " << ctx->shadowStack.top().fjmps << endl;
 
 #else
 
@@ -112,6 +113,7 @@
 	#define dbg_funcret_pop()
 	#define dbg_funcret_stack_after_pop()
 	#define dbg_funcret_new_call()
+	#define dbg_funcret_fjmps()
 
 #endif
 

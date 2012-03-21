@@ -62,6 +62,7 @@ VOID FunctionObjTrace(FunctionObj *fc, kCCFContextClass *globalCtx, ADDRINT reg_
 		globalCtx->exitPassed=true;
 
 
+
 #if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT
 
 	win32_main_alignment(ctx, fc);
@@ -93,7 +94,7 @@ VOID FunctionObjTrace(FunctionObj *fc, kCCFContextClass *globalCtx, ADDRINT reg_
 		FUNCMODE_STORE_TOP_BOTTOM((ADDRINT)-1);
 		treeTop->incCounter();
 
-		return;
+		goto before_ret;
 	}
 
 	if (globalCtx->showCalls)
@@ -103,6 +104,19 @@ VOID FunctionObjTrace(FunctionObj *fc, kCCFContextClass *globalCtx, ADDRINT reg_
 	
 	FUNCMODE_STORE_TOP_BOTTOM(reg_sp);
 
+
+before_ret:
+
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
+	
+	if (ctx->forwardJmpHappened && ctx->fjmpsFuncAddr == fc->functionAddress()) {
+	
+		ctx->forwardJmpHappened=false;
+		ctx->shadowStack.top().fjmps = ctx->lastfjmps+1;
+		cerr << "FUNC_MODE: current func has " << ctx->lastfjmps+1 << " fjmps!\n";
+	}
+
+#endif
 }
 
 
@@ -118,6 +132,23 @@ void PIN_FAST_ANALYSIS_CALL funcMode_ret(kCCFContextClass *globalCtx)
 	dbg_funcret_name();
 		
 	assert( ctx->shadowStack.size() || globalCtx->exitPassed );
+
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
+	
+	dbg_funcret_fjmps();
+
+	while (ctx->shadowStack.top().fjmps--) 
+	{
+		if (ctx->shadowStack.size() <= 1)
+			break;
+
+		ctx->shadowStack.pop();
+
+		if (globalCtx->WorkingMode == TradMode)
+			tradMode_ret(globalCtx);
+	}
+
+#endif
 
 	if (ctx->shadowStack.size() == 1) {
 		

@@ -18,7 +18,21 @@ public:
 	kCCFNode *treeBottom;
 	ADDRINT stackPtr;
 
-	ShadowStackType(kCCFNode *t, kCCFNode *b, ADDRINT ptr) : treeTop(t), treeBottom(b), stackPtr(ptr) { }
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
+
+	unsigned int fjmps;
+
+#endif
+
+	ShadowStackType(kCCFNode *t, kCCFNode *b, ADDRINT ptr) : treeTop(t), treeBottom(b), stackPtr(ptr) 
+	{ 
+
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
+
+		fjmps=0;
+#endif
+
+	}
 };
 
 class kCCFAbstractContext: public BenchmarkObj {
@@ -83,6 +97,12 @@ public:
 	int __tmainCRTStartup_stack_size; 
 #endif
 	
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
+	bool forwardJmpHappened;
+	unsigned int lastfjmps;
+	ADDRINT fjmpsFuncAddr;
+#endif
+
 	bool haveToTrace;
 
 	ADDRINT startFuncAddr;
@@ -128,6 +148,12 @@ inline kCCFThreadContextClass::kCCFThreadContextClass(PIN_THREAD_UID tid, ADDRIN
 		jumpTargetFuncAddr=0;
 		lastJumpTargetFuncAddr=0; 
 		haveToJump=false; 
+#endif
+
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
+		forwardJmpHappened=false;
+		lastfjmps=0;
+		fjmpsFuncAddr=0;
 #endif
 
 		kCCFThreadContextClass::startFuncAddr = startFuncAddr;

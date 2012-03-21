@@ -37,7 +37,7 @@ public:
 
 	node(); 
 	node(const node& n);
-	node(keyT key, kObjectWithKey<keyT>* val, unsigned int counter=0);
+	node(keyT key, kObjectWithKey<keyT>* val, size_t counter=0);
 	~node();
 	
 	node<keyT>* getChildRef(keyT k);
@@ -63,8 +63,8 @@ public:
 	nodesIterator getNodesIteratorEnd() { return nodesIterator(children.end()); }	
 
 	void incCounter() { counter++; }
-	unsigned int getCounter() { return counter; }
-	void setCounter(unsigned int c) { counter=c; }
+	size_t getCounter() { return counter; }
+	void setCounter(size_t c) { counter=c; }
 
 	node<keyT> kpath(unsigned int k);
 	node<keyT> kpathR(unsigned int k);
@@ -116,7 +116,7 @@ inline node<keyT>::node() {
 }
 
 template <typename keyT>
-inline node<keyT>::node(keyT key, kObjectWithKey<keyT>* val, unsigned int counter) {
+inline node<keyT>::node(keyT key, kObjectWithKey<keyT>* val, size_t counter) {
 
 	this->val=val;
 	this->counter=counter;
@@ -196,7 +196,7 @@ node<keyT> node<keyT>::kpathR(unsigned int k) {
 
 	node res;
 	node *curr,*ptr;
-	unsigned int i=0;
+	size_t i=0;
 	
 	if (!k)
 		return node(getKey(),val,counter);

@@ -92,7 +92,7 @@ void branch(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRI
 			if (ctx->shadowStack.size() > 1) {
 				
 				
-#if INS_JMP_OUTSIDE_FUNC_PARENTS_CHECK
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
 
 				for (size_t i=1; i < ctx->shadowStack.size(); i++) {
 
