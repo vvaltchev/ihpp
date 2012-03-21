@@ -53,6 +53,7 @@ public:
 	INT32 firstLine;
 	INT32 firstCh;
 
+	vector<string> instructions;
 
 	BasicBlock(ADDRINT ptr, FunctionObj *funcPtr, INT32 line, INT32 col) 
 		: TracingObject<ADDRINT>(ptr), functionPtr(funcPtr), firstLine(line), firstCh(col) 

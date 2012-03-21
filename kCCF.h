@@ -35,6 +35,7 @@ public:
 	bool showBlocks;
 	bool showCalls;
 	bool purgeFuncs;
+	bool disasm;
 
 	optionsClass() 
 	{
@@ -47,6 +48,7 @@ public:
 		showBlocks=false;
 		showCalls=false;
 		purgeFuncs=false;	
+		disasm=false;
 	}
 };
 

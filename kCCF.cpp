@@ -323,6 +323,26 @@ VOID BlockTraceInstrumentation(TRACE trace, void *arg)
 			bb = new BasicBlock(blockPtr, ctx->allFuncs.find(funcAddr)->second, row, col); 
 			ctx->allBlocks[blockPtr]=bb;
 
+			if (ctx->disasm) 
+			{
+				for( INS ins = BBL_InsHead(bbl); INS_Valid(ins); ins = INS_Next(ins) )
+				{
+					if (INS_IsDirectCall(ins)) {
+				
+						ADDRINT addr = INS_DirectBranchOrCallTargetAddress(ins);
+						RTN r = RTN_FindByAddress(addr);
+					
+						if (RTN_Valid(r)) {
+						
+							bb->instructions.push_back("call "+RTN_Name(r));
+							continue;	
+						}
+					}
+
+					bb->instructions.push_back(INS_Disassemble(ins));
+				}
+			}
+
 		} else {
 				
 			bb = it->second;

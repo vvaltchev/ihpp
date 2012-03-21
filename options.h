@@ -27,6 +27,7 @@ KNOB<bool> blockMode(KNOB_MODE_WRITEONCE, "pintool", "blockMode", "0", "");
 KNOB<bool> tradMode(KNOB_MODE_WRITEONCE, "pintool", "tradMode", "0", "");
 KNOB<bool> joinThreads(KNOB_MODE_WRITEONCE, "pintool", "joinThreads", "0", "");
 KNOB<bool> rollLoops(KNOB_MODE_WRITEONCE, "pintool", "rollLoops", "0", "");
+KNOB<bool> disasm(KNOB_MODE_WRITEONCE, "pintool", "disasm", "0", "");
 
 KNOB<string> startFunc(KNOB_MODE_WRITEONCE, "pintool", "startFunc", "-none-", "");
 KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "-none-", "");
@@ -46,6 +47,7 @@ void setOptions()
 	globalSharedContext->showFuncs = showFuncs.Value();
 	globalSharedContext->showBlocks = showBlocks.Value();
 	globalSharedContext->showCalls = showCalls.Value();
+	globalSharedContext->disasm = disasm.Value();
 }
 
 
@@ -69,6 +71,7 @@ void showHelp()
 	cout << "\t-kccf: shows the k-Calling Context Forest" << endl;
 	cout << "\t-showFuncs: shows function's list" << endl;
 	cout << "\t-showBlocks: shows block's list" << endl;
+	cout << "\t-disasm: shows disassembly in the section 'All basic blocks'" << endl;
 
 	cout << "\nOther options:\n";
 	cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
@@ -94,6 +97,12 @@ bool checkOptions()
 		return false;
 	} 
 
+
+	if (disasm.Value() && !showBlocks.Value()) {
+	
+		cerr << "-disasm option only applicable with -showBlocks option." << endl;
+		return false;
+	}
 
 #ifdef _WIN32
 	

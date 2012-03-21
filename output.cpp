@@ -310,15 +310,51 @@ VOID Fini(INT32 code, VOID *v)
 
 		while (it != end) {
 	
-			BasicBlock bb = *it->second;
+			BasicBlock& bb = *it->second;
 
 			ctx->OutFile << "block: ";
 			ctx->OutFile.width(maxLen+12);
 			ctx->OutFile << left << bb;
 			ctx->OutFile << " addr: 0x";
 			ctx->OutFile << hex << (void*)bb.getKey() << dec; 
-			ctx->OutFile << " simpleCounter: " << bb.getSimpleCounter() << endl;
-			
+			ctx->OutFile << " simpleCounter: " << bb.getSimpleCounter();
+
+			if (ctx->disasm)
+			{
+				ctx->OutFile << "\tDisassembly: \n";
+				for (vector<string>::iterator it2 = bb.instructions.begin(); it2 != bb.instructions.end(); it2++) 
+				{
+					string ins = *it2;
+
+					if (ins[0] == 'j') {
+
+						size_t space_ch;
+						for (space_ch=0; space_ch < ins.size(); space_ch++)
+							if (ins[space_ch] == ' ')
+								break;
+					
+						if (space_ch != ins.size()) {
+					
+						
+							string ins_name = ins.substr(0, space_ch);
+							string ins_jaddr = ins.substr(space_ch+1);
+							ADDRINT addr = strtoul(ins_jaddr.c_str(), 0, 16);
+							BlocksMapIt it3 = ctx->allBlocks.find(addr);
+
+							if (it3 != ctx->allBlocks.end())
+								ins = ins_name + " " + (string)*it3->second;
+						
+						}
+					}
+
+					ctx->OutFile.width(maxLen+12);
+					ctx->OutFile << "\t\t\t\t\t\t\t\t" << ins << endl;
+				}
+
+				ctx->OutFile << endl;
+			}
+
+			ctx->OutFile << endl;
 
 			it++;
 		}
@@ -333,7 +369,7 @@ VOID Fini(INT32 code, VOID *v)
 
 		for (FuncsMapIt it = ctx->allFuncs.begin(); it != ctx->allFuncs.end(); it++) {
 		
-			FunctionObj fc = *it->second;
+			FunctionObj& fc = *it->second;
 			
 			ctx->OutFile << "function: ";
 			ctx->OutFile.width(maxFuncLen+4);
