@@ -44,7 +44,7 @@ int main() {
 
 	int i;
 
-	for (i=0; i < 1000000; i++) {
+	for (i=0; i < 100*1000; i++) {
     int v[] = { 5, 2, 4, 8, 5, 8, 3, 2, 9, 0, 12, 4, 25, 5, 6};
     int n = sizeof(v)/sizeof(int), i;
  //   print(v, n, "unsorted array");    

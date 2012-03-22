@@ -1,0 +1,118 @@
+
+linux kccf options:
+only stack pointer CHECK
+no asserts, no debug
+
+
+linux 32 bit (VirtualBox VIRTUAL MACHINE over Windows 7 host) //don't look times, only slowdown
+
+quicksort -O0, kccf in funcMode [ 100K quicksort iterations ]
+
+command:
+
+
+time ../../../../pin -t kCCF.so -funcMode -f partition -f quick_sort_ric -f main -f quick_sort -ksf -k 1000000000 -- ../tests/quick_sort
+
+
+orig:
+
+real	0m0.071s
+user	0m0.056s
+sys	0m0.004s
+
+
+kccf:
+
+real	0m2.529s
+user	0m2.172s
+sys	0m0.320s
+
+real time slowdown: 35.6x
+user time slowdown: 38.8x
+
+
+----------------------
+
+quick_sort compiled with -g, and kccf in tradmode, with infinite K and -rollLoops:
+
+command:
+time ../../../../pin -t kCCF.so -tradMode -f partition -f quick_sort_ric -f main -f quick_sort -ksf -k 1000000000 -rollLoops -- ../tests/quick_sort
+
+orig: 
+
+real	0m0.070s
+user	0m0.052s
+sys	0m0.004s
+
+kccf: 
+
+real	0m13.384s
+user	0m12.809s
+sys	0m0.416s
+
+real time slowdown: 191.2x
+user time slowdown: 246.3x
+
+
+tradmode/funcMode slowdown: 5.9x
+
+==========================================================================
+
+Win32 (Windows 7)
+
+kccf config:
+
+no rely on stack ptr check
+ins_tracing [slow]
+subcall_check [slow]
+forward jmp recognition [very slow]
+
+quicksort compiled with cl /Zi
+
+time misured with wintime (program in tests)
+
+FUNC MODE:
+
+command: 
+
+..\..\..\..\pin -t kCCF.so -funcMode -f partition -f quick_sort_ric -f main -f quick_sort -ksf -k 1000000000 -- ..\tests\quick_sort
+
+
+orig: 0.078 s
+
+kccf: 80.42
+
+
+slowdown: 1031x
+
+
+kccf config:
+
+only ins_tracing [slow versus stackptr check]
+
+same command.
+
+kccf: 79.7
+
+slowdown: 1021x
+
+
+kccf config:
+NO CHECKS [fast, but don't recognize longjmps]
+
+kccf: 1.388 s
+
+slowdown: 17.8x [faster than linux!]
+
+TRAD MODE:
+
+NO CHECKS [fast]
+
+command:
+..\..\..\..\ia32\bin\pin -t kCCF.dll -tradMode -f partition -f quick_sort_ric -f main -f quick_sort -ksf -k 1000000000 -rollLoops -- ..\tests\quick_sort
+
+kccf: 12.293 s
+
+slowdown: 157.6x
+
+tradmode/funcmode slowdown: 8.9x

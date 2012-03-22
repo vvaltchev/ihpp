@@ -28,6 +28,8 @@ KNOB<bool> tradMode(KNOB_MODE_WRITEONCE, "pintool", "tradMode", "0", "");
 KNOB<bool> joinThreads(KNOB_MODE_WRITEONCE, "pintool", "joinThreads", "0", "");
 KNOB<bool> rollLoops(KNOB_MODE_WRITEONCE, "pintool", "rollLoops", "0", "");
 KNOB<bool> disasm(KNOB_MODE_WRITEONCE, "pintool", "disasm", "0", "");
+KNOB<bool> kinf(KNOB_MODE_WRITEONCE, "pintool", "kinf", "0", "");
+
 
 KNOB<string> startFunc(KNOB_MODE_WRITEONCE, "pintool", "startFunc", "-none-", "");
 KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "-none-", "");
@@ -48,6 +50,7 @@ void setOptions()
 	globalSharedContext->showBlocks = showBlocks.Value();
 	globalSharedContext->showCalls = showCalls.Value();
 	globalSharedContext->disasm = disasm.Value();
+	globalSharedContext->kinf = kinf.Value();
 }
 
 
@@ -59,7 +62,7 @@ void showHelp()
 	cout << "k-Calling Context Forest profiling pintool\n" << endl;
 	cout << "-------------------------------------------\n" << endl;
 	cout << "Syntax: <PIN> -t " << KCCF_LIB_FILE << " <WORKING MODE> [ -f <func1> [-f <func2> [...]] ]\n"; 
-	cout << "\t\t\t[ -k <K_VALUE> ] [-outfile <FILE>] <SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
+	cout << "\t\t\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] <SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
 	
 	cout << "\nWorking modes: " << endl;
 	cout << "\t -funcMode" << endl;
@@ -110,7 +113,7 @@ bool checkOptions()
 	
 		cerr << "Under Windows systems full tracing is an experimental feature:" << endl;
 		cerr << "results MAY BE WRONG. To try it, use -experimental option." << endl;
-		cerr << "Tip: with -purge option, sometimes results can be better.\n" << endl;
+		cerr << "Tip: combined with -startFunc <func> (es. main) and -stopFunc <func> (es. exit) may produce better results.\n" << endl;
 		return false;
 	}
 #endif
