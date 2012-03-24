@@ -1,24 +1,24 @@
 /*
 	============================================================================
 
-				k-Calling Context Forest profiling pintool
+		k-Calling Context Forest profiling pintool
 
-				Author: Vladislav K. Valtchev (vladi32@gmail.com)
-				Date: March, 2012
+		Author: Vladislav K. Valtchev (vladi32@gmail.com)
+		Date: March, 2012
 
-				Based on the research of: 
-					Giorgio Ausiello (ausiello@dis.uniroma1.it)
-					Camil Demetrescu (demetres@dis.uniroma1.it)
-					Irene Finocchi (finocchi@di.uniroma1.it)
-					Donatella Firmani (firmani@dis.uniroma1.it)
+		Based on the research of: 
+			Giorgio Ausiello (ausiello@dis.uniroma1.it)
+			Camil Demetrescu (demetres@dis.uniroma1.it)
+			Irene Finocchi (finocchi@di.uniroma1.it)
+			Donatella Firmani (firmani@dis.uniroma1.it)
 	
-				Sapienza University of Rome
+		Sapienza University of Rome
 
 
     ============================================================================
 
-					   GNU LESSER GENERAL PUBLIC LICENSE
-						   Version 3, 29 June 2007
+			GNU LESSER GENERAL PUBLIC LICENSE
+				Version 3, 29 June 2007
 
 	 Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
 	 Everyone is permitted to copy and distribute verbatim copies
