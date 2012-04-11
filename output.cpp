@@ -235,8 +235,13 @@ VOID Fini(INT32 code, VOID *v)
 	ctx->OutFile << endl << endl << endl;
 
 	ctx->OutFile << "Size of a node: " << sizeof(kCCFNode) << endl;
-	ctx->OutFile << "K value: " << ctx->K_CCF_VAL << endl;
 	
+	if (!ctx->kinf) {
+		ctx->OutFile << "K value: " << ctx->K_CCF_VAL << endl;
+	} else {
+		ctx->OutFile << "K value: INFINITE" << endl;
+	}
+
 	if (ctx->WorkingMode != FuncMode) {
 	
 		ctx->OutFile << "Basic blocks count: " << ctx->allBlocks.size() << endl;
