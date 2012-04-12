@@ -1,0 +1,34 @@
+
+\documentclass[a4paper,11pt]{report}
+
+\author{Vladislav K. Valtchev} 
+\title{k-Calling Context Profiling Pintool}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage[italian]{babel}
+
+\pagestyle{headings}
+
+\begin{document}
+
+\maketitle
+
+\chapter{Introduzione}
+\section{Le prestazioni di un software}
+
+Ci sono diversi modi per analizzare le prestazioni di un programma software perché naturalmente
+esistono diverse angolazioni dalle quali è possibile osservare il problema stesso: 
+c'è la quantità di memoria utilizzata (picco, massima, minima, media), la quantità 
+di scritture/letture su disco, il numero di operazioni di rete, ma sicuramente
+al primo posto c'è la misurazione del \textbf{tempo di esecuzione}. 
+Esso in qualche modo riassume tutti gli indici prestazionali di un software: 
+se un programma svolge un lavoro in un tempo che, relativamente alla nostra percezione umana,
+sembra buono, spesso ci sentiamo abbastanza soddisfatti e proseguiamo lavorando su altro.
+Questo modo di procedere sempre più spesso porta alla produzione di cattivo codice: l'aumento esponenziale della potenza delle CPU permette sempre più al "cattivo codice" di passare 
+inosservato. Ad esempio, una operazione della durata di 0,1s (tempo CPU) che a noi sembra "veloce" 
+in realtà comporta l'esecuzione di centinaia di milioni di istruzioni; ma il programma aveva 
+veramente il bisogno di eseguirle tutte quante quelle istruzioni oppure poteva essere \emph{ottimizzato}?
+
+\end{document}
