@@ -9,6 +9,8 @@
 
 \usepackage[italian]{babel}
 
+%\fontfamily{Times}
+
 \pagestyle{headings}
 
 \begin{document}
@@ -20,15 +22,22 @@
 
 Ci sono diversi modi per analizzare le prestazioni di un programma software perché naturalmente
 esistono diverse angolazioni dalle quali è possibile osservare il problema stesso: 
-c'è la quantità di memoria utilizzata (picco, massima, minima, media), la quantità 
+c'è la quantità di memoria utilizzata (massima, minima, media), la quantità 
 di scritture/letture su disco, il numero di operazioni di rete, ma sicuramente
 al primo posto c'è la misurazione del \textbf{tempo di esecuzione}. 
 Esso in qualche modo riassume tutti gli indici prestazionali di un software: 
-se un programma svolge un lavoro in un tempo che, relativamente alla nostra percezione umana,
-sembra buono, spesso ci sentiamo abbastanza soddisfatti e proseguiamo lavorando su altro.
-Questo modo di procedere sempre più spesso porta alla produzione di cattivo codice: l'aumento esponenziale della potenza delle CPU permette sempre più al "cattivo codice" di passare 
+minore è il tempo di esecuzione, meglio è.
+Il \textit{problema} è che se un programma svolge un lavoro in un tempo che, relativamente alla nostra percezione umana, sembra buono, spesso ci sentiamo abbastanza soddisfatti e proseguiamo lavorando su altro.
+Questo modo di procedere porta alla produzione di \textit{cattivo codice} e l'aumento esponenziale della potenza delle CPU permette sempre più a quest'ultimo di passare 
 inosservato. Ad esempio, una operazione della durata di 0,1s (tempo CPU) che a noi sembra "veloce" 
 in realtà comporta l'esecuzione di centinaia di milioni di istruzioni; ma il programma aveva 
-veramente il bisogno di eseguirle tutte quante quelle istruzioni oppure poteva essere \emph{ottimizzato}?
+veramente il bisogno di eseguirle tutte quante quelle istruzioni oppure poteva essere \textit{ottimizzato}? Un'attenta analisi ci può certamente fornire questa risposta, ma la domanda è: quando ci serve veramente saperlo e soprattutto, \textit{come} condurre questa analisi?  
+
+\subsection{Quando occorre condurre l'analisi}
+
+La risposta non è molto complicata: se un programma svolge uno specifico compito la cui complessità è costante ovvero, detto in termini più formali, la dimensione dell'input non cambia e, il tempo di esecuzione è per noi accettabile, possiamo pensare di trascurare l'analisi delle prestazioni.
+Ciò \underline{non significa} che sia una buona idea non ottimizzare i programmi più semplici, anzi, bisognerebbe farlo perché poi, tanti piccoli programmi, tutti assieme, riescono a rallentare un sistema: il punto è che nel caso di programmi con dimensione dell'input \textit{variabile}, ciò è \underline{strettamente necessario}.
+
+\section{Come analizzare le prestazioni di un software}
 
 \end{document}
