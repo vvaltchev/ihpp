@@ -6,18 +6,51 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-
 \usepackage[italian]{babel}
 
-%\fontfamily{Times}
+\usepackage{hyperref}
+\usepackage{xcolor,graphicx}
+\usepackage{mdwlist}
 
 \pagestyle{headings}
 
 \begin{document}
 
-\maketitle
+\thispagestyle{empty}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{logo}
+\end{figure}
+
+
+\begin{center}
+
+
+{\Large\textsc{Università degli studi di Roma}\\} 
+{\huge\textsc{La Sapienza}\\[10pt]}
+{\huge\textsc{Facoltà di Ingegneria}\\[40pt]} 
+
+{\large Tesi di laurea in: \\}
+{\LARGE\textsc{Ingegneria Informatica}\\[50pt]}
+
+{\large Docente relatore: \\}
+{\large Prof. Camil Demetrescu\\[20pt]}
+
+{\large Autore: \\}
+{\large \textbf{Vladislav K. Valtchev}}
+
+\end{center}
+
 
 \chapter{Introduzione}
+
+Il progetto sviluppato è un profling tool tecnicamente implementato in linguaggio \verb|C++| come plug-in per lo strumento 
+\textbf{Intel Pin}\footnote{\url{http://www.pintool.org/}}.
+Prima di spiegare cosa fa esattamente il software sviluppato e come è stato realizzato,
+è opportuno introdurre brevemente il concetto di prestazioni del software e dei vari modi per misurarle 
+al fine di contestualizzare meglio il lavoro svolto, con la premessa che la trattazione di questi temi non è assolutamente esaustiva.
+
 \section{Le prestazioni di un software}
 
 Ci sono diversi modi per analizzare le prestazioni di un programma software perché naturalmente
@@ -29,15 +62,43 @@ Esso in qualche modo riassume tutti gli indici prestazionali di un software:
 minore è il tempo di esecuzione, meglio è.
 Il \textit{problema} è che se un programma svolge un lavoro in un tempo che, relativamente alla nostra percezione umana, sembra buono, spesso ci sentiamo abbastanza soddisfatti e proseguiamo lavorando su altro.
 Questo modo di procedere porta alla produzione di \textit{cattivo codice} e l'aumento esponenziale della potenza delle CPU permette sempre più a quest'ultimo di passare 
-inosservato. Ad esempio, una operazione della durata di 0,1s (tempo CPU) che a noi sembra "veloce" 
+inosservato. Ad esempio, una operazione della durata di 0,1s (tempo CPU) che a noi sembra ``veloce'' 
 in realtà comporta l'esecuzione di centinaia di milioni di istruzioni; ma il programma aveva 
-veramente il bisogno di eseguirle tutte quante quelle istruzioni oppure poteva essere \textit{ottimizzato}? Un'attenta analisi ci può certamente fornire questa risposta, ma la domanda è: quando ci serve veramente saperlo e soprattutto, \textit{come} condurre questa analisi?  
+veramente il bisogno di eseguirle tutte quante quelle istruzioni oppure poteva essere \textit{ottimizzato}? Un'attenta analisi ci può certamente fornire questa risposta, ma un'altra domanda sorge: quando ci serve veramente saperlo e soprattutto, \textit{come} condurre questa analisi?  
 
 \subsection{Quando occorre condurre l'analisi}
 
 La risposta non è molto complicata: se un programma svolge uno specifico compito la cui complessità è costante ovvero, detto in termini più formali, la dimensione dell'input non cambia e, il tempo di esecuzione è per noi accettabile, possiamo pensare di trascurare l'analisi delle prestazioni.
-Ciò \underline{non significa} che sia una buona idea non ottimizzare i programmi più semplici, anzi, bisognerebbe farlo perché poi, tanti piccoli programmi, tutti assieme, riescono a rallentare un sistema: il punto è che nel caso di programmi con dimensione dell'input \textit{variabile}, ciò è \underline{strettamente necessario}.
+Ciò \textit{non significa} che sia una buona idea non ottimizzare i programmi più semplici, anzi, bisognerebbe farlo perché poi, tanti piccoli programmi, tutti assieme, riescono a rallentare un sistema: il punto è che nel caso di programmi con dimensione dell'input \textit{variabile}, ciò è \textit{strettamente necessario}.
 
 \section{Come analizzare le prestazioni di un software}
+
+L'analisi di un software si divide in due grandi categorie: l'analisi \textit{statica} e quella \textit{dinamica}.
+La differenza fondamentale tra le due categorie è che l'analisi statica viene fatta senza che alcuna parte del programma venga effettivamente eseguita, mentre l'analisi dinamica prevede proprio una esecuzione del programma e una osservazione del suo comportamento quasi in tempo reale. 
+
+\subsection{L'analisi statica}
+L'analisi statica può essere eseguita sia ``a mano'', osservando il codice sorgente del programma e ragionando con carta e penna, sia tramite un altro programma. Essa non viene usata solamente per determinare il costo computazionale di un programma anzi, viene usata principalmente per determinarne la correttezza. Bisognerebbe dire, anche se non è questo il contesto adatto che, sul piano dell'informatica teorica, non è possibile determinare con certezza la correttezza di un qualsiasi programma, a causa del problema della terminazione\footnote{The Halting Problem: \url{http://en.wikipedia.org/wiki/Halting_problem}}. Ad ogni modo, esistono tecniche per fornire soluzioni approssimate con un buon grado di affidabilità. A scopo puramente divulgativo, si possono citare quattro tecniche:
+
+\begin{itemize*}
+\item Model checking
+\item Data-flow analysis
+\item Abstract interpretation
+\item Uso di asserzioni
+\end{itemize*}
+
+\subsection{L'analisi dinamica}
+L'analisi dinamica si conduce eseguendo il programma da analizzare in un ambiente ``controllato''. In generale, il tipo di analisi può essere abbastanza differente e talvolta richiede anche la ricompilazione del programma da analizzare. L'analisi può riguardare aspetti come tracciamento delle allocazioni di memoria, il rilevamento di \textit{race condition}, di corruzione della memoria, di vulnerabilità di sicurezza e, ovviamente, può anche riguardare \textit{l'analisi delle performance}. Quest'ultimo tipo di analisi dynamica è chiamato \textbf{profiling}. Siccome il tool sviluppato rientra in quest'ultima categoria, non si procederà approfondendo ulteriormente il tema dell'analisi dinamica del software in generale.
+
+\section{Il profiling}
+Come accennato nei paragrafi precedenti, il \textit{software profiling} è una forma di analisi dinamica dei programmi che si occupa di misurare le \textit{performance} di un programma in termini di uso della memoria, frequenza di certe istruzioni, frequenza e/o durata di alcune funzioni o \textit{basic block} all'interno di alcune funzioni. I \textit{profiler} si possono suddivedere per tipo di output e per metodo di acquisizione dei dati. \\
+Suddividendo i profiler per tipo di output, otteniamo due categorie:
+
+\begin{description}
+\item[I flat profiler] \hfill \\
+Questo tipo di profiler conta il numero di chiamate a funzione e/o il tempo cpu medio/totale usato da ciascuna funzione senza tenere conto del contesto nel quale una certa funzione è stata invocata.
+\item[I call-graph profiler] \hfill \\
+Quest'altro tipo di profiler si occupa delle stesse cose, ma considerando per ogni chiamata di funzione il contesto nel quale è avventa e quindi produce come output un grafo, per l'appunto il \textit{call-graph}.
+\end{description}
+
 
 \end{document}
