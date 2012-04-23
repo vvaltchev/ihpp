@@ -4,6 +4,7 @@
 \author{Vladislav K. Valtchev} 
 \title{k-Calling Context Profiling Pintool}
 
+
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[italian]{babel}
@@ -11,6 +12,10 @@
 \usepackage{hyperref}
 \usepackage{xcolor,graphicx}
 \usepackage{mdwlist}
+
+%comandi per l'indice analitico
+%\usepackage{makeidx}
+%\makeindex
 
 \pagestyle{headings}
 
@@ -42,8 +47,13 @@
 
 \end{center}
 
+%questo comando serve per creare l'indice analitico
+%\printindex
+
+\tableofcontents
 
 \chapter{Introduzione}
+\index{Introduzione}
 
 Il progetto sviluppato è un profling tool tecnicamente implementato in linguaggio \verb|C++| come plug-in per lo strumento 
 \textbf{Intel Pin}\footnote{\url{http://www.pintool.org/}}.
@@ -87,18 +97,47 @@ L'analisi statica può essere eseguita sia ``a mano'', osservando il codice sorg
 \end{itemize*}
 
 \subsection{L'analisi dinamica}
-L'analisi dinamica si conduce eseguendo il programma da analizzare in un ambiente ``controllato''. In generale, il tipo di analisi può essere abbastanza differente e talvolta richiede anche la ricompilazione del programma da analizzare. L'analisi può riguardare aspetti come tracciamento delle allocazioni di memoria, il rilevamento di \textit{race condition}, di corruzione della memoria, di vulnerabilità di sicurezza e, ovviamente, può anche riguardare \textit{l'analisi delle performance}. Quest'ultimo tipo di analisi dynamica è chiamato \textbf{profiling}. Siccome il tool sviluppato rientra in quest'ultima categoria, non si procederà approfondendo ulteriormente il tema dell'analisi dinamica del software in generale.
+L'analisi dinamica si conduce eseguendo il programma da analizzare in un ambiente ``controllato''. In generale, il tipo di analisi può essere abbastanza differente e talvolta richiede anche la ricompilazione del programma da analizzare. L'analisi può riguardare aspetti come tracciamento delle allocazioni di memoria, il rilevamento di \textit{race condition}, di corruzione della memoria, di vulnerabilità di sicurezza e, ovviamente, può anche riguardare \textit{l'analisi delle performance}. Quest'ultimo tipo di analisi dinamica è chiamato \textbf{profiling}. Siccome il tool sviluppato rientra in quest'ultima categoria, non si procederà approfondendo ulteriormente il tema dell'analisi dinamica del software in generale.
 
 \section{Il profiling}
-Come accennato nei paragrafi precedenti, il \textit{software profiling} è una forma di analisi dinamica dei programmi che si occupa di misurare le \textit{performance} di un programma in termini di uso della memoria, frequenza di certe istruzioni, frequenza e/o durata di alcune funzioni o \textit{basic block} all'interno di alcune funzioni. I \textit{profiler} si possono suddivedere per tipo di output e per metodo di acquisizione dei dati. \\
-Suddividendo i profiler per tipo di output, otteniamo due categorie:
+Come accennato nei paragrafi precedenti, il \textit{software profiling} è una forma di analisi dinamica dei programmi che si occupa di misurare le \textit{performance} di un programma in termini di uso della memoria, frequenza di certe istruzioni, frequenza e\slash o durata di alcune funzioni o \textit{basic block} all'interno di alcune funzioni. Concentrandoci sull'ultimo tipo di \textit{profiler}, possiamo classificare i profiler in due modi: per tipo di output e per metodo di acquisizione dei dati. Suddividendo i profiler per tipo di output, otteniamo due categorie:
 
 \begin{description}
-\item[I flat profiler] \hfill \\
+\item[Flat profilers] \hfill \\
 Questo tipo di profiler conta il numero di chiamate a funzione e/o il tempo cpu medio/totale usato da ciascuna funzione senza tenere conto del contesto nel quale una certa funzione è stata invocata.
-\item[I call-graph profiler] \hfill \\
+\item[Call-graph profilers] \hfill \\
 Quest'altro tipo di profiler si occupa delle stesse cose, ma considerando per ogni chiamata di funzione il contesto nel quale è avventa e quindi produce come output un grafo, per l'appunto il \textit{call-graph}.
 \end{description}
 
+\begin{flushleft}
+Facendo la suddivisione per metodo di acquisizione otteniamo:
+\end{flushleft}
+
+\begin{description}
+\item[Event-based profilers] \hfill \\
+Alcuni linguaggi/piattaforme di sviluppo di alto-altissimo livello hanno dei propri profiler basati su gli eventi. Ad esempio, \textbf{Java} ha la \textbf{JVMPI} \textit{(Java Virtual Machine Profiling Interface)}, mentre in ambiente \textbf{.NET} è possibile agganciare un profiling agent come server COM ad un programma .NET usando le \textbf{Profiling API}. In queste tecnologie, ad azioni come chiamata a funzione (metodo) / ritorno di funzione / creazione di un nuovo oggetto, corrispondono degli eventi gestiti tramite \textit{callback} inseriti automaticamente dal linguaggio. Anche linguaggi come \textbf{Python} e \textbf{Ruby} (che sono interpretati) hanno meccanismi del genere.
+\item[Statistical profilers] \hfill \\
+Questo tipo di profiler lavorano capionando ad intervalli regolari l'istruction pointer del programma da analizzare tramite interrupt del sistema opertivo. Questo tipo di approccio al profiling ha ovviamente la caratteristica di non produrre dati numericamente esatti, ma ha anche il vantaggio di ridurre praticamente a zero l'impatto sul programma da analizzare. Noti profiler di questo tipo sono \textbf{AMD CodeAnalyst} e \textbf{Intel Parallel Studio}. 
+\item[Instrumentation profilers] \hfill \\
+Questo tipo di profiler ha la necessità di aggiungere ulteriori istruzioni nei programmi per raccogliore i dati. Ci sono diversi modo per fare instrumentation profiling, a seconda di come vengono aggiunte le ulteriori istruzioni:
+\begin{description}
+\item[Manuale]
+Il programmatore modifica il proprio programma inserendo del codice aggiuntivo nei punti che vuole studiare. Per esempio, può inserire all'inizio e prima di ogni \verb|return| di una certa funzione istruzioni per leggere l'ora del sistema. Prima che ogni chiamata della funzione ritorni al chiamante, è possibile fare la differenza fra i tempi e aggiornare un contatore temporale. In questo modo infine, sarà possibile capire il tempo cpu medio usato da quella funzione.
+\item[Automatizzato a livello di codice]
+Molto simile al metodo manuale, solo che in questo caso un tool aggiunge automaticamente le istruzioni supplementari al codice sorgente.
+\item[Compiler assisted]
+In questo caso il codice sorgente non viene toccato, ma è il compilatore stesso ad aggiungere durante la compilazione le ulteriori istruzioni. Un esempio è quando si compila con il \verb|gcc| usando l'opzione \verb|-pg|. Usando poi, un tool come \verb|gprof| è possibile far partire il programma in modalità \textit{profiling} e raccogliere i dati.
+\item[Binary translation]
+Questa tecnica consiste nell'aggiungere le istruzioni di profiling all'eseguibile già compilato in precedenza.
+\item[Runtime instrumentation]
+In questo caso le istruzioni aggiuntive vengono aggiunte subito prima che le istruzioni di quella parte del programma vengano eseguite. Affinché avvenga questo, un software deve avere deve eseguire il programma da analizzare sotto il suo completo controllo. Questo tipo di tecnica viene usata da software come \textbf{Valgrind} e \textbf{Intel Pin}, lo strumento per il quale è stato sviluppato il plug-in oggetto della trattazione. Per questo motivo, questa tecnica verrà abbondantemente approfondita in seguito.
+\item[Runtime injection]
+Questa tecnica è basata sullo stesso principio della runtime instrumentation, solo che è più \textit{lightweight} come approccio: consiste principalmente nell'inserire istruzioni di salto incondizionato a funzioni \textit{helper}. Un tool che fa uso di questa tecnica è \textbf{DynInst}.
+\end{description} 
+\item[Profiling tramite un hypervisor/simulator] \hfill \\
+Questo tipo di profiler analizza il programma eseguendolo senza modifiche in una sorta di \textit{virtual machine} magari con l'aiuto di tecnologie hardware apposite oppure letteralmente emulando le istruzioni macchina del programma. Questo tipo di approccio oggi non è molto usato. Due software storici che usarono questa tecnica furono IBM SIMMON e IBM OLIVER. 
+\end{description}
+
+\section{Il profiling con Pin}
 
 \end{document}
