@@ -130,7 +130,7 @@ In questo caso il codice sorgente non viene toccato, ma è il compilatore stesso
 \item[Binary translation]
 Questa tecnica consiste nell'aggiungere le istruzioni di profiling all'eseguibile già compilato in precedenza.
 \item[Runtime instrumentation]
-In questo caso le istruzioni aggiuntive vengono aggiunte subito prima che le istruzioni di quella parte del programma vengano eseguite. Affinché avvenga questo, un software deve avere deve eseguire il programma da analizzare sotto il suo completo controllo. Questo tipo di tecnica viene usata da software come \textbf{Valgrind} e \textbf{Intel Pin}, lo strumento per il quale è stato sviluppato il plug-in oggetto della trattazione. Per questo motivo, questa tecnica verrà abbondantemente approfondita in seguito.
+In questo caso le istruzioni aggiuntive vengono aggiunte subito prima che le istruzioni di quella parte del programma vengano eseguite. Affinché avvenga questo, un software deve avere deve eseguire il programma da analizzare sotto il suo completo controllo. Questo tipo di tecnica viene usata da software come \textbf{Valgrind} e \textbf{Intel Pin}, lo strumento per il quale è stato sviluppato il plug-in oggetto della trattazione. Per questo motivo, questa tecnica verrà approfondita in seguito.
 \item[Runtime injection]
 Questa tecnica è basata sullo stesso principio della runtime instrumentation, solo che è più \textit{lightweight} come approccio: consiste principalmente nell'inserire istruzioni di salto incondizionato a funzioni \textit{helper}. Un tool che fa uso di questa tecnica è \textbf{DynInst}.
 \end{description} 
@@ -139,5 +139,6 @@ Questo tipo di profiler analizza il programma eseguendolo senza modifiche in una
 \end{description}
 
 \section{Il profiling con Pin}
+Intel Pin è un framework di instrumentazione dinamica che permette di scrivere dei programmi (pintools) per eseguire dell'analisi dinamica su altri programmi. Per usarlo, occorre compilare il proprio pintool come libreria dinamica, includendo chiaramente un vasto insieme di librerie statiche e header proprie di Pin. Per avviare poi l'analisi di un certo programma, si esegue Pin da riga di comando passandogli come argomenti il nostro pintool (che essendo un caricato a runtime è praticamente un plug-in), gli eventuali argomenti al pintool ed infine l'eseguibile del programma da analizzare. In questo modo, Pin carica in memoria ed esegue il programma specificato sotto il suo totale controllo. 
 
 \end{document}
