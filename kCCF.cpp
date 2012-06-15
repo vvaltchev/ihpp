@@ -185,6 +185,7 @@
 
 */
 
+#define MAIN_KCCF_MODULE
 
 #include "config.h"
 #include "debug.h"
@@ -193,20 +194,18 @@
 using namespace std;
 using namespace kCCFLib;
 
-kCCFContextClass *globalSharedContext=0;
-
 #include "benchmark.h"
 #include "output.h"
 
 #include "tracingFuncs.h"
 
 
-VOID blockModeBlockTrace(TracingObject<ADDRINT> *to, kCCFContextClass *globalCtx) { 
+VOID blockModeBlockTrace(TracingObject<ADDRINT> *to) { 
 
 	kCCFThreadContextClass *ctx;
 	BasicBlock *bb = static_cast<BasicBlock*>(to);
 
-	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
+	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
 
 	if (bb->functionAddr() == ctx->startFuncAddr)
 		ctx->haveToTrace=true;
@@ -220,7 +219,7 @@ VOID blockModeBlockTrace(TracingObject<ADDRINT> *to, kCCFContextClass *globalCtx
 
 	bb->incSimpleCounter();
 
-	traceObject(bb, globalCtx->kval(), ctx, ctx->treeTop, ctx->treeBottom);
+	traceObject(bb, globalSharedContext->kval(), ctx, ctx->treeTop, ctx->treeBottom);
 }
 
 
@@ -245,7 +244,9 @@ void insInstrumentation(RTN rtn, INS ins) {
 		INS_InsertPredicatedCall(ins, 
 									IPOINT_BEFORE, (AFUNPTR)branchOrCall, 
 									IARG_CALL_ORDER,
-									CALL_ORDER_FIRST, 
+									CALL_ORDER_FIRST,
+									IARG_PTR, RTN_Address(rtn),
+									IARG_PTR, RTN_Name(rtn).c_str(),
 									//IARG_PTR, globalCtx, 
 									IARG_PTR, INS_Address(ins), 
 									IARG_BRANCH_TARGET_ADDR,
@@ -353,7 +354,7 @@ VOID BlockTraceInstrumentation(TRACE trace, void *arg)
 			BBL_InsertCall(bbl, 
 								IPOINT_BEFORE, AFUNPTR(blockModeBlockTrace), 
 								IARG_PTR, bb, 
-								IARG_PTR, ctx, 
+								//IARG_PTR, ctx, 
 								IARG_END);		
 
 		if (ctx->WorkingMode() == TradMode)
@@ -369,11 +370,26 @@ VOID BlockTraceInstrumentation(TRACE trace, void *arg)
     }
 }
 
+inline void imageload_specialfunc(ADDRINT &funcAddr, string &funcName) {
+
+#if defined(_WIN32)
+
+	if (funcName == "_NLG_Notify")
+		globalSharedContext->spAttrs._NLG_Notify_addr = funcAddr;
+
+	if (funcName == "_NLG_Notify1")
+		globalSharedContext->spAttrs._NLG_Notify1_addr = funcAddr;
+
+	if (funcName == "__NLG_Dispatch")
+		globalSharedContext->spAttrs.__NLG_Dispatch_addr = funcAddr;
+
+#endif
+
+}
 
 VOID ImageLoad(IMG img, VOID *) {
 
 	RTN rtn2;
-	//kCCFContextClass *ctx = static_cast<kCCFContextClass *>(v);
 	kCCFContextClass *ctx = globalSharedContext;
 	
 	FunctionObj *fc;
@@ -396,7 +412,7 @@ VOID ImageLoad(IMG img, VOID *) {
 			ADDRINT funcAddr = RTN_Address(rtn);
 			string funcName = RTN_Name(rtn);
 
-			
+			imageload_specialfunc(funcAddr, funcName);
 							
 #ifdef __unix__
 
@@ -407,7 +423,7 @@ VOID ImageLoad(IMG img, VOID *) {
 
 			if (ctx->options.purgeFuncs) {
 				
-				if (funcName[0] == '_' && !IS_WIN32_NLG_NOTIFY(funcName)) {
+				if (funcName[0] == '_' && !IS_WIN32_NLG_NOTIFY(funcAddr)) {
 					continue;
 				}
 			}
@@ -492,7 +508,7 @@ VOID ImageLoad(IMG img, VOID *) {
 
 
 #include "experimentalCode.h"
-#include "options.h"
+
 
 /* ===================================================================== */
 /* Main                                                                  */

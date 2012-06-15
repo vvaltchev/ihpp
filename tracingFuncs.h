@@ -4,19 +4,20 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp);
 
 void funcMode_ret();
 
-inline void funcMode_Ret_wrapper() { funcMode_ret(); }
+//inline void funcMode_Ret_wrapper() { funcMode_ret(); }
 
 
 VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp);
 
-void PIN_FAST_ANALYSIS_CALL tradMode_ret(kCCFContextClass *globalCtx);
+void PIN_FAST_ANALYSIS_CALL tradMode_ret();
 
 
 #if ENABLE_INS_TRACING
 
 void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr, ADDRINT insCat);
 
-void branchOrCall(ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat);
+void branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr, 
+										ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat);
 
 #endif
 

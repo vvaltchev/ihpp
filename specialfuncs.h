@@ -3,6 +3,7 @@
 #define __SPECIAL_FUNCS_MACROS__
 
 
+
 #if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT
 	#define THREAD_CTX_POP_CHECK()				(__tmainCRTStartup_stack_size == -1 || shadowStack.size()-1 >= __tmainCRTStartup_stack_size+1)
 	#define INIT_THREAD_CTX_W32_VARS()			__tmainCRTStartup_stack_size=-1;
@@ -17,11 +18,11 @@
 #ifdef _WIN32
 	#define CHECK_LONGJMP_NOTIFY()				(win32_check_nlg_notify(ctx, currFuncAddr))
 	#define FUNC_IS_TEXT(func)					((func) == ".text" || (func) == "unnamedImageEntryPoint")
-	#define IS_WIN32_NLG_NOTIFY(func)			((func) == "_NLG_Notify" || (func) == "_NLG_Notify1" || (func) == "__NLG_Dispatch")
+	//#define IS_WIN32_NLG_NOTIFY(func)			((func) == "_NLG_Notify" || (func) == "_NLG_Notify1" || (func) == "__NLG_Dispatch")
 #else
 	#define CHECK_LONGJMP_NOTIFY()				0
 	#define FUNC_IS_TEXT(func)					((func) == ".text")
-	#define IS_WIN32_NLG_NOTIFY(func)			0
+	//#define IS_WIN32_NLG_NOTIFY(func)			0
 #endif
 
 
@@ -61,6 +62,16 @@ namespace kCCFLib {
 
 
 #ifdef _WIN32
+	
+#define IS_WIN32_NLG_NOTIFY(func)			((func) == globalSharedContext->spAttrs._NLG_Notify_addr ||  \
+											 (func) == globalSharedContext->spAttrs._NLG_Notify1_addr || \
+											 (func) == globalSharedContext->spAttrs.__NLG_Dispatch_addr)
+#else
+	#define IS_WIN32_NLG_NOTIFY(func)			0
+
+#endif
+
+#ifdef _WIN32
 
 #if ENABLE_WIN32_MAIN_ALIGNMENT
 inline void win32_main_alignment(kCCFThreadContextClass *ctx, FunctionObj *fc)
@@ -87,9 +98,8 @@ inline void win32_main_alignment(kCCFThreadContextClass *ctx, FunctionObj *fc)
 #if ENABLE_INS_TRACING
 inline bool win32_check_nlg_notify(kCCFThreadContextClass *ctx, ADDRINT currFuncAddr)
 {
-	string currFuncName = RTN_FindNameByAddress(currFuncAddr);
 	
-	if (IS_WIN32_NLG_NOTIFY(currFuncName)) {
+	if (IS_WIN32_NLG_NOTIFY(currFuncAddr)) {
 		ctx->jumpTargetFuncAddr=currFuncAddr;
 		ctx->haveToJump=true;
 		return true;

@@ -6,7 +6,7 @@
 using namespace std;
 using namespace kCCFLib;
 
-extern kCCFContextClass *globalSharedContext;
+//extern kCCFContextClass *globalSharedContext;
 
 #include "benchmark.h"
 #include "output.h"

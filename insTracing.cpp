@@ -6,24 +6,15 @@
 using namespace std;
 using namespace kCCFLib;
 
-extern kCCFContextClass *globalSharedContext;
+//extern kCCFContextClass *globalSharedContext;
 
 #include "tracingFuncs.h"
 
-inline void getCurrentAndTargetFunc(ADDRINT insAddr, ADDRINT targetAddr, 
-									ADDRINT &currentFuncAddr, ADDRINT &targetFuncAddr, 
-									string &currentFuncName, string &targetFuncName)
+inline void getTargetFunc(ADDRINT &insAddr, ADDRINT &targetAddr, ADDRINT &targetFuncAddr, string &targetFuncName)
 {
 	RTN rtn;
 	PIN_LockClient();
 	
-	rtn = RTN_FindByAddress(insAddr);
-	
-	if(RTN_Valid(rtn)) {
-		currentFuncName = RTN_Name(rtn);
-		currentFuncAddr = RTN_Address(rtn);
-	}
-
 	rtn = RTN_FindByAddress(targetAddr);
 	
 	if(RTN_Valid(rtn)) {
@@ -123,23 +114,22 @@ void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr, ADDRINT insC
 
 
 
-void branchOrCall(ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat) {
+void branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr, 
+											ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat) 
+{
 
 
 	bool traceTarget;
 
-	ADDRINT currentFuncAddr=0;
 	ADDRINT targetFuncAddr=0;
-
-	string currentFuncName;
+	string currentFuncName = currentFuncNamePtr;
 	string targetFuncName;
-	kCCFContextClass *globalCtx = globalSharedContext;
 	
 	kCCFThreadContextClass *ctx;
 	
-	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());	
+	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());	
 
-	getCurrentAndTargetFunc(insAddr, targetAddr, currentFuncAddr, targetFuncAddr, currentFuncName, targetFuncName);
+	getTargetFunc(insAddr, targetAddr, targetFuncAddr, targetFuncName);
 
 	if (currentFuncAddr == ctx->startFuncAddr)
 		ctx->haveToTrace=true;
@@ -153,7 +143,7 @@ void branchOrCall(ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat) {
 	if (!targetFuncAddr)
 		return;
 
-	traceTarget = globalCtx->hasToTrace(targetFuncName, targetFuncAddr);
+	traceTarget = globalSharedContext->hasToTrace(targetFuncName, targetFuncAddr);
 	
 	/*
 		This often produces false positives: under win32 when a JMP with a target which is outside current function is met,

@@ -1,10 +1,7 @@
 
-#ifdef _WIN32
-#define KCCF_LIB_FILE "kCCF.dll"
-#else
-#define KCCF_LIB_FILE "kCCF.so"
-#endif
+#if defined(OPTIONS_MOUDLE) && !defined(_OPTIONS_VARS_DEFINED) 
 
+#define _OPTIONS_VARS_DEFINED
 
 KNOB<unsigned int> kparameter(KNOB_MODE_WRITEONCE, "pintool", "k", "3", "");
 KNOB<string> singleFunctions(KNOB_MODE_APPEND, "pintool", "f", "", "");
@@ -30,108 +27,95 @@ KNOB<bool> rollLoops(KNOB_MODE_WRITEONCE, "pintool", "rollLoops", "0", "");
 KNOB<bool> disasm(KNOB_MODE_WRITEONCE, "pintool", "disasm", "0", "");
 KNOB<bool> kinf(KNOB_MODE_WRITEONCE, "pintool", "kinf", "0", "");
 
-
 KNOB<string> startFunc(KNOB_MODE_WRITEONCE, "pintool", "startFunc", "-none-", "");
 KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "-none-", "");
 
-void setOptions() 
-{
-
-	globalSharedContext->options.startFuncName = startFunc.Value();
-	globalSharedContext->options.stopFuncName = stopFunc.Value();
-	globalSharedContext->options.purgeFuncs = purge.Value();
-
-	globalSharedContext->options.joinThreads = joinThreads.Value();
-	globalSharedContext->options.rollLoops = rollLoops.Value();
-
-	globalSharedContext->options.showkSF = showkSF.Value();
-	globalSharedContext->options.showkSF2 = showkSF2.Value();
-	globalSharedContext->options.showkCCF = showkCCF.Value();
-	globalSharedContext->options.showFuncs = showFuncs.Value();
-	globalSharedContext->options.showBlocks = showBlocks.Value();
-	globalSharedContext->options.showCalls = showCalls.Value();
-	globalSharedContext->options.disasm = disasm.Value();
-	globalSharedContext->options.kinf = kinf.Value();
-}
-
-
-
-void showHelp()
-{
-	
-	cout << endl << endl;
-	cout << "k-Calling Context Forest profiling pintool\n" << endl;
-	cout << "-------------------------------------------\n" << endl;
-	cout << "Syntax: <PIN> -t " << KCCF_LIB_FILE << " <WORKING MODE> [ -f <func1> [-f <func2> [...]] ]\n"; 
-	cout << "\t\t\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] <SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
-	
-	cout << "\nWorking modes: " << endl;
-	cout << "\t -funcMode" << endl;
-	cout << "\t -blockMode" << endl;
-	cout << "\t -tradMode" << endl;
-	
-	cout << "\nShow options:\n";
-	cout << "\t-ksf: shows the k-Slab Forest" << endl;
-	cout << "\t-kccf: shows the k-Calling Context Forest" << endl;
-	cout << "\t-showFuncs: shows function's list" << endl;
-	cout << "\t-showBlocks: shows block's list" << endl;
-	cout << "\t-disasm: shows disassembly in the section 'All basic blocks'" << endl;
-
-	cout << "\nOther options:\n";
-	cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
-	cout << "\t-rollLoops: when building the kSF in TradMode, loops will be rolled" << endl;
-
-	cout << endl << endl;
-}
-
-bool checkOptions() 
-{
-	if ((  funcMode.Value() && (blockMode.Value() || tradMode.Value())  ) ||
-		(  blockMode.Value() && (funcMode.Value() || tradMode.Value())  ) ||
-		(  tradMode.Value() && (blockMode.Value() || funcMode.Value())  )) 
-	{
-
-		showHelp();
-		return false;
-	}
-
-	if (!showkSF.Value() && !showkCCF.Value() && !showCalls.Value() && !showFuncs.Value() && !showBlocks.Value()) {
-	
-		showHelp();
-		return false;
-	} 
-
-
-	if (disasm.Value() && !showBlocks.Value()) {
-	
-		cerr << "-disasm option only applicable with -showBlocks option." << endl;
-		return false;
-	}
-
-#ifdef _WIN32
-	
-	if ( !singleFunctions.NumberOfValues() && !experimental.Value() ) {
-	
-		cerr << "Under Windows systems full tracing is an experimental feature:" << endl;
-		cerr << "results MAY BE WRONG. To try it, use -experimental option." << endl;
-		cerr << "Tip: combined with -startFunc <func> (es. main) and -stopFunc <func> (es. exit) may produce better results.\n" << endl;
-		return false;
-	}
 #endif
 
-	if (purge.Value() && singleFunctions.NumberOfValues()) {
+
+#ifndef KCCF_OPTIONS_HEADER
+#define KCCF_OPTIONS_HEADER
+
+#include "pin.H"
+
+#ifdef _WIN32
+#define KCCF_LIB_FILE "kCCF.dll"
+#else
+#define KCCF_LIB_FILE "kCCF.so"
+#endif
+
+
+#ifndef _OPTIONS_VARS_DEFINED
+
+extern KNOB<unsigned int> kparameter;
+extern KNOB<string> singleFunctions;
+extern KNOB<string> outFileName;
+
+extern KNOB<bool> showkSF;
+extern KNOB<bool> showkSF2;
+extern KNOB<bool> showkCCF;
+
+////////
+extern KNOB<bool> purge;
+extern KNOB<bool> experimental;
+/////////
+
+extern KNOB<bool> funcMode;
+extern KNOB<bool> blockMode;
+extern KNOB<bool> tradMode;
+extern KNOB<bool> showCalls;
+extern KNOB<bool> showBlocks;
+extern KNOB<bool> showFuncs;
+extern KNOB<bool> joinThreads;
+extern KNOB<bool> rollLoops;
+extern KNOB<bool> disasm;
+extern KNOB<bool> kinf;
+
+extern KNOB<string> startFunc;
+extern KNOB<string> stopFunc;
+
+#endif
+
+class optionsClass {
+
+public:
+
+	bool joinThreads;
+	bool rollLoops;
+
+	bool showkSF;
+	bool showkSF2;
+	bool showkCCF;
+	bool showFuncs;
+	bool showBlocks;
+	bool showCalls;
+	bool purgeFuncs;
+	bool disasm;
+	bool kinf;
+
+	string startFuncName;
+	string stopFuncName;
 	
-		cerr << "Purge option is available only in full tracing mode.\n";
-		return false;
+	optionsClass() 
+	{
+		joinThreads=false;
+		rollLoops=false;
+		showkSF=false;
+		showkSF2=false;
+		showkCCF=false;
+		showFuncs=false;
+		showBlocks=false;
+		showCalls=false;
+		purgeFuncs=false;	
+		disasm=false;
+		kinf=false;
 	}
-
-	if (rollLoops.Value() && !tradMode.Value()) {
-	
-		cerr << "Roll loops option can be applied only with -tradMode option.\n";
-		return false;
-	}
+};
 
 
-	return true;
-}
 
+void setOptions();
+void showHelp();
+bool checkOptions();
+
+#endif

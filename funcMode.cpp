@@ -6,7 +6,7 @@
 using namespace std;
 using namespace kCCFLib;
 
-extern kCCFContextClass *globalSharedContext;
+//extern kCCFContextClass *globalSharedContext;
 
 #include "benchmark.h"
 #include "output.h"
@@ -149,7 +149,7 @@ void funcMode_ret()
 		ctx->shadowStack.pop();
 
 		if (globalCtx->WorkingMode() == TradMode)
-			tradMode_ret(globalCtx);
+			tradMode_ret();
 	}
 
 #endif
@@ -172,7 +172,7 @@ void funcMode_ret()
 function_end:
 
 	if (globalCtx->WorkingMode() == TradMode)
-		tradMode_ret(globalCtx);
+		tradMode_ret();
 
 	ctx->setCurrentFunction(ctx->shadowStack.top().treeTop->getValue()->getKey());
 }

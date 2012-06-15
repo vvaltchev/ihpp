@@ -14,47 +14,28 @@
 #include "forest.h"
 #include "tracingObjects.h"
 #include "threadContext.h"
-#include "specialfuncs.h"
+#include "options.h"
 
 #ifndef __KCCF_HEADER__
 #define __KCCF_HEADER__
 
 namespace kCCFLib {
 
-class optionsClass {
+
+
+class specialAttrs {
 
 public:
 
-	bool joinThreads;
-	bool rollLoops;
+#if defined(_WIN32)
 
-	bool showkSF;
-	bool showkSF2;
-	bool showkCCF;
-	bool showFuncs;
-	bool showBlocks;
-	bool showCalls;
-	bool purgeFuncs;
-	bool disasm;
-	bool kinf;
+	ADDRINT _NLG_Notify_addr;
+	ADDRINT _NLG_Notify1_addr;
+	ADDRINT __NLG_Dispatch_addr;
 
-	string startFuncName;
-	string stopFuncName;
-	
-	optionsClass() 
-	{
-		joinThreads=false;
-		rollLoops=false;
-		showkSF=false;
-		showkSF2=false;
-		showkCCF=false;
-		showFuncs=false;
-		showBlocks=false;
-		showCalls=false;
-		purgeFuncs=false;	
-		disasm=false;
-		kinf=false;
-	}
+#endif
+
+	specialAttrs() : _NLG_Notify_addr(0), _NLG_Notify1_addr(0), __NLG_Dispatch_addr(0) { }
 };
 
 enum WorkingModeType { FuncMode, BlockMode, TradMode };
@@ -78,7 +59,8 @@ public:
 	bool exitPassed;
 	
 	optionsClass options;
-	
+	specialAttrs spAttrs;
+
 	ADDRINT startFuncAddr;
 	ADDRINT stopFuncAddr;
 
@@ -94,6 +76,17 @@ public:
 
 	bool hasToTrace(string funcName, ADDRINT funcAddr);
 };
+
+#ifdef MAIN_KCCF_MODULE
+
+kCCFContextClass *globalSharedContext=0;
+
+#else
+
+extern kCCFContextClass *globalSharedContext;
+
+#endif
+
 
 inline bool kCCFContextClass::hasToTrace(string funcName, ADDRINT funcAddr) 
 {
@@ -120,8 +113,8 @@ void kSlabForestKLevelCountersClear(forest<keyT> &f, keyT &rootKey, unsigned int
 }
 
 
-
-
 } //end namespace kCCFLib
+
+#include "specialfuncs.h"
 
 #endif

@@ -112,6 +112,7 @@
     <ClCompile Include="..\insTracing.cpp" />
     <ClCompile Include="..\kCCF.cpp" />
     <ClCompile Include="..\kCCFContextClass.cpp" />
+    <ClCompile Include="..\options.cpp" />
     <ClCompile Include="..\output.cpp" />
   </ItemGroup>
   <ItemGroup>

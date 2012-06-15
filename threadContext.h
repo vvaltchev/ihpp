@@ -5,7 +5,7 @@
 #ifndef __THREAD_CTX_HEADER__
 #define __THREAD_CTX_HEADER__
 
-inline void funcMode_Ret_wrapper();
+void funcMode_ret();
 
 namespace kCCFLib {
 
@@ -112,7 +112,7 @@ public:
 	{
 		if (THREAD_CTX_POP_CHECK()) {
 			
-			funcMode_Ret_wrapper();	
+			funcMode_ret();
 			return true;
 		} 
 		
