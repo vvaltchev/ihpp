@@ -268,7 +268,7 @@ void insInstrumentation(RTN rtn, INS ins) {
 }
 
 
-VOID BlockTraceInstrumentation(TRACE trace, void *arg)
+VOID BlockTraceInstrumentation(TRACE trace, void *)
 {
     
 	RTN rtn;
@@ -279,7 +279,9 @@ VOID BlockTraceInstrumentation(TRACE trace, void *arg)
 	ADDRINT blockPtr,funcAddr;
 	map<ADDRINT,BasicBlock*>::iterator it;
 
-	kCCFContextClass *ctx = static_cast<kCCFContextClass *>(arg);
+	//kCCFContextClass *ctx = static_cast<kCCFContextClass *>(arg);
+
+	kCCFContextClass *ctx = globalSharedContext;
 
     for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl))
     {
@@ -376,12 +378,21 @@ inline void imageload_specialfunc(ADDRINT &funcAddr, string &funcName) {
 
 	if (funcName == "_NLG_Notify")
 		globalSharedContext->spAttrs._NLG_Notify_addr = funcAddr;
-
+	else
 	if (funcName == "_NLG_Notify1")
 		globalSharedContext->spAttrs._NLG_Notify1_addr = funcAddr;
-
+	else
 	if (funcName == "__NLG_Dispatch")
 		globalSharedContext->spAttrs.__NLG_Dispatch_addr = funcAddr;
+	else
+	if (funcName == "__tmainCRTStartup")
+		globalSharedContext->spAttrs.__tmainCRTStartup_addr = funcAddr;
+	else
+	if (funcName == "wWinMain")
+		globalSharedContext->spAttrs.wWinMain_addr = funcAddr;
+	else
+	if (funcName == "main")
+		globalSharedContext->spAttrs.main_addr = funcAddr;
 
 #endif
 
@@ -398,9 +409,16 @@ VOID ImageLoad(IMG img, VOID *) {
 	
 	dbg_imgload_imgname();
 
+	rtn2 = RTN_FindByName(img, "exit");
+
+	if (RTN_Valid(rtn2)) {
+	
+		globalSharedContext->spAttrs.exit_addr = RTN_Address(rtn2);
+	}
+
 	if (!mainImage)
 		return;
-	
+
 
 	for (SEC sec = IMG_SecHead(img); SEC_Valid(sec); sec = SEC_Next(sec)) {
 
@@ -517,42 +535,36 @@ VOID ImageLoad(IMG img, VOID *) {
 
 int main(int argc, char ** argv) {
 
-	WorkingModeType wm = FuncMode;
-
 	PIN_InitSymbols();
 
 	if (PIN_Init(argc, argv)) {
 	
-		showHelp();
+		optionsClass::showHelp();
 		return 0;
 	}
 
-	if (!checkOptions()) {
+	if (!optionsClass::checkOptions()) {
 	
 		return 0;
 	}
 
 
-	if (blockMode.Value())
-		wm = BlockMode;
+	optionsClass options;
 
-	if (tradMode.Value())
-		wm = TradMode;
+	options.initFromGlobalOptions();
 
-
-
-	globalSharedContext = new kCCFContextClass(kparameter.Value(), wm);
+	globalSharedContext = new kCCFContextClass(optionsClass::getGlobalWM(), optionsClass::getGlobalKVal(), options);
 	
-	setOptions();
+	KNOB<string> &funcs = optionsClass::tracingFunctions();
 
-	for (unsigned int i=0; i < singleFunctions.NumberOfValues(); i++)
-		globalSharedContext->funcsToTrace.insert(singleFunctions.Value(i));
+	for (unsigned int i=0; i < funcs.NumberOfValues(); i++)
+		globalSharedContext->funcsToTrace.insert(funcs.Value(i));
 
-	globalSharedContext->OutFile.open(outFileName.Value().c_str());
+	globalSharedContext->OutFile.open(optionsClass::getOutfileName());
     
 
-	if (wm == BlockMode || wm == TradMode) {
-		TRACE_AddInstrumentFunction(BlockTraceInstrumentation, (void*)globalSharedContext);
+	if (globalSharedContext->WorkingMode() == BlockMode || globalSharedContext->WorkingMode() == TradMode) {
+		TRACE_AddInstrumentFunction(BlockTraceInstrumentation, 0);
 	}
 
 	IMG_AddInstrumentFunction(ImageLoad, 0);

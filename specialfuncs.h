@@ -5,11 +5,11 @@
 
 
 #if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT
-	#define THREAD_CTX_POP_CHECK()				(__tmainCRTStartup_stack_size == -1 || shadowStack.size()-1 >= __tmainCRTStartup_stack_size+1)
+	//#define THREAD_CTX_POP_CHECK()				(__tmainCRTStartup_stack_size == (unsigned)-1 || shadowStack.size()-1 >= __tmainCRTStartup_stack_size+1)
 	#define INIT_THREAD_CTX_W32_VARS()			__tmainCRTStartup_stack_size=-1;
 
 #else
-	#define THREAD_CTX_POP_CHECK()				(shadowStack.size())
+	//#define THREAD_CTX_POP_CHECK()				(shadowStack.size())
 	#define INIT_THREAD_CTX_W32_VARS()
 #endif
 
@@ -18,11 +18,9 @@
 #ifdef _WIN32
 	#define CHECK_LONGJMP_NOTIFY()				(win32_check_nlg_notify(ctx, currFuncAddr))
 	#define FUNC_IS_TEXT(func)					((func) == ".text" || (func) == "unnamedImageEntryPoint")
-	//#define IS_WIN32_NLG_NOTIFY(func)			((func) == "_NLG_Notify" || (func) == "_NLG_Notify1" || (func) == "__NLG_Dispatch")
 #else
 	#define CHECK_LONGJMP_NOTIFY()				0
 	#define FUNC_IS_TEXT(func)					((func) == ".text")
-	//#define IS_WIN32_NLG_NOTIFY(func)			0
 #endif
 
 
@@ -76,13 +74,14 @@ namespace kCCFLib {
 #if ENABLE_WIN32_MAIN_ALIGNMENT
 inline void win32_main_alignment(kCCFThreadContextClass *ctx, FunctionObj *fc)
 {
-	if (fc->functionName() == "__tmainCRTStartup")
+	if (fc->functionAddress() == globalSharedContext->spAttrs.__tmainCRTStartup_addr)
 		ctx->__tmainCRTStartup_stack_size = ctx->shadowStack.size();
 
 	if (ctx->__tmainCRTStartup_stack_size == -1)
 		return;
 
-	if (fc->functionName() == "wWinMain" || fc->functionName() == "main") {
+	if (fc->functionAddress() == globalSharedContext->spAttrs.wWinMain_addr || 
+		fc->functionAddress() == globalSharedContext->spAttrs.main_addr) {
 	
 		if (ctx->shadowStack.size() > ctx->__tmainCRTStartup_stack_size+1) {
 		

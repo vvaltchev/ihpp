@@ -7,8 +7,6 @@
 using namespace std;
 using namespace kCCFLib;
 
-//extern kCCFContextClass *globalSharedContext;
-
 #include "benchmark.h"
 #include "output.h"
 
@@ -25,8 +23,6 @@ using namespace kCCFLib;
 
 #define TRADMODE_SET_TOP_BOTTOM_TO_ROOT()			tradCtx->counter=1; treeTop=tradCtx->kSlabForest.getTreeRef(tradCtx->rootKey); treeBottom=0;
 #define TRADMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()	(treeTop==tradCtx->kSlabForest.getTreeRef(tradCtx->rootKey) && !treeBottom)
-
-//#define IS_WIN32_NLG_NOTIFY2(func)					((func) == "_NLG_Notify" || (func) == "_NLG_Notify1" || (func) == "__NLG_Dispatch")
 
 
 VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
@@ -195,7 +191,6 @@ void PIN_FAST_ANALYSIS_CALL tradMode_ret()
 
 	tradCtx = ctx->getCurrentFunctionCtx();
 
-	//string currFuncName = globalCtx->allFuncs[ctx->getCurrentFunction()]->functionName();
 
 #ifdef _WIN32
 	if (IS_WIN32_NLG_NOTIFY(ctx->getCurrentFunction()))
@@ -203,8 +198,6 @@ void PIN_FAST_ANALYSIS_CALL tradMode_ret()
 #endif
 
 	dbg_tradret_begin();
-
-	//assert(tradCtx->shadowStack.size());
 
 	if (!tradCtx->shadowStack.size()) {
 	

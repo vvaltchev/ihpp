@@ -6,8 +6,6 @@
 using namespace std;
 using namespace kCCFLib;
 
-//extern kCCFContextClass *globalSharedContext;
-
 #include "benchmark.h"
 #include "output.h"
 
@@ -59,7 +57,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 	fc->incSimpleCounter();
 
 
-	if (!globalCtx->exitPassed && fc->functionName() == "exit")
+	if (!globalCtx->exitPassed && fc->functionAddress() == globalSharedContext->spAttrs.exit_addr)
 		globalCtx->exitPassed=true;
 
 
@@ -146,7 +144,10 @@ void funcMode_ret()
 		if (ctx->shadowStack.size() <= 1)
 			break;
 
-		ctx->shadowStack.pop();
+		if (ctx->canPopStack())
+			ctx->shadowStack.pop();
+		else
+			break;
 
 		if (globalCtx->WorkingMode() == TradMode)
 			tradMode_ret();
@@ -162,7 +163,8 @@ void funcMode_ret()
 	
 	dbg_funcret_pop();
 
-	ctx->shadowStack.pop();
+	if (ctx->canPopStack())
+		ctx->shadowStack.pop();
 
 	dbg_funcret_stack_after_pop();
 

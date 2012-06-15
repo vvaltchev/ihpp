@@ -94,7 +94,7 @@ public:
 
 	
 #if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT
-	int __tmainCRTStartup_stack_size; 
+	unsigned int __tmainCRTStartup_stack_size; 
 #endif
 	
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
@@ -108,21 +108,8 @@ public:
 	ADDRINT startFuncAddr;
 	ADDRINT stopFuncAddr;
 
-	bool popShadowStack() 
-	{
-		if (THREAD_CTX_POP_CHECK()) {
-			
-			funcMode_ret();
-			return true;
-		} 
-		
-		return false;
-	}
-	
 	//TradMode properties
-
 	map<ADDRINT, kCCFTradModeContext*> tradModeContexts;
-
 
 	//Methods
 
@@ -130,13 +117,41 @@ public:
 
 	~kCCFThreadContextClass();
 
+	inline bool canPopStack();
+	inline bool popShadowStack();
 
 	kCCFTradModeContext *getFunctionCtx(ADDRINT funcAddr);
 	kCCFTradModeContext *getCurrentFunctionCtx();
 
 	ADDRINT getCurrentFunction();
 	kCCFTradModeContext *setCurrentFunction(ADDRINT currFunc);
+	string getCurrentFunctionName(); 
 };
+
+inline bool kCCFThreadContextClass::canPopStack() {
+	
+#if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT
+	
+	return shadowStack.size() > 0 && 
+			(__tmainCRTStartup_stack_size == (unsigned)-1 || shadowStack.size()-1 >= __tmainCRTStartup_stack_size+1);
+
+#else
+
+	return shadowStack.size() > 0;
+
+#endif
+}
+
+inline bool kCCFThreadContextClass::popShadowStack() 
+{
+	if (canPopStack()) {
+			
+		funcMode_ret();
+		return true;
+	} 
+		
+	return false;
+}
 
 inline kCCFThreadContextClass::kCCFThreadContextClass(PIN_THREAD_UID tid, ADDRINT startFuncAddr, ADDRINT stopFuncAddr)
 	 :  kCCFAbstractContext(),  currentFunction(0), threadID(tid)

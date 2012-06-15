@@ -156,7 +156,7 @@
 
 #if DEBUG && DEBUG_TRAD_RET 
 
-	#define dbg_tradret_begin()						cerr << "TRAD_MODE ret: " << currFuncName << endl;
+	#define dbg_tradret_begin()						cerr << "TRAD_MODE ret: " << ctx->getCurrentFunctionName() << endl;
 	#define dbg_tradret_cantpop()					cerr << "TRAD_MODE ret: can't pop(), stack size() == 0\n";
 	#define dbg_tradret_stackpop()					cerr << "TRAD_MODE shadowStack.pop()\n";
 	#define dbg_tradret_lastret()					cerr << "TRAD_MODE: LAST RETURN, next call will be a NEW CALL\n";

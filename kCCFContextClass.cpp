@@ -6,7 +6,6 @@
 using namespace std;
 using namespace kCCFLib;
 
-//extern kCCFContextClass *globalSharedContext;
 
 #include "benchmark.h"
 #include "output.h"
@@ -16,6 +15,10 @@ using namespace kCCFLib;
 namespace kCCFLib {
 
 	
+string kCCFThreadContextClass::getCurrentFunctionName() { 
+	return globalSharedContext->allFuncs[currentFunction]->functionName(); 
+}
+
 kCCFThreadContextClass *kCCFContextClass::getThreadCtx(PIN_THREAD_UID tid) { 
 	
 	kCCFThreadContextClass *ret;
@@ -41,8 +44,8 @@ kCCFThreadContextClass *kCCFContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 	return ret;
 }
 
-kCCFContextClass::kCCFContextClass(unsigned int k, WorkingModeType wm) : 
-	_K_CCF_VAL(k), _WorkingMode(wm)
+kCCFContextClass::kCCFContextClass(WorkingModeType wm, unsigned kval, optionsClass options) : 
+	_K_CCF_VAL(kval), _WorkingMode(wm)
 {
 	startFuncAddr=0;
 	stopFuncAddr=0;
@@ -50,6 +53,8 @@ kCCFContextClass::kCCFContextClass(unsigned int k, WorkingModeType wm) :
 
 	threadContexts.reserve(64);
 	InitLock(&lock);
+
+	this->options = options;
 }
 
 kCCFContextClass::~kCCFContextClass() {

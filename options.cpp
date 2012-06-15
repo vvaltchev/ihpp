@@ -1,4 +1,6 @@
 
+#include "config.h"
+#include "debug.h"
 #include "kCCF.h"
 
 #define OPTIONS_MOUDLE
@@ -8,29 +10,89 @@
 using namespace kCCFLib;
 using namespace std;
 
-void setOptions() 
+//Static symbols... 
+
+static KNOB<unsigned int> kparameter(KNOB_MODE_WRITEONCE, "pintool", "k", "3", "");
+static KNOB<string> singleFunctions(KNOB_MODE_APPEND, "pintool", "f", "", "");
+static KNOB<string> outFileName(KNOB_MODE_WRITEONCE, "pintool", "outfile", "out.txt", "");
+
+static KNOB<bool> showkSF(KNOB_MODE_WRITEONCE, "pintool", "ksf", "0", "");
+static KNOB<bool> showkSF2(KNOB_MODE_WRITEONCE, "pintool", "ksf2", "0", "");
+static KNOB<bool> showkCCF(KNOB_MODE_WRITEONCE, "pintool", "kccf", "0", "");
+
+////////
+static KNOB<bool> purge(KNOB_MODE_WRITEONCE, "pintool", "purge", "0", "");
+static KNOB<bool> experimental(KNOB_MODE_WRITEONCE, "pintool", "experimental", "0", "");
+/////////
+
+static KNOB<bool> funcMode(KNOB_MODE_WRITEONCE, "pintool", "funcMode", "0", "");
+static KNOB<bool> blockMode(KNOB_MODE_WRITEONCE, "pintool", "blockMode", "0", "");
+static KNOB<bool> tradMode(KNOB_MODE_WRITEONCE, "pintool", "tradMode", "0", "");
+static KNOB<bool> showCalls(KNOB_MODE_WRITEONCE, "pintool", "showCalls", "0", "");
+static KNOB<bool> showBlocks(KNOB_MODE_WRITEONCE, "pintool", "showBlocks", "0", "");
+static KNOB<bool> showFuncs(KNOB_MODE_WRITEONCE, "pintool", "showFuncs", "0", "");
+static KNOB<bool> joinThreads(KNOB_MODE_WRITEONCE, "pintool", "joinThreads", "0", "");
+static KNOB<bool> rollLoops(KNOB_MODE_WRITEONCE, "pintool", "rollLoops", "0", "");
+static KNOB<bool> disasm(KNOB_MODE_WRITEONCE, "pintool", "disasm", "0", "");
+static KNOB<bool> kinf(KNOB_MODE_WRITEONCE, "pintool", "kinf", "0", "");
+
+static KNOB<string> startFunc(KNOB_MODE_WRITEONCE, "pintool", "startFunc", "-none-", "");
+static KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "-none-", "");
+
+//----------------------------------------------------------------------------------------
+
+
+
+KNOB<string> &optionsClass::tracingFunctions() { 
+
+	return singleFunctions; 
+}
+
+const char *optionsClass::getOutfileName() { 
+
+	return outFileName.Value().c_str(); 
+}
+
+
+unsigned int optionsClass::getGlobalKVal() {
+	
+	return ::kparameter.Value();
+}
+
+WorkingModeType optionsClass::getGlobalWM() {
+
+	if (::tradMode.Value())
+		return TradMode;
+
+	if (::blockMode.Value())
+		return BlockMode;
+
+	return FuncMode;
+}
+
+void optionsClass::initFromGlobalOptions() 
 {
 
-	globalSharedContext->options.startFuncName = startFunc.Value();
-	globalSharedContext->options.stopFuncName = stopFunc.Value();
-	globalSharedContext->options.purgeFuncs = purge.Value();
+	startFuncName = ::startFunc.Value();
+	stopFuncName = ::stopFunc.Value();
+	purgeFuncs = ::purge.Value();
 
-	globalSharedContext->options.joinThreads = joinThreads.Value();
-	globalSharedContext->options.rollLoops = rollLoops.Value();
+	joinThreads = ::joinThreads.Value();
+	rollLoops = ::rollLoops.Value();
 
-	globalSharedContext->options.showkSF = showkSF.Value();
-	globalSharedContext->options.showkSF2 = showkSF2.Value();
-	globalSharedContext->options.showkCCF = showkCCF.Value();
-	globalSharedContext->options.showFuncs = showFuncs.Value();
-	globalSharedContext->options.showBlocks = showBlocks.Value();
-	globalSharedContext->options.showCalls = showCalls.Value();
-	globalSharedContext->options.disasm = disasm.Value();
-	globalSharedContext->options.kinf = kinf.Value();
+	showkSF = ::showkSF.Value();
+	showkSF2 = ::showkSF2.Value();
+	showkCCF = ::showkCCF.Value();
+	showFuncs = ::showFuncs.Value();
+	showBlocks = ::showBlocks.Value();
+	showCalls = ::showCalls.Value();
+	disasm = ::disasm.Value();
+	kinf = ::kinf.Value();
 }
 
 
 
-void showHelp()
+void optionsClass::showHelp()
 {
 	
 	cout << endl << endl;
@@ -58,25 +120,25 @@ void showHelp()
 	cout << endl << endl;
 }
 
-bool checkOptions() 
+bool optionsClass::checkOptions() 
 {
 	if ((  funcMode.Value() && (blockMode.Value() || tradMode.Value())  ) ||
 		(  blockMode.Value() && (funcMode.Value() || tradMode.Value())  ) ||
 		(  tradMode.Value() && (blockMode.Value() || funcMode.Value())  )) 
 	{
 
-		showHelp();
+		optionsClass::showHelp();
 		return false;
 	}
 
-	if (!showkSF.Value() && !showkCCF.Value() && !showCalls.Value() && !showFuncs.Value() && !showBlocks.Value()) {
+	if (!::showkSF.Value() && !::showkCCF.Value() && !::showCalls.Value() && !::showFuncs.Value() && !::showBlocks.Value()) {
 	
-		showHelp();
+		optionsClass::showHelp();
 		return false;
 	} 
 
 
-	if (disasm.Value() && !showBlocks.Value()) {
+	if (::disasm.Value() && !::showBlocks.Value()) {
 	
 		cerr << "-disasm option only applicable with -showBlocks option." << endl;
 		return false;
@@ -88,7 +150,7 @@ bool checkOptions()
 	
 		cerr << "Under Windows systems full tracing is an experimental feature:" << endl;
 		cerr << "results MAY BE WRONG. To try it, use -experimental option." << endl;
-		cerr << "Use -f <func> [ -f <func> ... ] to do a SELECTIVE tracing (much more reliable)";
+		cerr << "Use -f <func> [ -f <func> ... ] to do a SELECTIVE tracing (much more reliable).\n" << endl;
 		cerr << "Tip: full tracing combined with -startFunc <func> (es. main)" << endl;
 		cerr << "and -stopFunc <func> (es. exit) may produce better results.\n" << endl;
 
@@ -96,13 +158,13 @@ bool checkOptions()
 	}
 #endif
 
-	if (purge.Value() && singleFunctions.NumberOfValues()) {
+	if (::purge.Value() && ::singleFunctions.NumberOfValues()) {
 	
 		cerr << "Purge option is available only in full tracing mode.\n";
 		return false;
 	}
 
-	if (rollLoops.Value() && !tradMode.Value()) {
+	if (::rollLoops.Value() && !::tradMode.Value()) {
 	
 		cerr << "Roll loops option can be applied only with -tradMode option.\n";
 		return false;

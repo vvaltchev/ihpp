@@ -32,13 +32,19 @@ public:
 	ADDRINT _NLG_Notify_addr;
 	ADDRINT _NLG_Notify1_addr;
 	ADDRINT __NLG_Dispatch_addr;
+	ADDRINT __tmainCRTStartup_addr;
+	ADDRINT wWinMain_addr;
 
 #endif
 
-	specialAttrs() : _NLG_Notify_addr(0), _NLG_Notify1_addr(0), __NLG_Dispatch_addr(0) { }
+	ADDRINT main_addr;
+	ADDRINT exit_addr;
+
+	specialAttrs() : _NLG_Notify_addr(0), _NLG_Notify1_addr(0), 
+		__NLG_Dispatch_addr(0), __tmainCRTStartup_addr(0), wWinMain_addr(0), main_addr(0) { }
 };
 
-enum WorkingModeType { FuncMode, BlockMode, TradMode };
+
 
 class kCCFContextClass {
 
@@ -66,7 +72,7 @@ public:
 
 
 	
-	kCCFContextClass(unsigned int k, WorkingModeType wm);
+	kCCFContextClass(WorkingModeType wm, unsigned kval, optionsClass options);
 	~kCCFContextClass();
 
 	kCCFThreadContextClass *getThreadCtx(PIN_THREAD_UID tid);
