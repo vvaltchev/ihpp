@@ -37,10 +37,11 @@ inline void getCurrentAndTargetFunc(ADDRINT insAddr, ADDRINT targetAddr,
 
 #if ENABLE_INS_TRACING
 
-void PIN_FAST_ANALYSIS_CALL singleInstruction(kCCFContextClass *globalCtx, ADDRINT currFuncAddr, ADDRINT insCat) {
+void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr, ADDRINT insCat) {
 
-	
+	kCCFContextClass *globalCtx = globalSharedContext;
 	kCCFThreadContextClass *ctx;
+
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());	
 
 	if (currFuncAddr == ctx->startFuncAddr)
@@ -122,7 +123,7 @@ void PIN_FAST_ANALYSIS_CALL singleInstruction(kCCFContextClass *globalCtx, ADDRI
 
 
 
-void branchOrCall(kCCFContextClass *globalCtx, ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat) {
+void branchOrCall(ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat) {
 
 
 	bool traceTarget;
@@ -132,6 +133,7 @@ void branchOrCall(kCCFContextClass *globalCtx, ADDRINT insAddr, ADDRINT targetAd
 
 	string currentFuncName;
 	string targetFuncName;
+	kCCFContextClass *globalCtx = globalSharedContext;
 	
 	kCCFThreadContextClass *ctx;
 	
@@ -223,7 +225,7 @@ void branchOrCall(kCCFContextClass *globalCtx, ADDRINT insAddr, ADDRINT targetAd
 
 	SUBCALL_MAIN_CHECK();
 
-	singleInstruction(globalCtx, currentFuncAddr, insCat);
+	singleInstruction(currentFuncAddr, insCat);
 
 
 	if (traceTarget || FUNC_IS_TEXT(targetFuncName)) {

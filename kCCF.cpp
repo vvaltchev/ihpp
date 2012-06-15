@@ -220,11 +220,11 @@ VOID blockModeBlockTrace(TracingObject<ADDRINT> *to, kCCFContextClass *globalCtx
 
 	bb->incSimpleCounter();
 
-	traceObject(bb, globalCtx->K_CCF_VAL, ctx, ctx->treeTop, ctx->treeBottom);
+	traceObject(bb, globalCtx->kval(), ctx, ctx->treeTop, ctx->treeBottom);
 }
 
 
-void insInstrumentation(kCCFContextClass *globalCtx, RTN rtn, INS ins) {
+void insInstrumentation(RTN rtn, INS ins) {
 
 
 	if (INS_IsRet(ins) && !FUNC_IS_TEXT(RTN_Name(rtn))) {
@@ -233,8 +233,8 @@ void insInstrumentation(kCCFContextClass *globalCtx, RTN rtn, INS ins) {
 									IPOINT_BEFORE, (AFUNPTR)funcMode_ret, 
 									IARG_CALL_ORDER,
 									CALL_ORDER_FIRST, 
-									IARG_FAST_ANALYSIS_CALL, 
-									IARG_PTR, globalCtx, 
+									//IARG_FAST_ANALYSIS_CALL, 
+									//IARG_PTR, globalCtx, 
 									IARG_END);
 
 	}
@@ -246,7 +246,7 @@ void insInstrumentation(kCCFContextClass *globalCtx, RTN rtn, INS ins) {
 									IPOINT_BEFORE, (AFUNPTR)branchOrCall, 
 									IARG_CALL_ORDER,
 									CALL_ORDER_FIRST, 
-									IARG_PTR, globalCtx, 
+									//IARG_PTR, globalCtx, 
 									IARG_PTR, INS_Address(ins), 
 									IARG_BRANCH_TARGET_ADDR,
 									IARG_PTR, INS_Category(ins),
@@ -257,7 +257,7 @@ void insInstrumentation(kCCFContextClass *globalCtx, RTN rtn, INS ins) {
 									IARG_CALL_ORDER,
 									CALL_ORDER_FIRST, 
 									IARG_FAST_ANALYSIS_CALL, 
-									IARG_PTR, globalCtx, 
+									//IARG_PTR, globalCtx, 
 									IARG_PTR, RTN_Address(rtn), 
 									IARG_PTR, INS_Category(ins), 
 									IARG_END);
@@ -301,7 +301,7 @@ VOID BlockTraceInstrumentation(TRACE trace, void *arg)
 		funcName=RTN_Name(rtn);
 		funcAddr=RTN_Address(rtn);
 
-		if (ctx->purgeFuncs) {
+		if (ctx->options.purgeFuncs) {
 				
 			if (funcName[0] == '_') {
 				PIN_UnlockClient();
@@ -323,7 +323,7 @@ VOID BlockTraceInstrumentation(TRACE trace, void *arg)
 			bb = new BasicBlock(blockPtr, ctx->allFuncs.find(funcAddr)->second, row, col); 
 			ctx->allBlocks[blockPtr]=bb;
 
-			if (ctx->disasm) 
+			if (ctx->options.disasm) 
 			{
 				for( INS ins = BBL_InsHead(bbl); INS_Valid(ins); ins = INS_Next(ins) )
 				{
@@ -349,18 +349,19 @@ VOID BlockTraceInstrumentation(TRACE trace, void *arg)
 		}
 
 
-		if (ctx->WorkingMode == BlockMode)
+		if (ctx->WorkingMode() == BlockMode)
 			BBL_InsertCall(bbl, 
 								IPOINT_BEFORE, AFUNPTR(blockModeBlockTrace), 
 								IARG_PTR, bb, 
 								IARG_PTR, ctx, 
 								IARG_END);		
 
-		if (ctx->WorkingMode == TradMode)
+		if (ctx->WorkingMode() == TradMode)
 			BBL_InsertCall(bbl, 
 								IPOINT_BEFORE, AFUNPTR(tradModeBlockTrace), 
 								IARG_CALL_ORDER, CALL_ORDER_LAST, 
-								IARG_PTR, bb, IARG_PTR, ctx, 
+								IARG_PTR, bb, 
+								//IARG_PTR, ctx, 
 								IARG_REG_VALUE, REG_STACK_PTR, 
 								IARG_END);		
 
@@ -369,10 +370,12 @@ VOID BlockTraceInstrumentation(TRACE trace, void *arg)
 }
 
 
-VOID ImageLoad(IMG img, VOID *v) {
+VOID ImageLoad(IMG img, VOID *) {
 
 	RTN rtn2;
-	kCCFContextClass *ctx = static_cast<kCCFContextClass *>(v);
+	//kCCFContextClass *ctx = static_cast<kCCFContextClass *>(v);
+	kCCFContextClass *ctx = globalSharedContext;
+	
 	FunctionObj *fc;
 	map<ADDRINT, FunctionObj*>::iterator it;
 	bool mainImage = IMG_IsMainExecutable(img);
@@ -402,7 +405,7 @@ VOID ImageLoad(IMG img, VOID *v) {
 
 #endif
 
-			if (ctx->purgeFuncs) {
+			if (ctx->options.purgeFuncs) {
 				
 				if (funcName[0] == '_' && !IS_WIN32_NLG_NOTIFY(funcName)) {
 					continue;
@@ -424,12 +427,12 @@ VOID ImageLoad(IMG img, VOID *v) {
 
 			if (trace || FUNC_IS_TEXT(funcName)) {
 				
-				if (ctx->WorkingMode != BlockMode) {
+				if (ctx->WorkingMode() != BlockMode) {
 				
 					RTN_Open(rtn);
 
 					for( INS ins = RTN_InsHead(rtn); INS_Valid(ins); ins = INS_Next(ins) )
-						insInstrumentation(ctx, rtn, ins);			
+						insInstrumentation(rtn, ins);			
 
 					RTN_Close(rtn);
 				}
@@ -438,7 +441,7 @@ VOID ImageLoad(IMG img, VOID *v) {
 			if (!trace)
 				continue;
 				
-			if (ctx->WorkingMode != BlockMode)
+			if (ctx->WorkingMode() != BlockMode)
 			{	
 				RTN_Open(rtn);
 				RTN_InsertCall(rtn, IPOINT_BEFORE, AFUNPTR(FunctionObjTrace), 
@@ -457,27 +460,27 @@ VOID ImageLoad(IMG img, VOID *v) {
 	
 
 
-	if (ctx->startFuncName != "-none-") {
+	if (ctx->options.startFuncName != "-none-") {
 		
-		rtn2 = RTN_FindByName(img, ctx->startFuncName.c_str());
+		rtn2 = RTN_FindByName(img, ctx->options.startFuncName.c_str());
 
 		if (!RTN_Valid(rtn2)) {
 			
-			cerr << "Error: start tracing function '" << ctx->startFuncName << "' not found.\n";
+			cerr << "Error: start tracing function '" << ctx->options.startFuncName << "' not found.\n";
 			exit(0);
 		}
 
 		ctx->startFuncAddr = RTN_Address(rtn2);
 	}
 
-	if (ctx->stopFuncName != "-none-") {
+	if (ctx->options.stopFuncName != "-none-") {
 	
-		rtn2 = RTN_FindByName(img, ctx->stopFuncName.c_str());
+		rtn2 = RTN_FindByName(img, ctx->options.stopFuncName.c_str());
 
 
 		if (!RTN_Valid(rtn2)) {
 		
-			cerr << "Error: stop tracing function '" << ctx->stopFuncName << "' not found.\n";
+			cerr << "Error: stop tracing function '" << ctx->options.stopFuncName << "' not found.\n";
 			exit(0);
 		}
 
@@ -536,12 +539,12 @@ int main(int argc, char ** argv) {
 		TRACE_AddInstrumentFunction(BlockTraceInstrumentation, (void*)globalSharedContext);
 	}
 
-	IMG_AddInstrumentFunction(ImageLoad, (void*)globalSharedContext);
+	IMG_AddInstrumentFunction(ImageLoad, 0);
 	
 	//Experimental only imageload function, don't use it
 	//IMG_AddInstrumentFunction(ImageLoad2, (void*)globalSharedContext);
 
-    PIN_AddFiniFunction(Fini, (void*)globalSharedContext);
+    PIN_AddFiniFunction(Fini, 0);
 
 
     PIN_StartProgram();

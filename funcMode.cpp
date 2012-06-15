@@ -36,11 +36,12 @@ inline void funcMode_sp_check(kCCFThreadContextClass *ctx, ADDRINT reg_sp)
 }
 
 
-VOID FunctionObjTrace(FunctionObj *fc, kCCFContextClass *globalCtx, ADDRINT reg_sp) {
+VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 	kCCFNode *treeTop=0;
 	kCCFNode *treeBottom=0;	
 	kCCFThreadContextClass *ctx;
+	kCCFContextClass *globalCtx = globalSharedContext;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 	
@@ -97,10 +98,10 @@ VOID FunctionObjTrace(FunctionObj *fc, kCCFContextClass *globalCtx, ADDRINT reg_
 		goto before_ret;
 	}
 
-	if (globalCtx->showCalls)
+	if (globalCtx->options.showCalls)
 		funcTraceDebugDump(globalCtx, fc, ctx, reg_sp, treeTop, treeBottom);
 
-	traceObject(fc, globalCtx->K_CCF_VAL, ctx, treeTop, treeBottom, true);
+	traceObject(fc, globalCtx->kval(), ctx, treeTop, treeBottom, true);
 	
 	FUNCMODE_STORE_TOP_BOTTOM(reg_sp);
 
@@ -122,8 +123,9 @@ before_ret:
 }
 
 
-void PIN_FAST_ANALYSIS_CALL funcMode_ret(kCCFContextClass *globalCtx)
+void funcMode_ret()
 {
+	kCCFContextClass *globalCtx = globalSharedContext;
 	kCCFThreadContextClass *ctx;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
@@ -146,7 +148,7 @@ void PIN_FAST_ANALYSIS_CALL funcMode_ret(kCCFContextClass *globalCtx)
 
 		ctx->shadowStack.pop();
 
-		if (globalCtx->WorkingMode == TradMode)
+		if (globalCtx->WorkingMode() == TradMode)
 			tradMode_ret(globalCtx);
 	}
 
@@ -169,7 +171,7 @@ void PIN_FAST_ANALYSIS_CALL funcMode_ret(kCCFContextClass *globalCtx)
 
 function_end:
 
-	if (globalCtx->WorkingMode == TradMode)
+	if (globalCtx->WorkingMode() == TradMode)
 		tradMode_ret(globalCtx);
 
 	ctx->setCurrentFunction(ctx->shadowStack.top().treeTop->getValue()->getKey());

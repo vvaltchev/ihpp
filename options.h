@@ -37,21 +37,21 @@ KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "-none-", "");
 void setOptions() 
 {
 
-	globalSharedContext->startFuncName = startFunc.Value();
-	globalSharedContext->stopFuncName = stopFunc.Value();
-	globalSharedContext->purgeFuncs = purge.Value();
+	globalSharedContext->options.startFuncName = startFunc.Value();
+	globalSharedContext->options.stopFuncName = stopFunc.Value();
+	globalSharedContext->options.purgeFuncs = purge.Value();
 
-	globalSharedContext->joinThreads = joinThreads.Value();
-	globalSharedContext->rollLoops = rollLoops.Value();
+	globalSharedContext->options.joinThreads = joinThreads.Value();
+	globalSharedContext->options.rollLoops = rollLoops.Value();
 
-	globalSharedContext->showkSF = showkSF.Value();
-	globalSharedContext->showkSF2 = showkSF2.Value();
-	globalSharedContext->showkCCF = showkCCF.Value();
-	globalSharedContext->showFuncs = showFuncs.Value();
-	globalSharedContext->showBlocks = showBlocks.Value();
-	globalSharedContext->showCalls = showCalls.Value();
-	globalSharedContext->disasm = disasm.Value();
-	globalSharedContext->kinf = kinf.Value();
+	globalSharedContext->options.showkSF = showkSF.Value();
+	globalSharedContext->options.showkSF2 = showkSF2.Value();
+	globalSharedContext->options.showkCCF = showkCCF.Value();
+	globalSharedContext->options.showFuncs = showFuncs.Value();
+	globalSharedContext->options.showBlocks = showBlocks.Value();
+	globalSharedContext->options.showCalls = showCalls.Value();
+	globalSharedContext->options.disasm = disasm.Value();
+	globalSharedContext->options.kinf = kinf.Value();
 }
 
 

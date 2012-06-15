@@ -1,7 +1,4 @@
 
-#define TRADMODE_LOAD_TOP_BOTTOM()					treeTop = tradCtx->shadowStack.top().treeTop; treeBottom = tradCtx->shadowStack.top().treeBottom; 
-
-#define TRADMODE_STORE_TOP_BOTTOM(sp)				tradCtx->shadowStack.push(ShadowStackType(treeTop,treeBottom, (sp) ));
 
 #include "config.h"
 #include "debug.h"
@@ -17,6 +14,11 @@ extern kCCFContextClass *globalSharedContext;
 
 #include "tracingFuncs.h"
 
+#define TRADMODE_LOAD_TOP_BOTTOM()					treeTop = tradCtx->shadowStack.top().treeTop; treeBottom = tradCtx->shadowStack.top().treeBottom; 
+
+#define TRADMODE_STORE_TOP_BOTTOM(sp)				tradCtx->shadowStack.push(ShadowStackType(treeTop,treeBottom, (sp) ));
+
+
 #define TRADMODE_REPLACE_TOP_BOTTOM(sp)				tradCtx->shadowStack.pop(); tradCtx->shadowStack.push(ShadowStackType(treeTop,treeBottom, (sp) ));
 
 #define TOP_STACKPTR()								(tradCtx->shadowStack.size()?tradCtx->shadowStack.top().stackPtr:(ADDRINT)-1)
@@ -27,8 +29,9 @@ extern kCCFContextClass *globalSharedContext;
 #define IS_WIN32_NLG_NOTIFY2(func)					((func) == "_NLG_Notify" || (func) == "_NLG_Notify1" || (func) == "__NLG_Dispatch")
 
 
-VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, kCCFContextClass *globalCtx, ADDRINT reg_sp) { 
+VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
 
+	kCCFContextClass *globalCtx = globalSharedContext;
 	kCCFThreadContextClass *ctx;
 	kCCFTradModeContext *tradCtx;
 	kCCFNode *treeTop;
@@ -94,9 +97,9 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, kCCFContextClass *globalCtx,
 
 		ADDRINT oldStackPtr = TOP_STACKPTR();
 
-		if (!globalCtx->rollLoops) {
+		if (!globalCtx->options.rollLoops) {
 			
-			traceObject(bb, globalCtx->K_CCF_VAL, tradCtx, treeTop, treeBottom, true);
+			traceObject(bb, globalCtx->kval(), tradCtx, treeTop, treeBottom, true);
 
 		} else {
 		
@@ -122,7 +125,7 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, kCCFContextClass *globalCtx,
 
 			if (!found) {
 				
-				traceObject(bb, globalCtx->K_CCF_VAL, tradCtx, treeTop, treeBottom, true);
+				traceObject(bb, globalCtx->kval(), tradCtx, treeTop, treeBottom, true);
 			} 
 		}
 
@@ -151,7 +154,7 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, kCCFContextClass *globalCtx,
 			
 		treeTop=0; treeBottom=0;
 				
-		traceObject(bb, globalCtx->K_CCF_VAL, tradCtx, treeTop, treeBottom, true);
+		traceObject(bb, globalCtx->kval(), tradCtx, treeTop, treeBottom, true);
 
 		assert(tradCtx->rootKey);
 		assert(treeTop);

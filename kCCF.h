@@ -38,6 +38,9 @@ public:
 	bool disasm;
 	bool kinf;
 
+	string startFuncName;
+	string stopFuncName;
+	
 	optionsClass() 
 	{
 		joinThreads=false;
@@ -56,9 +59,11 @@ public:
 
 enum WorkingModeType { FuncMode, BlockMode, TradMode };
 
-class kCCFContextClass : public optionsClass {
+class kCCFContextClass {
 
 	PIN_LOCK lock;
+	unsigned int _K_CCF_VAL;
+	WorkingModeType _WorkingMode;
 
 public:
 
@@ -70,23 +75,22 @@ public:
 	FuncsMap allFuncs;
 	vector<kCCFThreadContextClass*> threadContexts;
 
-	unsigned int K_CCF_VAL;
-	WorkingModeType WorkingMode;
-	
-
 	bool exitPassed;
 	
+	optionsClass options;
 	
-	string startFuncName;
-	string stopFuncName;
-
 	ADDRINT startFuncAddr;
 	ADDRINT stopFuncAddr;
+
+
 	
 	kCCFContextClass(unsigned int k, WorkingModeType wm);
 	~kCCFContextClass();
 
 	kCCFThreadContextClass *getThreadCtx(PIN_THREAD_UID tid);
+	
+	WorkingModeType WorkingMode() { return _WorkingMode; }
+	unsigned int kval() { return _K_CCF_VAL; }
 
 	bool hasToTrace(string funcName, ADDRINT funcAddr);
 };

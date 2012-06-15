@@ -88,7 +88,7 @@ void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 	//because they are computed only for a visualization propouse:
 	//the K slab forest need to copied in order to save it's counter values
 	//resetted by kSlabForestKLevelCountersClear() before forest inversion operation
-	if (globalCtx->showkSF) {
+	if (globalCtx->options.showkSF) {
 	
 		BENCHMARK_OFF
 
@@ -107,17 +107,17 @@ void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 
 	kCCFForest kccf;
 
-	if (globalCtx->showkCCF) {
+	if (globalCtx->options.showkCCF) {
 	
-		kSlabForestKLevelCountersClear(ctx->kSlabForest, ctx->rootKey, globalCtx->K_CCF_VAL);
-		kccf = ctx->kSlabForest.inverseK(globalCtx->K_CCF_VAL);
+		kSlabForestKLevelCountersClear(ctx->kSlabForest, ctx->rootKey, globalCtx->kval());
+		kccf = ctx->kSlabForest.inverseK(globalCtx->kval());
 
 		benchmark_dump_after_kCCF(globalCtx, ctx);
 		globalCtx->OutFile << "Nodes count of kCCF: " << kccf.recursiveAllNodesCount() << endl << endl;
 	}
 
 
-	if (globalCtx->showkSF) {
+	if (globalCtx->options.showkSF) {
 
 		print_title(globalCtx, "DUMP of K-SF");
 
@@ -126,7 +126,7 @@ void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 		delete kSFCopy;
 	}	
 
-	if (globalCtx->showkSF2) {
+	if (globalCtx->options.showkSF2) {
 
 		print_title(globalCtx, "DUMP of K-SF with resetted counters");
 
@@ -135,7 +135,7 @@ void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 
 	globalCtx->OutFile << "\n\n\n";
 
-	if (globalCtx->showkCCF) {
+	if (globalCtx->options.showkCCF) {
 
 		print_title(globalCtx, "DUMP of K-CCF");	
 		dump(kccf, globalCtx->OutFile);
@@ -145,7 +145,7 @@ void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 
 void printThreadContextInfo(kCCFContextClass *globalCtx, kCCFThreadContextClass *ctx) 
 {
-	if (globalCtx->WorkingMode == FuncMode || globalCtx->WorkingMode == BlockMode) {
+	if (globalCtx->WorkingMode() == FuncMode || globalCtx->WorkingMode() == BlockMode) {
 	
 		printContextInfo(globalCtx, ctx);
 		return;
@@ -227,22 +227,23 @@ void tradMode_joinThreads(kCCFContextClass *globalCtx) {
 
 }
 
-VOID Fini(INT32 code, VOID *v)
+VOID Fini(INT32 code, VOID *)
 {
 
-	kCCFContextClass *ctx = (kCCFContextClass*)v;
-	
+	//kCCFContextClass *ctx = (kCCFContextClass*)v;
+	kCCFContextClass *ctx = globalSharedContext;
+
 	ctx->OutFile << endl << endl << endl;
 
 	ctx->OutFile << "Size of a node: " << sizeof(kCCFNode) << endl;
 	
-	if (!ctx->kinf) {
-		ctx->OutFile << "K value: " << ctx->K_CCF_VAL << endl;
+	if (!ctx->options.kinf) {
+		ctx->OutFile << "K value: " << ctx->kval() << endl;
 	} else {
 		ctx->OutFile << "K value: INFINITE" << endl;
 	}
 
-	if (ctx->WorkingMode != FuncMode) {
+	if (ctx->WorkingMode() != FuncMode) {
 	
 		ctx->OutFile << "Basic blocks count: " << ctx->allBlocks.size() << endl;
 
@@ -255,9 +256,9 @@ VOID Fini(INT32 code, VOID *v)
 	ctx->OutFile << "Maximum number of different threads: " << ctx->threadContexts.size() << endl;
 	ctx->OutFile << endl << endl;
 
-	if (ctx->joinThreads) {
+	if (ctx->options.joinThreads) {
 	
-		if (ctx->WorkingMode != TradMode)
+		if (ctx->WorkingMode() != TradMode)
 			blockFuncMode_joinThreads(ctx);
 		else
 			tradMode_joinThreads(ctx);
@@ -266,7 +267,7 @@ VOID Fini(INT32 code, VOID *v)
 	
 	for (unsigned i=0; i < ctx->threadContexts.size(); i++) {
 	
-		if (!ctx->joinThreads)
+		if (!ctx->options.joinThreads)
 			print_thread_id(ctx, ctx->threadContexts[i]->threadID);
 
 		//Operations in printContextInfo (inversion of the K slab forest and others)
@@ -280,7 +281,7 @@ VOID Fini(INT32 code, VOID *v)
 
 	size_t maxFuncLen=0;
 
-	if (ctx->showFuncs || (ctx->showBlocks && !ctx->funcsToTrace.size())) {
+	if (ctx->options.showFuncs || (ctx->options.showBlocks && !ctx->funcsToTrace.size())) {
 		
 		for (map<ADDRINT,FunctionObj*>::iterator it = ctx->allFuncs.begin(); it != ctx->allFuncs.end(); it++) {
 		
@@ -291,7 +292,7 @@ VOID Fini(INT32 code, VOID *v)
 		}	
 	}
 
-	if (ctx->showBlocks) {
+	if (ctx->options.showBlocks) {
 
 		size_t maxLen=0;
 
@@ -324,7 +325,7 @@ VOID Fini(INT32 code, VOID *v)
 			ctx->OutFile << hex << (void*)bb.getKey() << dec; 
 			ctx->OutFile << " simpleCounter: " << bb.getSimpleCounter();
 
-			if (ctx->disasm)
+			if (ctx->options.disasm)
 			{
 				ctx->OutFile << "\tDisassembly: \n";
 				for (vector<string>::iterator it2 = bb.instructions.begin(); it2 != bb.instructions.end(); it2++) 
@@ -366,7 +367,7 @@ VOID Fini(INT32 code, VOID *v)
 	
 	}
 
-	if (ctx->showFuncs) {
+	if (ctx->options.showFuncs) {
 		
 		ctx->OutFile << "\n\n\n";
 

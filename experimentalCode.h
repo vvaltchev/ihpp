@@ -16,7 +16,7 @@ void simpleIns(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, AD
 	
 	if (insAddr == fc->functionAddress()) {
 	
-		FunctionObjTrace(fc, globalCtx, sp);
+		FunctionObjTrace(fc, sp);
 
 		return;
 	}
@@ -79,7 +79,7 @@ void branch(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRI
 	
 	
 		if (ctx->shadowStack.size() > 1)
-			funcMode_ret(globalCtx);
+			funcMode_ret();
 
 
 	}
@@ -100,7 +100,7 @@ void branch(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRI
 					
 					if (targetFuncAddr == beforeLastTop) {
 				
-						funcMode_ret(globalCtx);
+						funcMode_ret();
 						//ctx->popShadowStack();
 						break;
 					} 

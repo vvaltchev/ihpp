@@ -42,7 +42,7 @@ kCCFThreadContextClass *kCCFContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 }
 
 kCCFContextClass::kCCFContextClass(unsigned int k, WorkingModeType wm) : 
-	optionsClass(), K_CCF_VAL(k), WorkingMode(wm)
+	_K_CCF_VAL(k), _WorkingMode(wm)
 {
 	startFuncAddr=0;
 	stopFuncAddr=0;
