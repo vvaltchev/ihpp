@@ -240,19 +240,54 @@ void insInstrumentation(RTN rtn, INS ins) {
 
 #if ENABLE_INS_TRACING
 
-	if ((INS_IsBranchOrCall(ins) || INS_IsRet(ins)))
-		INS_InsertPredicatedCall(ins, 
-									IPOINT_BEFORE, (AFUNPTR)branchOrCall, 
-									IARG_CALL_ORDER,
-									CALL_ORDER_FIRST,
-									IARG_PTR, RTN_Address(rtn),
-									IARG_PTR, RTN_Name(rtn).c_str(),
-									//IARG_PTR, globalCtx, 
-									IARG_PTR, INS_Address(ins), 
-									IARG_BRANCH_TARGET_ADDR,
-									IARG_PTR, INS_Category(ins),
-									IARG_END);
-	else
+	if ((INS_IsBranchOrCall(ins) || INS_IsRet(ins))) {
+		
+		if (INS_IsDirectBranchOrCall(ins)) {
+		
+			ADDRINT targetAddr = INS_DirectBranchOrCallTargetAddress(ins);
+
+			RTN r;
+
+			r = RTN_FindByAddress(targetAddr);
+
+			assert(RTN_Valid(r));
+
+			INS_InsertPredicatedCall(ins, 
+										IPOINT_BEFORE, (AFUNPTR)branchOrCall, 
+										IARG_CALL_ORDER,
+										CALL_ORDER_FIRST,
+										IARG_PTR, RTN_Address(rtn),
+										IARG_PTR, RTN_Name(rtn).c_str(),
+										 
+										IARG_PTR, INS_Address(ins), 
+										
+										IARG_PTR, targetAddr,
+										IARG_PTR, RTN_Address(r),
+										IARG_PTR, RTN_Name(r).c_str(),
+
+										IARG_PTR, INS_Category(ins),
+										IARG_END);
+
+		} else {
+
+			INS_InsertPredicatedCall(ins, 
+										IPOINT_BEFORE, (AFUNPTR)indirect_branchOrCall, 
+										IARG_CALL_ORDER,
+										CALL_ORDER_FIRST,
+										IARG_PTR, RTN_Address(rtn),
+										IARG_PTR, RTN_Name(rtn).c_str(),
+										 
+										IARG_PTR, INS_Address(ins), 
+										
+										IARG_BRANCH_TARGET_ADDR,
+
+										IARG_PTR, INS_Category(ins),
+										IARG_END);		
+
+		}
+
+
+	} else {
 		INS_InsertPredicatedCall(ins, 
 									IPOINT_BEFORE, (AFUNPTR)singleInstruction, 
 									IARG_CALL_ORDER,
@@ -262,7 +297,7 @@ void insInstrumentation(RTN rtn, INS ins) {
 									IARG_PTR, RTN_Address(rtn), 
 									IARG_PTR, INS_Category(ins), 
 									IARG_END);
-		
+	}
 #endif
 
 }

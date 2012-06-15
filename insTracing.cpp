@@ -10,7 +10,7 @@ using namespace kCCFLib;
 
 #include "tracingFuncs.h"
 
-inline void getTargetFunc(ADDRINT &insAddr, ADDRINT &targetAddr, ADDRINT &targetFuncAddr, string &targetFuncName)
+inline void getTargetFunc(ADDRINT &targetAddr, ADDRINT &targetFuncAddr, string &targetFuncName)
 {
 	RTN rtn;
 	PIN_LockClient();
@@ -112,24 +112,33 @@ void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr, ADDRINT insC
 
 }
 
+void indirect_branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr, 
+											ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat) 
+{
+	ADDRINT targetFuncAddr;
+	string targetFuncName;
 
+	getTargetFunc(targetAddr, targetFuncAddr, targetFuncName);
+
+	branchOrCall(currentFuncAddr, currentFuncNamePtr, insAddr, targetAddr, targetFuncAddr, targetFuncName.c_str(), insCat);
+}
 
 void branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr, 
-											ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat) 
+											ADDRINT insAddr, ADDRINT targetAddr, ADDRINT targetFuncAddr, 
+											const char* targetFuncNamePtr, ADDRINT insCat) 
 {
 
 
 	bool traceTarget;
 
-	ADDRINT targetFuncAddr=0;
 	string currentFuncName = currentFuncNamePtr;
-	string targetFuncName;
+	string targetFuncName = targetFuncNamePtr;
 	
 	kCCFThreadContextClass *ctx;
 	
 	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());	
 
-	getTargetFunc(insAddr, targetAddr, targetFuncAddr, targetFuncName);
+	//getTargetFunc(insAddr, targetAddr, targetFuncAddr, targetFuncName);
 
 	if (currentFuncAddr == ctx->startFuncAddr)
 		ctx->haveToTrace=true;
@@ -227,5 +236,7 @@ void branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr,
 	}
 
 }
+
+
 
 #endif

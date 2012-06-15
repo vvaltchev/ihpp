@@ -180,7 +180,7 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 
 
-void PIN_FAST_ANALYSIS_CALL tradMode_ret() 
+void tradMode_ret() 
 {
 	kCCFThreadContextClass *ctx;
 	kCCFTradModeContext *tradCtx;
