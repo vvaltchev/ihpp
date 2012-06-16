@@ -247,13 +247,10 @@ void insInstrumentation(RTN rtn, INS ins) {
 			PIN_LockClient();
 			r = RTN_FindByAddress(targetAddr);
 			PIN_UnlockClient();
-
-			//assert(RTN_Valid(r));
 			
 
 			if (!RTN_Valid(r)) {
 			
-				//cout << "func non valida per l'indirizzo: " << targetAddr << endl;
 				return;
 			}
 
@@ -265,8 +262,7 @@ void insInstrumentation(RTN rtn, INS ins) {
 										
 										IARG_PTR, targetAddr,
 										IARG_PTR, RTN_Address(r),
-										IARG_PTR, RTN_Name(r).c_str(),
-
+										
 										IARG_PTR, INS_Category(ins),
 										IARG_END);
 
@@ -293,7 +289,6 @@ void insInstrumentation(RTN rtn, INS ins) {
 									CALL_ORDER_FIRST, 
 									IARG_FAST_ANALYSIS_CALL, 
 									IARG_PTR, RTN_Address(rtn), 
-									//IARG_PTR, INS_Category(ins), 
 									IARG_END);
 	}
 #endif

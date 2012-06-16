@@ -22,11 +22,11 @@ void tradMode_ret();
 void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr);
 
 
-void branchOrCall(ADDRINT currentFuncAddr, 
-											ADDRINT targetAddr, ADDRINT targetFuncAddr, 
-											const char* targetFuncNamePtr, ADDRINT insCat);
+void branchOrCall(ADDRINT currentFuncAddr, ADDRINT targetAddr, 
+							ADDRINT targetFuncAddr, ADDRINT insCat);
 
-void indirect_branchOrCall(ADDRINT currentFuncAddr,	ADDRINT targetAddr, ADDRINT insCat);
+void indirect_branchOrCall(ADDRINT currentFuncAddr,	
+								ADDRINT targetAddr, ADDRINT insCat);
 
 #endif
 

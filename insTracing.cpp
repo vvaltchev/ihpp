@@ -9,7 +9,7 @@ using namespace std;
 
 #include "tracingFuncs.h"
 
-inline void getTargetFunc(ADDRINT &targetAddr, ADDRINT &targetFuncAddr, string &targetFuncName)
+inline void getTargetFunc(ADDRINT &targetAddr, ADDRINT &targetFuncAddr)
 {
 	RTN rtn;
 	PIN_LockClient();
@@ -17,7 +17,7 @@ inline void getTargetFunc(ADDRINT &targetAddr, ADDRINT &targetFuncAddr, string &
 	rtn = RTN_FindByAddress(targetAddr);
 	
 	if(RTN_Valid(rtn)) {
-		targetFuncName = RTN_Name(rtn);
+		//targetFuncName = RTN_Name(rtn);
 		targetFuncAddr = RTN_Address(rtn);
 	}
 
@@ -111,30 +111,29 @@ void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr) {
 
 }
 
-void indirect_branchOrCall(ADDRINT currentFuncAddr, ADDRINT targetAddr, ADDRINT insCat) 
+void indirect_branchOrCall(ADDRINT currentFuncAddr,
+								ADDRINT targetAddr, ADDRINT insCat) 
 {
 	ADDRINT targetFuncAddr;
-	string targetFuncName;
 
-	getTargetFunc(targetAddr, targetFuncAddr, targetFuncName);
+	getTargetFunc(targetAddr, targetFuncAddr);
 
-	branchOrCall(currentFuncAddr, targetAddr, targetFuncAddr, targetFuncName.c_str(), insCat);
+	branchOrCall(currentFuncAddr, targetAddr, targetFuncAddr, insCat);
 }
 
-void branchOrCall(ADDRINT currentFuncAddr, 
-											ADDRINT targetAddr, ADDRINT targetFuncAddr, 
-											const char* targetFuncNamePtr, ADDRINT insCat) 
+void branchOrCall(ADDRINT currentFuncAddr, ADDRINT targetAddr, 
+							ADDRINT targetFuncAddr, ADDRINT insCat) 
 {
 
 
 	bool traceTarget;
 	kCCFThreadContextClass *ctx;
 
-	string targetFuncName = targetFuncNamePtr;
-	
+
 #if DEBUG 
 
 	string currentFuncName;
+	string targetFuncName;
 
 	RTN rtn;
 
@@ -142,10 +141,13 @@ void branchOrCall(ADDRINT currentFuncAddr,
 	
 	rtn = RTN_FindByAddress(currentFuncAddr);
 	
-	if(RTN_Valid(rtn)) {
+	if(RTN_Valid(rtn))
 		currentFuncName = RTN_Name(rtn);
-	}
 
+	rtn = RTN_FindByAddress(targetFuncAddr);
+
+	if (RTN_Valid(rtn))
+		targetFuncName = RTN_Name(rtn);
 
 	PIN_UnlockClient();		
 
