@@ -55,6 +55,11 @@ kCCFContextClass::kCCFContextClass(WorkingModeType wm, unsigned kval, optionsCla
 	InitLock(&lock);
 
 	this->options = options;
+
+#if DEBUG
+	showDebug=true;
+#endif
+
 }
 
 kCCFContextClass::~kCCFContextClass() {

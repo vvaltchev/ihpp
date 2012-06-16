@@ -76,6 +76,10 @@ public:
 
 	bool exitPassed;
 	
+#if DEBUG
+	bool showDebug;
+#endif
+
 	optionsClass options;
 	specialAttrs spAttrs;
 

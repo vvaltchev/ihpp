@@ -12,7 +12,7 @@ void tradMode_ret();
 
 #if ENABLE_INS_TRACING
 
-void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr, ADDRINT insCat);
+void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr);
 
 
 void branchOrCall(ADDRINT currentFuncAddr, 

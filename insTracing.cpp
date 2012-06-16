@@ -28,7 +28,7 @@ inline void getTargetFunc(ADDRINT &targetAddr, ADDRINT &targetFuncAddr, string &
 
 #if ENABLE_INS_TRACING
 
-void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr, ADDRINT insCat) {
+void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr) {
 
 	kCCFContextClass *globalCtx = globalSharedContext;
 	kCCFThreadContextClass *ctx;
@@ -241,7 +241,7 @@ void branchOrCall(ADDRINT currentFuncAddr,
 
 	SUBCALL_MAIN_CHECK();
 
-	singleInstruction(currentFuncAddr, insCat);
+	singleInstruction(currentFuncAddr); 
 
 
 	if (traceTarget || FUNC_IS_TEXT(targetFuncAddr)) {

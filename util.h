@@ -23,12 +23,12 @@ void dump(node<keyT> &n, ostream& out=cerr, int ident=0) {
 	typename node<keyT>::nodesIterator it = n.getNodesIteratorBegin();
 	typename node<keyT>::nodesIterator end = n.getNodesIteratorEnd();
 
+
 	while (it != end) {
-	
+
 		dump(*it, out, ident+1);
 		it++;
 	}
-
 }
 
 template <typename keyT>
@@ -37,16 +37,15 @@ void dump(forest<keyT> &f, ostream& out=cerr) {
 	typename forest<keyT>::treesIterator it = f.getTreesIteratorBegin();
 	typename forest<keyT>::treesIterator end = f.getTreesIteratorEnd();
 
+
 	while (it != end) {
-	
+
 		if (!it->getParentRef())
 			dump(*it, out, 0);
-
+	
 		out << endl << endl;
-
 		it++;
 	}
-
 }
 
 

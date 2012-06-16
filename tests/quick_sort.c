@@ -45,12 +45,18 @@ int main() {
 	int i;
 
 	for (i=0; i < 100*1000; i++) {
-    int v[] = { 5, 2, 4, 8, 5, 8, 3, 2, 9, 0, 12, 4, 25, 5, 6};
-    int n = sizeof(v)/sizeof(int), i;
- //   print(v, n, "unsorted array");    
-	quick_sort(v, n);
-  //  print(v, n, "sorted array");
+		
+		int v[] = { 5, 2, 4, 8, 5, 8, 3, 2, 9, 0, 12, 4, 25, 5, 6};
+		int n = sizeof(v)/sizeof(int);
+ 
+		//if (!(i%5000))
+		//	printf("%i-%i/100000\n", i, i+5000);
+
+		quick_sort(v, n);
+ 
 	}
+
+	printf("finito completamente.\n");
     return 0;
 }
 

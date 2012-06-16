@@ -15,11 +15,8 @@
 
 #ifdef _WIN32
 	#define CHECK_LONGJMP_NOTIFY()				(win32_check_nlg_notify(ctx, currFuncAddr))
-	//#define FUNC_IS_TEXT(func)					((func) == ".text" || (func) == "unnamedImageEntryPoint")
-
 #else
 	#define CHECK_LONGJMP_NOTIFY()				0
-	//#define FUNC_IS_TEXT(func)					((func) == ".text")
 #endif
 
 

@@ -93,7 +93,7 @@ typedef map<ADDRINT, BasicBlock*> BlocksMap;
 typedef FuncsMap::iterator FuncsMapIt;
 typedef BlocksMap::iterator BlocksMapIt;
 
-inline ostream& operator << (ostream& s, kCCFNode n) { 
+inline ostream& operator << (ostream& s, kCCFNode &n) { 
 	
 	TracingObject<ADDRINT> *obj = static_cast<TracingObject<ADDRINT> *>(n.getValue()); 
 

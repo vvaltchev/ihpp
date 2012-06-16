@@ -296,7 +296,7 @@ void insInstrumentation(RTN rtn, INS ins) {
 									CALL_ORDER_FIRST, 
 									IARG_FAST_ANALYSIS_CALL, 
 									IARG_PTR, RTN_Address(rtn), 
-									IARG_PTR, INS_Category(ins), 
+									//IARG_PTR, INS_Category(ins), 
 									IARG_END);
 	}
 #endif
@@ -444,6 +444,7 @@ VOID ImageLoad(IMG img, VOID *) {
 	RTN rtn2;
 	kCCFContextClass *ctx = globalSharedContext;
 	
+	//ctx->showDebug=false;
 
 	FunctionObj *fc;
 	map<ADDRINT, FunctionObj*>::iterator it;

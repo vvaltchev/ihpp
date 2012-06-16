@@ -6,8 +6,6 @@
 using namespace std;
 using namespace kCCFLib;
 
-//extern kCCFContextClass *globalSharedContext;
-
 #include "benchmark.h"
 #include "output.h"
 
@@ -96,7 +94,6 @@ void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 		*kSFCopy=ctx->kSlabForest;
 
 		BENCHMARK_ON
-
 	}
 
 
@@ -140,7 +137,6 @@ void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 		print_title(globalCtx, "DUMP of K-CCF");	
 		dump(kccf, globalCtx->OutFile);
 	}
-
 }
 
 void printThreadContextInfo(kCCFContextClass *globalCtx, kCCFThreadContextClass *ctx) 
@@ -150,6 +146,7 @@ void printThreadContextInfo(kCCFContextClass *globalCtx, kCCFThreadContextClass 
 		printContextInfo(globalCtx, ctx);
 		return;
 	}
+
 
 	for (map<ADDRINT, kCCFTradModeContext*>::iterator it = ctx->tradModeContexts.begin(); it != ctx->tradModeContexts.end(); it++)
 	{
@@ -164,6 +161,7 @@ void printThreadContextInfo(kCCFContextClass *globalCtx, kCCFThreadContextClass 
 
 		printContextInfo(globalCtx, tradCtx);
 	}
+
 }
 
 void blockFuncMode_joinThreads(kCCFContextClass *globalCtx) {
@@ -232,9 +230,9 @@ void tradMode_joinThreads(kCCFContextClass *globalCtx) {
 
 VOID Fini(INT32 code, VOID *)
 {
-
-	//kCCFContextClass *ctx = (kCCFContextClass*)v;
 	kCCFContextClass *ctx = globalSharedContext;
+
+	//ctx->showDebug=true;
 
 	ctx->OutFile << endl << endl << endl;
 

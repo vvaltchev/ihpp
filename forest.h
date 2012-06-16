@@ -22,13 +22,13 @@ public:
 
 	forest();
 	forest(const forest &f);
-	forest(node<keyT>  n);
+	forest(node<keyT> n);
 
 	node<keyT> * getTreeRef(keyT k);
 	node<keyT> * toTree();
 
-	inline node<keyT> * addTree(node<keyT>  &n);
-	node<keyT> * addTreeByVal(node<keyT>  n) { return addTree(n); }
+	inline node<keyT> * addTree(node<keyT> &n);
+	node<keyT> * addTreeByVal(node<keyT> n) { return addTree(n); }
 
 	treesIterator getTreesIteratorBegin() { return treesIterator(trees.begin()); }
 	treesIterator getTreesIteratorEnd() { return treesIterator(trees.end()); }
@@ -41,8 +41,8 @@ public:
 	forest<keyT> inverseK(unsigned int k);
 	forest<keyT> join(forest<keyT> &f2) { return join(*this, f2); }
 	forest<keyT> joinByVal(forest<keyT> f2) { return join(*this, f2); }
-	forest<keyT> join(node<keyT>  &t2) { return join(*this, t2); }
-	forest<keyT> joinByVal(node<keyT>  t2) { return join(*this, t2); }
+	forest<keyT> join(node<keyT> &t2) { return join(*this, t2); }
+	forest<keyT> joinByVal(node<keyT> t2) { return join(*this, t2); }
 
 	inline forest<keyT> &operator=(forest<keyT> f);
 };

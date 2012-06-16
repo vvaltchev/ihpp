@@ -131,7 +131,8 @@ bool optionsClass::checkOptions()
 		return false;
 	}
 
-	if (!::showkSF.Value() && !::showkCCF.Value() && !::showCalls.Value() && !::showFuncs.Value() && !::showBlocks.Value()) {
+	if (!::showkSF.Value() && !::showkSF2.Value() && !::showkCCF.Value() && 
+		!::showCalls.Value() && !::showFuncs.Value() && !::showBlocks.Value()) {
 	
 		optionsClass::showHelp();
 		return false;
@@ -141,6 +142,12 @@ bool optionsClass::checkOptions()
 	if (::disasm.Value() && !::showBlocks.Value()) {
 	
 		cerr << "-disasm option only applicable with -showBlocks option." << endl;
+		return false;
+	}
+
+	if (::kinf.Value() && !::rollLoops.Value() && ::tradMode.Value()) {
+	
+		cerr << "It's an error to use k = infinite (-kinf) without -rollLoops option in tradMode.\n";
 		return false;
 	}
 
