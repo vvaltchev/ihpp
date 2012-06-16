@@ -81,12 +81,22 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 		
 		FUNCMODE_LOAD_TOP_BOTTOM();
 	
-	} else if (ctx->rootKey) {
+	} 
+
+	assert(ctx->shadowStack.size() || !ctx->rootKey);
+
+	//stackSize == 0 && rootKey != null
+	//This should never happen for functions
+	//because stack size is FORCED to be > 0 after the first function call
+
+	/*
+	else if (ctx->rootKey) {
 
 		//Reset top,bottom pointers to root of the function's tree
 		FUNCMODE_SET_TOP_BOTTOM_TO_ROOT();
 
-		funcTraceDebugDump(globalCtx, fc, ctx, reg_sp, treeTop, treeBottom);
+		if (globalCtx->options.showCalls)
+			funcTraceDebugDump(globalCtx, fc, ctx, reg_sp, treeTop, treeBottom);
 
 		//Push them on the shadow stack a increment the root counter
 		FUNCMODE_STORE_TOP_BOTTOM((ADDRINT)-1);
@@ -94,7 +104,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 		goto before_ret;
 	}
-
+	*/
 	if (globalCtx->options.showCalls)
 		funcTraceDebugDump(globalCtx, fc, ctx, reg_sp, treeTop, treeBottom);
 
