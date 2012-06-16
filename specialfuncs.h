@@ -5,11 +5,9 @@
 
 
 #if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT
-	//#define THREAD_CTX_POP_CHECK()				(__tmainCRTStartup_stack_size == (unsigned)-1 || shadowStack.size()-1 >= __tmainCRTStartup_stack_size+1)
 	#define INIT_THREAD_CTX_W32_VARS()			__tmainCRTStartup_stack_size=-1;
 
 #else
-	//#define THREAD_CTX_POP_CHECK()				(shadowStack.size())
 	#define INIT_THREAD_CTX_W32_VARS()
 #endif
 
@@ -17,10 +15,11 @@
 
 #ifdef _WIN32
 	#define CHECK_LONGJMP_NOTIFY()				(win32_check_nlg_notify(ctx, currFuncAddr))
-	#define FUNC_IS_TEXT(func)					((func) == ".text" || (func) == "unnamedImageEntryPoint")
+	//#define FUNC_IS_TEXT(func)					((func) == ".text" || (func) == "unnamedImageEntryPoint")
+
 #else
 	#define CHECK_LONGJMP_NOTIFY()				0
-	#define FUNC_IS_TEXT(func)					((func) == ".text")
+	//#define FUNC_IS_TEXT(func)					((func) == ".text")
 #endif
 
 
@@ -64,8 +63,17 @@ namespace kCCFLib {
 #define IS_WIN32_NLG_NOTIFY(func)			((func) == globalSharedContext->spAttrs._NLG_Notify_addr ||  \
 											 (func) == globalSharedContext->spAttrs._NLG_Notify1_addr || \
 											 (func) == globalSharedContext->spAttrs.__NLG_Dispatch_addr)
+
+#define FUNC_IS_TEXT(func)					((func) == globalSharedContext->spAttrs.text_addr || \
+											(func) == globalSharedContext->spAttrs.unnamedImageEntryPoint_addr)
+
+#define FUNC_IS_TEXT_N(func)				((func) == ".text" || (func) == "unnamedImageEntryPoint")
+
 #else
-	#define IS_WIN32_NLG_NOTIFY(func)			0
+
+#define IS_WIN32_NLG_NOTIFY(func)			0
+#define FUNC_IS_TEXT(func)					((func) == globalSharedContext->spAttrs.text_addr)
+#define FUNC_IS_TEXT_N(func)				((func) == ".text")
 
 #endif
 

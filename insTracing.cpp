@@ -112,33 +112,49 @@ void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr, ADDRINT insC
 
 }
 
-void indirect_branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr, 
-											ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat) 
+void indirect_branchOrCall(ADDRINT currentFuncAddr, ADDRINT targetAddr, ADDRINT insCat) 
 {
 	ADDRINT targetFuncAddr;
 	string targetFuncName;
 
 	getTargetFunc(targetAddr, targetFuncAddr, targetFuncName);
 
-	branchOrCall(currentFuncAddr, currentFuncNamePtr, insAddr, targetAddr, targetFuncAddr, targetFuncName.c_str(), insCat);
+	branchOrCall(currentFuncAddr, targetAddr, targetFuncAddr, targetFuncName.c_str(), insCat);
 }
 
-void branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr, 
-											ADDRINT insAddr, ADDRINT targetAddr, ADDRINT targetFuncAddr, 
+void branchOrCall(ADDRINT currentFuncAddr, 
+											ADDRINT targetAddr, ADDRINT targetFuncAddr, 
 											const char* targetFuncNamePtr, ADDRINT insCat) 
 {
 
 
 	bool traceTarget;
+	kCCFThreadContextClass *ctx;
 
-	string currentFuncName = currentFuncNamePtr;
 	string targetFuncName = targetFuncNamePtr;
 	
-	kCCFThreadContextClass *ctx;
+#if DEBUG 
+
+	string currentFuncName;
+
+	RTN rtn;
+
+	PIN_LockClient();
+	
+	rtn = RTN_FindByAddress(currentFuncAddr);
+	
+	if(RTN_Valid(rtn)) {
+		currentFuncName = RTN_Name(rtn);
+	}
+
+
+	PIN_UnlockClient();		
+
+#endif
+
+
 	
 	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());	
-
-	//getTargetFunc(insAddr, targetAddr, targetFuncAddr, targetFuncName);
 
 	if (currentFuncAddr == ctx->startFuncAddr)
 		ctx->haveToTrace=true;
@@ -152,14 +168,15 @@ void branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr,
 	if (!targetFuncAddr)
 		return;
 
-	traceTarget = globalSharedContext->hasToTrace(targetFuncName, targetFuncAddr);
-	
+	//traceTarget = globalSharedContext->hasToTraceByName(targetFuncName, targetFuncAddr);
+	traceTarget = globalSharedContext->hasToTrace(targetFuncAddr);
+
 	/*
 		This often produces false positives: under win32 when a JMP with a target which is outside current function is met,
 		this doesn't mean that that's is a long jmp: sometimes JMP is used as a light function-call convention..
 	*/
 	if (insCat == XED_CATEGORY_UNCOND_BR)
-		if (traceTarget && targetFuncAddr != currentFuncAddr && !FUNC_IS_TEXT(currentFuncName)) {
+		if (traceTarget && targetFuncAddr != currentFuncAddr && !FUNC_IS_TEXT(currentFuncAddr)) {
 	
 			dbg_brcall_jmp();
 			
@@ -212,7 +229,7 @@ void branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr,
 
 	dbg_brcall_ifret();	
 
-	if (!traceTarget && FUNC_IS_TEXT(currentFuncName)) {
+	if (!traceTarget && FUNC_IS_TEXT(currentFuncAddr)) {
 	
 		dbg_brcall_keepoldjumpaddr();
 
@@ -227,7 +244,7 @@ void branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr,
 	singleInstruction(currentFuncAddr, insCat);
 
 
-	if (traceTarget || FUNC_IS_TEXT(targetFuncName)) {
+	if (traceTarget || FUNC_IS_TEXT(targetFuncAddr)) {
 	
 		dbg_brcall_tracejmp();
 

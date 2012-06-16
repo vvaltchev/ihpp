@@ -14,15 +14,12 @@ void tradMode_ret();
 
 void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr, ADDRINT insCat);
 
-//void branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr, 
-//										ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat);
 
-void branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr, 
-											ADDRINT insAddr, ADDRINT targetAddr, ADDRINT targetFuncAddr, 
+void branchOrCall(ADDRINT currentFuncAddr, 
+											ADDRINT targetAddr, ADDRINT targetFuncAddr, 
 											const char* targetFuncNamePtr, ADDRINT insCat);
 
-void indirect_branchOrCall(ADDRINT currentFuncAddr, const char *currentFuncNamePtr, 
-											ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat);
+void indirect_branchOrCall(ADDRINT currentFuncAddr,	ADDRINT targetAddr, ADDRINT insCat);
 
 #endif
 

@@ -85,7 +85,7 @@ void branch(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRI
 	}
 	
 	if (insCat == XED_CATEGORY_UNCOND_BR)
-		if (targetFuncAddr != currentFuncAddr && !FUNC_IS_TEXT(currentFuncName)) {
+		if (targetFuncAddr != currentFuncAddr && !FUNC_IS_TEXT(currentFuncAddr)) {
 	
 			dbg_brcall_jmp();
 
@@ -116,7 +116,7 @@ void branch(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRI
 
 	
 
-	if (FUNC_IS_TEXT(currentFuncName)) {
+	if (FUNC_IS_TEXT(currentFuncAddr)) {
 	
 		dbg_brcall_keepoldjumpaddr();
 

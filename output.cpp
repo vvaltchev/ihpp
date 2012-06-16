@@ -198,7 +198,10 @@ void tradMode_joinThreads(kCCFContextClass *globalCtx) {
 	for (FuncsMapIt funcIt = globalCtx->allFuncs.begin(); funcIt != globalCtx->allFuncs.end(); funcIt++)
 	{
 
-		if (!globalCtx->hasToTrace(funcIt->second->functionName(), funcIt->second->functionAddress()))
+		//if (!globalCtx->hasToTraceByName(funcIt->second->functionName(), funcIt->second->functionAddress()))
+		//	continue;
+
+		if (!globalCtx->hasToTrace(funcIt->second->functionAddress()))
 			continue;
 
 		tradCtx = th0Ctx->getFunctionCtx(funcIt->first);

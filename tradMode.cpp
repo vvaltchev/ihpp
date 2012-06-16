@@ -43,9 +43,11 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 	if (!ctx->haveToTrace)
 		return;
 
-	if ( FUNC_IS_TEXT(bb->functionName()) )
-		return;
+	//if ( FUNC_IS_TEXT(bb->functionName()) )
+	//	return;
 
+	if ( FUNC_IS_TEXT(bb->functionAddr()) )
+		return;
 	
 #ifdef _WIN32
 

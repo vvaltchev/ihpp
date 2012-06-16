@@ -226,7 +226,7 @@ VOID blockModeBlockTrace(TracingObject<ADDRINT> *to) {
 void insInstrumentation(RTN rtn, INS ins) {
 
 
-	if (INS_IsRet(ins) && !FUNC_IS_TEXT(RTN_Name(rtn))) {
+	if (INS_IsRet(ins) && !FUNC_IS_TEXT(RTN_Address(rtn))) {
 
 		INS_InsertPredicatedCall(ins, 
 									IPOINT_BEFORE, (AFUNPTR)funcMode_ret, 
@@ -247,19 +247,24 @@ void insInstrumentation(RTN rtn, INS ins) {
 			ADDRINT targetAddr = INS_DirectBranchOrCallTargetAddress(ins);
 
 			RTN r;
-
+			PIN_LockClient();
 			r = RTN_FindByAddress(targetAddr);
+			PIN_UnlockClient();
 
-			assert(RTN_Valid(r));
+			//assert(RTN_Valid(r));
+			
+
+			if (!RTN_Valid(r)) {
+			
+				//cout << "func non valida per l'indirizzo: " << targetAddr << endl;
+				return;
+			}
 
 			INS_InsertPredicatedCall(ins, 
 										IPOINT_BEFORE, (AFUNPTR)branchOrCall, 
 										IARG_CALL_ORDER,
 										CALL_ORDER_FIRST,
 										IARG_PTR, RTN_Address(rtn),
-										IARG_PTR, RTN_Name(rtn).c_str(),
-										 
-										IARG_PTR, INS_Address(ins), 
 										
 										IARG_PTR, targetAddr,
 										IARG_PTR, RTN_Address(r),
@@ -275,9 +280,6 @@ void insInstrumentation(RTN rtn, INS ins) {
 										IARG_CALL_ORDER,
 										CALL_ORDER_FIRST,
 										IARG_PTR, RTN_Address(rtn),
-										IARG_PTR, RTN_Name(rtn).c_str(),
-										 
-										IARG_PTR, INS_Address(ins), 
 										
 										IARG_BRANCH_TARGET_ADDR,
 
@@ -293,7 +295,6 @@ void insInstrumentation(RTN rtn, INS ins) {
 									IARG_CALL_ORDER,
 									CALL_ORDER_FIRST, 
 									IARG_FAST_ANALYSIS_CALL, 
-									//IARG_PTR, globalCtx, 
 									IARG_PTR, RTN_Address(rtn), 
 									IARG_PTR, INS_Category(ins), 
 									IARG_END);
@@ -313,8 +314,6 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 	BasicBlock *bb;
 	ADDRINT blockPtr,funcAddr;
 	map<ADDRINT,BasicBlock*>::iterator it;
-
-	//kCCFContextClass *ctx = static_cast<kCCFContextClass *>(arg);
 
 	kCCFContextClass *ctx = globalSharedContext;
 
@@ -348,8 +347,10 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 		}
 
 
-		if (!ctx->hasToTrace(funcName, funcAddr)) {
-				
+		//if (!ctx->hasToTraceByName(funcName, funcAddr)) {
+			
+		if (!ctx->hasToTrace(funcAddr)) {
+
 			PIN_UnlockClient();
 			continue;
 		}
@@ -426,11 +427,16 @@ inline void imageload_specialfunc(ADDRINT &funcAddr, string &funcName) {
 	if (funcName == "wWinMain")
 		globalSharedContext->spAttrs.wWinMain_addr = funcAddr;
 	else
-	if (funcName == "main")
-		globalSharedContext->spAttrs.main_addr = funcAddr;
+	if (funcName == "unnamedImageEntryPoint")
+		globalSharedContext->spAttrs.unnamedImageEntryPoint_addr = funcAddr;
 
 #endif
 
+	if (funcName == "main")
+		globalSharedContext->spAttrs.main_addr = funcAddr;
+	else
+	if (funcName == ".text")
+		globalSharedContext->spAttrs.text_addr = funcAddr;
 }
 
 VOID ImageLoad(IMG img, VOID *) {
@@ -438,6 +444,7 @@ VOID ImageLoad(IMG img, VOID *) {
 	RTN rtn2;
 	kCCFContextClass *ctx = globalSharedContext;
 	
+
 	FunctionObj *fc;
 	map<ADDRINT, FunctionObj*>::iterator it;
 	bool mainImage = IMG_IsMainExecutable(img);
@@ -489,12 +496,13 @@ VOID ImageLoad(IMG img, VOID *) {
 			ctx->allFuncs[funcAddr]=fc;
 			
 
-			bool trace = ctx->hasToTrace(funcName, funcAddr);
+			bool trace = ctx->hasToTraceByName(funcName, funcAddr);
 
 			dbg_imgload_funcname();
 
+			
 
-			if (trace || FUNC_IS_TEXT(funcName)) {
+			if (trace || FUNC_IS_TEXT_N(funcName)) {
 				
 				if (ctx->WorkingMode() != BlockMode) {
 				
@@ -509,6 +517,8 @@ VOID ImageLoad(IMG img, VOID *) {
 
 			if (!trace)
 				continue;
+
+			ctx->funcAddrsToTrace.insert(funcAddr);
 				
 			if (ctx->WorkingMode() != BlockMode)
 			{	
@@ -556,7 +566,6 @@ VOID ImageLoad(IMG img, VOID *) {
 		ctx->stopFuncAddr = RTN_Address(rtn2);
 	}
 	
-
 }
 
 
@@ -598,7 +607,7 @@ int main(int argc, char ** argv) {
 	globalSharedContext->OutFile.open(optionsClass::getOutfileName());
     
 
-	if (globalSharedContext->WorkingMode() == BlockMode || globalSharedContext->WorkingMode() == TradMode) {
+	if (globalSharedContext->WorkingMode() != FuncMode) {
 		TRACE_AddInstrumentFunction(BlockTraceInstrumentation, 0);
 	}
 

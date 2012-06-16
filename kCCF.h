@@ -34,14 +34,25 @@ public:
 	ADDRINT __NLG_Dispatch_addr;
 	ADDRINT __tmainCRTStartup_addr;
 	ADDRINT wWinMain_addr;
+	ADDRINT unnamedImageEntryPoint_addr;
 
 #endif
 
 	ADDRINT main_addr;
 	ADDRINT exit_addr;
 
-	specialAttrs() : _NLG_Notify_addr(0), _NLG_Notify1_addr(0), 
-		__NLG_Dispatch_addr(0), __tmainCRTStartup_addr(0), wWinMain_addr(0), main_addr(0) { }
+	ADDRINT text_addr;
+	
+
+	specialAttrs() :
+
+#if defined(_WIN32)
+					_NLG_Notify_addr(0), _NLG_Notify1_addr(0), 
+					__NLG_Dispatch_addr(0), __tmainCRTStartup_addr(0), 
+					wWinMain_addr(0), unnamedImageEntryPoint_addr(0), 
+#endif
+					main_addr(0), text_addr(0), exit_addr(0)  
+	{ }
 };
 
 
@@ -57,6 +68,7 @@ public:
 	ofstream OutFile;
 
 	set<string> funcsToTrace;
+	set<ADDRINT> funcAddrsToTrace;
 
 	BlocksMap allBlocks;
 	FuncsMap allFuncs;
@@ -80,7 +92,8 @@ public:
 	WorkingModeType WorkingMode() { return _WorkingMode; }
 	unsigned int kval() { return _K_CCF_VAL; }
 
-	bool hasToTrace(string funcName, ADDRINT funcAddr);
+	inline bool hasToTraceByName(string funcName, ADDRINT funcAddr);
+	inline bool hasToTrace(ADDRINT funcAddr);
 };
 
 #ifdef MAIN_KCCF_MODULE
@@ -94,7 +107,7 @@ extern kCCFContextClass *globalSharedContext;
 #endif
 
 
-inline bool kCCFContextClass::hasToTrace(string funcName, ADDRINT funcAddr) 
+inline bool kCCFContextClass::hasToTraceByName(string funcName, ADDRINT funcAddr) 
 {
 	if (funcsToTrace.size()) 
 		return funcsToTrace.find(funcName) != funcsToTrace.end();
@@ -102,6 +115,11 @@ inline bool kCCFContextClass::hasToTrace(string funcName, ADDRINT funcAddr)
 	return allFuncs.find(funcAddr) != allFuncs.end();
 }
 
+
+inline bool kCCFContextClass::hasToTrace(ADDRINT funcAddr)
+{
+	return funcAddrsToTrace.find(funcAddr) != funcAddrsToTrace.end();
+}
 
 template <typename keyT>
 void kSlabForestKLevelCountersClear(forest<keyT> &f, keyT &rootKey, unsigned int k) {
