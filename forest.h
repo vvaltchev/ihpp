@@ -4,7 +4,6 @@
 
 #include "node.h"
 
-namespace kCCFLib { 
 
 template <typename keyT>
 class forest {
@@ -273,6 +272,5 @@ forest<keyT> forest<keyT>::inverseK(unsigned int k) {
 	return res;
 }
 
-}
 
 #endif

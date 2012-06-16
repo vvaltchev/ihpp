@@ -5,7 +5,6 @@
 #include "kCCF.h"
 
 using namespace std;
-using namespace kCCFLib;
 
 #include "benchmark.h"
 #include "output.h"
@@ -97,7 +96,7 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 		if (!globalCtx->options.rollLoops) {
 			
-			traceObject(bb, globalCtx->kval(), tradCtx, treeTop, treeBottom, true);
+			traceObject(bb, tradCtx, treeTop, treeBottom);
 
 		} else {
 		
@@ -123,7 +122,7 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 			if (!found) {
 				
-				traceObject(bb, globalCtx->kval(), tradCtx, treeTop, treeBottom, true);
+				traceObject(bb, tradCtx, treeTop, treeBottom);
 			} 
 		}
 
@@ -151,8 +150,9 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 		dbg_tradtr_first_call();
 			
 		treeTop=0; treeBottom=0;
-				
-		traceObject(bb, globalCtx->kval(), tradCtx, treeTop, treeBottom, true);
+		
+		//here accumulate was false
+		traceObject(bb, tradCtx, treeTop, treeBottom);
 
 		assert(tradCtx->rootKey);
 		assert(treeTop);

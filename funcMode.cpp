@@ -4,7 +4,6 @@
 #include "kCCF.h"
 
 using namespace std;
-using namespace kCCFLib;
 
 #include "benchmark.h"
 #include "output.h"
@@ -99,7 +98,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 	if (globalCtx->options.showCalls)
 		funcTraceDebugDump(globalCtx, fc, ctx, reg_sp, treeTop, treeBottom);
 
-	traceObject(fc, globalCtx->kval(), ctx, treeTop, treeBottom, true);
+	traceObject(fc, ctx, treeTop, treeBottom);
 	
 	FUNCMODE_STORE_TOP_BOTTOM(reg_sp);
 

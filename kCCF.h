@@ -19,7 +19,6 @@
 #ifndef __KCCF_HEADER__
 #define __KCCF_HEADER__
 
-namespace kCCFLib {
 
 
 
@@ -141,7 +140,6 @@ void kSlabForestKLevelCountersClear(forest<keyT> &f, keyT &rootKey, unsigned int
 }
 
 
-} //end namespace kCCFLib
 
 #include "specialfuncs.h"
 

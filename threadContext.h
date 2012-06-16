@@ -7,8 +7,6 @@
 
 void funcMode_ret();
 
-namespace kCCFLib {
-
 
 class ShadowStackType {
 
@@ -219,6 +217,5 @@ inline kCCFTradModeContext *kCCFThreadContextClass::getFunctionCtx(ADDRINT funcA
 }
 
 
-}
 
 #endif

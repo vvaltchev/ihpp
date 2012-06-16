@@ -192,7 +192,6 @@
 #include "kCCF.h"
 
 using namespace std;
-using namespace kCCFLib;
 
 #include "benchmark.h"
 #include "output.h"
@@ -219,7 +218,7 @@ VOID blockModeBlockTrace(TracingObject<ADDRINT> *to) {
 
 	bb->incSimpleCounter();
 
-	traceObject(bb, globalSharedContext->kval(), ctx, ctx->treeTop, ctx->treeBottom);
+	traceObject_generic(bb, ctx, ctx->treeTop, ctx->treeBottom);
 }
 
 
@@ -232,8 +231,6 @@ void insInstrumentation(RTN rtn, INS ins) {
 									IPOINT_BEFORE, (AFUNPTR)funcMode_ret, 
 									IARG_CALL_ORDER,
 									CALL_ORDER_FIRST, 
-									//IARG_FAST_ANALYSIS_CALL, 
-									//IARG_PTR, globalCtx, 
 									IARG_END);
 
 	}
@@ -619,6 +616,14 @@ int main(int argc, char ** argv) {
 
     PIN_AddFiniFunction(Fini, 0);
 
+	if (options.kinf) {
+	
+		traceObject = traceObject_acc_kinf;
+	
+	} else {
+		
+		traceObject = traceObject_generic;
+	}
 
     PIN_StartProgram();
     

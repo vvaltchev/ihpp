@@ -52,8 +52,6 @@
 
 #ifdef __THREAD_CTX_HEADER__
 
-namespace kCCFLib {
-
 
 #ifdef _WIN32
 	
@@ -132,7 +130,6 @@ inline bool subcall_false_jmp_check(kCCFThreadContextClass *ctx, ADDRINT currFun
 
 #endif
 
-}
 
 #endif
 

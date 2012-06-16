@@ -4,7 +4,6 @@
 #include "kCCF.h"
 
 using namespace std;
-using namespace kCCFLib;
 
 #include "benchmark.h"
 #include "output.h"

@@ -8,9 +8,6 @@
 
 #include <stdlib.h>
 
-namespace kCCFLib { 
-
-
 
 template <typename keyT>
 void dump(node<keyT> &n, ostream& out=cerr, int ident=0) {
@@ -78,7 +75,5 @@ void nodeDump(node<keyT> n, ostream& out) {
 	out << "\"";
 }
 
-
-}
 
 #endif

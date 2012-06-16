@@ -4,7 +4,6 @@
 #include "kCCF.h"
 
 using namespace std;
-using namespace kCCFLib;
 
 //extern kCCFContextClass *globalSharedContext;
 

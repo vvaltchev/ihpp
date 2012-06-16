@@ -11,8 +11,6 @@
 
 using namespace std;
 
-namespace kCCFLib { 
-
 
 template <typename keyT>
 class node : public kObjectWithKey<keyT> {
@@ -305,6 +303,5 @@ void node<keyT>::autoSetParents() {
 }
 
 
-}
 
 #endif

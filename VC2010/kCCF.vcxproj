@@ -133,6 +133,7 @@
     <ClInclude Include="..\threadContext.h" />
     <ClInclude Include="..\tracingFuncs.h" />
     <ClInclude Include="..\tracingObjects.h" />
+    <ClCompile Include="..\traceObject.cpp" />
     <ClCompile Include="..\tradMode.cpp">
       <FileType>CppHeader</FileType>
     </ClCompile>

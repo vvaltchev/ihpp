@@ -1,7 +1,8 @@
 
-#include "dataStructures.h"
+#ifndef __TRACING_OBJECTS__
+#define __TRACING_OBJECTS__
 
-namespace kCCFLib {
+#include "dataStructures.h"
 
 
 inline string operator +(string str, INT32 n) {
@@ -117,4 +118,4 @@ inline ostream& operator << (ostream& s, kCCFNode *n) {
 
 
 
-}
+#endif

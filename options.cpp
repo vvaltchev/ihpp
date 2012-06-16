@@ -7,7 +7,6 @@
 
 #include "options.h"
 
-using namespace kCCFLib;
 using namespace std;
 
 //Static symbols... 
