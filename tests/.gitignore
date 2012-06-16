@@ -10,3 +10,5 @@ testprogram
 datatest
 quick_sort
 
+
+*.log
