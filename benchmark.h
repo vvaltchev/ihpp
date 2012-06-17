@@ -1,4 +1,6 @@
 
+#include "config.h"
+
 #ifndef __BENCHMARK_MACROS__
 #define __BENCHMARK_MACROS__
 
