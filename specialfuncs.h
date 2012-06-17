@@ -1,7 +1,8 @@
 
+#include "debug.h"
+
 #ifndef __SPECIAL_FUNCS_MACROS__
 #define __SPECIAL_FUNCS_MACROS__
-
 
 
 #if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT

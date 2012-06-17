@@ -195,9 +195,6 @@ void tradMode_joinThreads(kCCFContextClass *globalCtx) {
 	for (FuncsMapIt funcIt = globalCtx->allFuncs.begin(); funcIt != globalCtx->allFuncs.end(); funcIt++)
 	{
 
-		//if (!globalCtx->hasToTraceByName(funcIt->second->functionName(), funcIt->second->functionAddress()))
-		//	continue;
-
 		if (!globalCtx->hasToTrace(funcIt->second->functionAddress()))
 			continue;
 
@@ -227,11 +224,109 @@ void tradMode_joinThreads(kCCFContextClass *globalCtx) {
 
 }
 
-VOID Fini(INT32 code, VOID *)
+string makeHumanJump(string ins) {
+
+	kCCFContextClass *globalCtx = globalSharedContext;
+
+	size_t space_ch;
+	for (space_ch=0; space_ch < ins.size(); space_ch++)
+		if (ins[space_ch] == ' ')
+			break;
+					
+	if (space_ch == ins.size())
+		return ins;
+				
+	string ins_name = ins.substr(0, space_ch);
+	string ins_addr = ins.substr(space_ch+1);
+	ADDRINT addr = strtoul(ins_addr.c_str(), 0, 16);
+
+	if (!addr)
+		return ins;
+
+	if (ins[0] == 'j') {
+						
+		FuncsMapIt it3 = globalCtx->allFuncs.find(addr);
+
+		if (it3 != globalCtx->allFuncs.end())
+			ins = ins_name + " " + it3->second->functionName();
+
+	}
+
+	return ins;
+}
+
+void makeHumanDisasm() {
+
+	kCCFContextClass *globalCtx = globalSharedContext;
+
+	for (FuncsMapIt funcIt = globalCtx->allFuncs.begin(); funcIt != globalCtx->allFuncs.end(); funcIt++)
+	{
+		map<ADDRINT,string>::iterator it;
+
+		for (it = (funcIt->second)->instructions.begin(); it != (funcIt->second)->instructions.end(); it++)
+		{
+			string ins = it->second;
+			const char *ins_str = ins.c_str();
+
+			if (ins[0] == 'j' || !strncmp(ins_str, "call", 4))
+			{
+				size_t space_ch;
+				for (space_ch=0; space_ch < ins.size(); space_ch++)
+					if (ins[space_ch] == ' ')
+						break;
+					
+				if (space_ch == ins.size())
+					continue;
+				
+				string ins_name = ins.substr(0, space_ch);
+				string ins_addr = ins.substr(space_ch+1);
+				ADDRINT addr = strtoul(ins_addr.c_str(), 0, 16);
+					
+					
+				if (ins[0] == 'j') {
+						
+					BlocksMapIt it3 = globalCtx->allBlocks.find(addr);
+
+					if (it3 != globalCtx->allBlocks.end())
+						ins = ins_name + " " + (string)*it3->second;
+					
+				} else {
+					
+					if (strncmp(ins_str, "call .text+", 11)) {
+
+						FuncsMapIt it3 = globalCtx->allFuncs.find(addr);
+						if (it3 != globalCtx->allFuncs.end())
+							ins = ins_name + " " + it3->second->functionName();
+
+					} else {
+						
+						string sdiff = ins.substr(11);
+						ADDRINT diff = strtoul(sdiff.c_str(), 0, 10);
+						ADDRINT textAddr = globalCtx->spAttrs.text_addr;
+						FuncsMapIt textFunc = globalCtx->allFuncs.find(textAddr);
+
+						string jmptext = textFunc->second->instructions[textAddr+diff];
+
+						ins = ins + string(" --> ") + makeHumanJump(jmptext);
+					}
+				}
+
+				it->second=ins;
+				
+
+				continue;
+			}
+		}
+	}
+}
+
+void Fini(INT32 code, void *)
 {
 	kCCFContextClass *ctx = globalSharedContext;
 
-	//ctx->showDebug=true;
+	if (ctx->options.disasm)
+		makeHumanDisasm();
+
 
 	ctx->OutFile << endl << endl << endl;
 
@@ -328,34 +423,55 @@ VOID Fini(INT32 code, VOID *)
 			if (ctx->options.disasm)
 			{
 				ctx->OutFile << "\tDisassembly: \n";
-				for (vector<string>::iterator it2 = bb.instructions.begin(); it2 != bb.instructions.end(); it2++) 
+
+				map<ADDRINT,string>::iterator it;
+
+				for (it = bb.functionPtr->instructions.begin(); it != bb.functionPtr->instructions.end(); it++)
 				{
-					string ins = *it2;
+					if (it->first == bb.blockAddress())
+						break;
+				}
 
-					if (ins[0] == 'j') {
+				for (; it != bb.functionPtr->instructions.end(); it++)
+				{
+					if (it->first > bb.blockEndAddress())
+						break;
 
-						size_t space_ch;
-						for (space_ch=0; space_ch < ins.size(); space_ch++)
-							if (ins[space_ch] == ' ')
-								break;
-					
-						if (space_ch != ins.size()) {
-					
-						
-							string ins_name = ins.substr(0, space_ch);
-							string ins_jaddr = ins.substr(space_ch+1);
-							ADDRINT addr = strtoul(ins_jaddr.c_str(), 0, 16);
-							BlocksMapIt it3 = ctx->allBlocks.find(addr);
-
-							if (it3 != ctx->allBlocks.end())
-								ins = ins_name + " " + (string)*it3->second;
-						
-						}
-					}
+					string ins = it->second;
 
 					ctx->OutFile.width(maxLen+12);
 					ctx->OutFile << "\t\t\t\t\t\t\t\t" << ins << endl;
 				}
+
+//				for (vector<string>::iterator it2 = bb.instructions.begin(); it2 != bb.instructions.end(); it2++) 
+//				{
+//					string ins = *it2;
+///*
+//					if (ins[0] == 'j') {
+//
+//						size_t space_ch;
+//						for (space_ch=0; space_ch < ins.size(); space_ch++)
+//							if (ins[space_ch] == ' ')
+//								break;
+//					
+//						if (space_ch != ins.size()) {
+//					
+//						
+//							string ins_name = ins.substr(0, space_ch);
+//							string ins_jaddr = ins.substr(space_ch+1);
+//							ADDRINT addr = strtoul(ins_jaddr.c_str(), 0, 16);
+//							BlocksMapIt it3 = ctx->allBlocks.find(addr);
+//
+//							if (it3 != ctx->allBlocks.end())
+//								ins = ins_name + " " + (string)*it3->second;
+//						
+//						}
+//					}
+//*/
+//					ctx->OutFile.width(maxLen+12);
+//					ctx->OutFile << "\t\t\t\t\t\t\t\t" << ins << endl;
+//				}
+
 
 				ctx->OutFile << endl;
 			}

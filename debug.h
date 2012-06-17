@@ -1,5 +1,6 @@
 
-
+#ifndef __DEBUG_HEADER__
+#define __DEBUG_HEADER__
 
 #if CHECK_ASSERTS
 
@@ -169,5 +170,7 @@
 	#define dbg_tradret_cantpop()
 	#define dbg_tradret_stackpop()
 	#define dbg_tradret_lastret()
+
+#endif
 
 #endif

@@ -182,8 +182,7 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 		}
 
 
-		//if (!ctx->hasToTraceByName(funcName, funcAddr)) {
-			
+
 		if (!ctx->hasToTrace(funcAddr)) {
 
 			PIN_UnlockClient();
@@ -194,28 +193,32 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 
 		if (it == ctx->allBlocks.end()) {
 
-			bb = new BasicBlock(blockPtr, ctx->allFuncs.find(funcAddr)->second, row, col); 
+			INS ins = BBL_InsTail(bbl);
+			ADDRINT lastAddr = INS_Address(ins);
+
+			bb = new BasicBlock(blockPtr, ctx->allFuncs.find(funcAddr)->second, lastAddr, row, col); 
 			ctx->allBlocks[blockPtr]=bb;
 
-			if (ctx->options.disasm) 
-			{
-				for( INS ins = BBL_InsHead(bbl); INS_Valid(ins); ins = INS_Next(ins) )
-				{
-					if (INS_IsDirectCall(ins)) {
-				
-						ADDRINT addr = INS_DirectBranchOrCallTargetAddress(ins);
-						RTN r = RTN_FindByAddress(addr);
-					
-						if (RTN_Valid(r)) {
-						
-							bb->instructions.push_back("call "+RTN_Name(r));
-							continue;	
-						}
-					}
-
-					bb->instructions.push_back(INS_Disassemble(ins));
-				}
-			}
+			//if (ctx->options.disasm) 
+			//{
+			//	for( INS ins = BBL_InsHead(bbl); INS_Valid(ins); ins = INS_Next(ins) )
+			//	{
+			//		/*
+			//		if (INS_IsDirectCall(ins)) {
+			//	
+			//			ADDRINT addr = INS_DirectBranchOrCallTargetAddress(ins);
+			//			RTN r = RTN_FindByAddress(addr);
+			//		
+			//			if (RTN_Valid(r)) {
+			//			
+			//				bb->instructions.push_back("call "+RTN_Name(r));
+			//				continue;	
+			//			}
+			//		}
+			//		*/
+			//		bb->instructions.push_back(INS_Disassemble(ins));
+			//	}
+			//}
 
 		} else {
 				
@@ -227,7 +230,6 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 			BBL_InsertCall(bbl, 
 								IPOINT_BEFORE, AFUNPTR(blockModeBlockTrace), 
 								IARG_PTR, bb, 
-								//IARG_PTR, ctx, 
 								IARG_END);		
 
 		if (ctx->WorkingMode() == TradMode)
@@ -235,7 +237,6 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 								IPOINT_BEFORE, AFUNPTR(tradModeBlockTrace), 
 								IARG_CALL_ORDER, CALL_ORDER_LAST, 
 								IARG_PTR, bb, 
-								//IARG_PTR, ctx, 
 								IARG_REG_VALUE, REG_STACK_PTR, 
 								IARG_END);		
 
@@ -274,13 +275,65 @@ inline void imageload_specialfunc(ADDRINT &funcAddr, string &funcName) {
 		globalSharedContext->spAttrs.text_addr = funcAddr;
 }
 
-VOID ImageLoad(IMG img, VOID *) {
+void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
+
+	RTN_Open(rtn);
+
+	for( INS ins = RTN_InsHead(rtn); INS_Valid(ins); ins = INS_Next(ins) ) {
+						
+		insInstrumentation(rtn, ins);			
+
+		string ins_text = INS_Disassemble(ins);
+						
+		if (INS_IsDirectBranchOrCall(ins)) {
+					
+			ADDRINT addr = INS_DirectBranchOrCallTargetAddress(ins);
+			RTN r = RTN_FindByAddress(addr);
+						
+			if (RTN_Valid(r)) {
+							
+				//if target address will NOT be a function in allFuncs,
+				//translate it in text format
+				//else, leave it as hexadecimal address.. 
+				//later can be always translated
+
+				RTN r2 = RTN_FindByName(img, RTN_Name(r).c_str());
+
+				if (!RTN_Valid(r2)) {	
+
+					if (RTN_Name(r) == ".text") {
+					
+						ADDRINT diff = addr - globalSharedContext->spAttrs.text_addr;
+						
+						if (INS_IsDirectCall(ins))
+							ins_text = string("call .text+") + diff;
+						else
+							ins_text = string("jmp .text+") + diff;
+
+					} else {
+
+						if (INS_IsDirectCall(ins))
+							ins_text = "call "+RTN_Name(r);	
+						else
+							ins_text = "jmp "+RTN_Name(r);	
+					}
+				}
+								
+			}
+
+		}
+						
+		fc->instructions[INS_Address(ins)] = ins_text;
+	}
+
+	RTN_Close(rtn);
+}
+
+void ImageLoad(IMG img, void *) {
 
 	RTN rtn2;
 	kCCFContextClass *ctx = globalSharedContext;
 	
-	//ctx->showDebug=false;
-
 	FunctionObj *fc;
 	map<ADDRINT, FunctionObj*>::iterator it;
 	bool mainImage = IMG_IsMainExecutable(img);
@@ -342,12 +395,7 @@ VOID ImageLoad(IMG img, VOID *) {
 				
 				if (ctx->WorkingMode() != BlockMode) {
 				
-					RTN_Open(rtn);
-
-					for( INS ins = RTN_InsHead(rtn); INS_Valid(ins); ins = INS_Next(ins) )
-						insInstrumentation(rtn, ins);			
-
-					RTN_Close(rtn);
+					imageLoad_doInsInstrumentation(img, rtn, fc);
 				}
 			}
 

@@ -38,6 +38,8 @@ class FunctionObj : public TracingObject<ADDRINT> {
 
 public:
 
+	map<ADDRINT, string> instructions;
+
 	FunctionObj(ADDRINT ptr, string funcName) : TracingObject<ADDRINT>(ptr), _functionName(funcName) { }
 
 	ADDRINT functionAddress() { return key; }
@@ -48,21 +50,25 @@ public:
 
 class BasicBlock : public TracingObject<ADDRINT> {
 
+	ADDRINT lastInsAddr;
+
 public:
 
 	FunctionObj *functionPtr;
 	INT32 firstLine;
 	INT32 firstCh;
 
-	vector<string> instructions;
 
-	BasicBlock(ADDRINT ptr, FunctionObj *funcPtr, INT32 line, INT32 col) 
-		: TracingObject<ADDRINT>(ptr), functionPtr(funcPtr), firstLine(line), firstCh(col) 
+
+	BasicBlock(ADDRINT ptr, FunctionObj *funcPtr, ADDRINT lastInsAddress, INT32 line, INT32 col) 
+		: TracingObject<ADDRINT>(ptr), lastInsAddr(lastInsAddress), 
+		functionPtr(funcPtr), firstLine(line), firstCh(col) 
 	{
 		assert(functionPtr); 
 	}
 
 	ADDRINT blockAddress() { return key; }
+	ADDRINT blockEndAddress() { return lastInsAddr; }
 	ADDRINT functionAddr() { return functionPtr->functionAddress(); }
 	string functionName() { return functionPtr->functionName(); }
 
