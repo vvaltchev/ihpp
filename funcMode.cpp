@@ -113,7 +113,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 	FUNCMODE_STORE_TOP_BOTTOM(reg_sp);
 
 
-before_ret:
+//before_ret:
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
 	

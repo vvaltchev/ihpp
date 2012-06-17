@@ -2,7 +2,7 @@
 #include "kCCF.h"
 
 #include "tracingFuncs.h"
-
+#include "benchmark.h"
 
 
 void (*traceObject)(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx, 
