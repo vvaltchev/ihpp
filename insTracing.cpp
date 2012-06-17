@@ -114,7 +114,7 @@ void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr) {
 void indirect_branchOrCall(ADDRINT currentFuncAddr,
 								ADDRINT targetAddr, ADDRINT insCat) 
 {
-	ADDRINT targetFuncAddr;
+	ADDRINT targetFuncAddr=0;
 
 	getTargetFunc(targetAddr, targetFuncAddr);
 

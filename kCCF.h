@@ -50,7 +50,7 @@ public:
 					__NLG_Dispatch_addr(0), __tmainCRTStartup_addr(0), 
 					wWinMain_addr(0), unnamedImageEntryPoint_addr(0), 
 #endif
-					main_addr(0), text_addr(0), exit_addr(0)  
+					main_addr(0), exit_addr(0), text_addr(0)
 	{ }
 };
 
