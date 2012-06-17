@@ -3,9 +3,14 @@ k-Calling Context Forest profiling pintool
 -------------------------------------------
 
 Author: Vladislav K. Valtchev (vladi32@gmail.com)
-Date: March, 2012
 
-Based on the research of: 
+
+
+The kSlabForest and kCCF data structures, 
+the forest join operation, the forest inverseK operation 
+and the traceObject function (and only these ones),
+are based on the theoretical research of: 
+
 Giorgio Ausiello, Camil Demetrescu, Irene Finocchi, Donatella Firmani
 	
 Sapienza University of Rome
