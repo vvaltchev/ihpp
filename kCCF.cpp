@@ -445,9 +445,6 @@ void ImageLoad(IMG img, void *) {
 }
 
 
-//#include "experimentalCode.h"
-
-
 /* ===================================================================== */
 /* Main                                                                  */
 /* ===================================================================== */
@@ -489,8 +486,6 @@ int main(int argc, char ** argv) {
 
 	IMG_AddInstrumentFunction(ImageLoad, 0);
 	
-	//Experimental only imageload function, don't use it
-	//IMG_AddInstrumentFunction(ImageLoad2, (void*)globalSharedContext);
 
     PIN_AddFiniFunction(Fini, 0);
 
