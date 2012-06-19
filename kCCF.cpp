@@ -199,27 +199,6 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 			bb = new BasicBlock(blockPtr, ctx->allFuncs.find(funcAddr)->second, lastAddr, row, col); 
 			ctx->allBlocks[blockPtr]=bb;
 
-			//if (ctx->options.disasm) 
-			//{
-			//	for( INS ins = BBL_InsHead(bbl); INS_Valid(ins); ins = INS_Next(ins) )
-			//	{
-			//		/*
-			//		if (INS_IsDirectCall(ins)) {
-			//	
-			//			ADDRINT addr = INS_DirectBranchOrCallTargetAddress(ins);
-			//			RTN r = RTN_FindByAddress(addr);
-			//		
-			//			if (RTN_Valid(r)) {
-			//			
-			//				bb->instructions.push_back("call "+RTN_Name(r));
-			//				continue;	
-			//			}
-			//		}
-			//		*/
-			//		bb->instructions.push_back(INS_Disassemble(ins));
-			//	}
-			//}
-
 		} else {
 				
 			bb = it->second;
@@ -284,46 +263,52 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 		insInstrumentation(rtn, ins);			
 
 		string ins_text = INS_Disassemble(ins);
-						
-		if (INS_IsDirectBranchOrCall(ins)) {
-					
-			ADDRINT addr = INS_DirectBranchOrCallTargetAddress(ins);
-			RTN r = RTN_FindByAddress(addr);
-						
-			if (RTN_Valid(r)) {
-							
-				//if target address will NOT be a function in allFuncs,
-				//translate it in text format
-				//else, leave it as hexadecimal address.. 
-				//later can be always translated
+		//cerr << "ins_text orig: " << ins_text << endl;
 
-				RTN r2 = RTN_FindByName(img, RTN_Name(r).c_str());
 
-				if (!RTN_Valid(r2)) {	
+		if (!INS_IsDirectBranchOrCall(ins)) {
 
-					if (RTN_Name(r) == ".text") {
-					
-						ADDRINT diff = addr - globalSharedContext->spAttrs.text_addr;
-						
-						if (INS_IsDirectCall(ins))
-							ins_text = string("call .text+") + diff;
-						else
-							ins_text = string("jmp .text+") + diff;
-
-					} else {
-
-						if (INS_IsDirectCall(ins))
-							ins_text = "call "+RTN_Name(r);	
-						else
-							ins_text = "jmp "+RTN_Name(r);	
-					}
-				}
-								
-			}
-
+			fc->instructions[INS_Address(ins)] = insInfo(ins_text, INS_IsCall(ins), 0, 0);
+			continue;
 		}
-						
-		fc->instructions[INS_Address(ins)] = ins_text;
+					
+		ADDRINT addr = INS_DirectBranchOrCallTargetAddress(ins);
+		RTN r = RTN_FindByAddress(addr);
+			
+		if (!RTN_Valid(r)) {
+		
+			fc->instructions[INS_Address(ins)] = insInfo(ins_text, INS_IsCall(ins), addr, 0);
+			continue;
+		}
+
+
+		string rname = RTN_Name(r);
+		
+		//cerr << "func: " << RTN_Name(rtn) << " call: " << rname << ", ins: " << ins_text << endl;
+		
+		insInfo insData = insInfo(ins_text, INS_IsCall(ins), addr, RTN_Address(r));
+
+		RTN r2 = RTN_FindByName(img, rname.c_str());
+
+		if (!RTN_Valid(r2)) {	
+
+			//cerr << "------------- func ext: " << rname << endl;
+
+			insData.externFuncName = rname.c_str();
+
+			fc->instructions[INS_Address(ins)] = insData;
+			continue;
+
+		} /*else {
+		
+			cerr << "call/branch verso: " <<hex<<(void*)addr<<dec<<
+				", appartenente alla func locale: " << rname << "(" << hex<< (void*)RTN_Address(r) << dec << ")\n";
+		}
+
+		cerr << "ins_text now: " << ins_text << endl;			
+		*/
+
+		fc->instructions[INS_Address(ins)] = insData;
 	}
 
 	RTN_Close(rtn);
@@ -449,7 +434,14 @@ void ImageLoad(IMG img, void *) {
 
 		ctx->stopFuncAddr = RTN_Address(rtn2);
 	}
-	
+
+
+#if defined(_WIN32)
+
+	if (!ctx->spAttrs.text_addr && ctx->spAttrs.unnamedImageEntryPoint_addr)
+		ctx->spAttrs.text_addr=ctx->spAttrs.unnamedImageEntryPoint_addr;
+
+#endif
 }
 
 

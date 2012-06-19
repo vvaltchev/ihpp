@@ -32,13 +32,32 @@ public:
 };
 
 
+class insInfo {
+
+public:
+
+	string ins_text;
+	ADDRINT targetAddr;
+	ADDRINT targetFuncAddr;
+	const char *externFuncName;
+	bool isCall;
+
+	bool isDirectBranchOrCall() { return targetAddr != 0; }
+
+	insInfo() : targetAddr(0), targetFuncAddr(0), externFuncName(0) { }
+	insInfo(string ins, bool _isCall, ADDRINT tAddr, ADDRINT tfuncAddr, const char *extFuncName=0) : 
+		ins_text(ins), isCall(_isCall), targetAddr(tAddr), targetFuncAddr(tfuncAddr), externFuncName(extFuncName)
+	{ 
+	}
+};
+
 class FunctionObj : public TracingObject<ADDRINT> {
 
 	string _functionName;
 
 public:
 
-	map<ADDRINT, string> instructions;
+	map<ADDRINT, insInfo> instructions;
 
 	FunctionObj(ADDRINT ptr, string funcName) : TracingObject<ADDRINT>(ptr), _functionName(funcName) { }
 
