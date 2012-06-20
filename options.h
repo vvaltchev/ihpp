@@ -11,7 +11,9 @@
 #endif
 
 
-enum WorkingModeType { FuncMode, BlockMode, TradMode };
+enum WorkingModeType { FuncMode, TradMode, BlockMode };
+
+const char * const WorkingModesString[] = { "funcMode", "tradMode", "blockMode" };
 
 class optionsClass {
 
@@ -29,6 +31,7 @@ public:
 	bool purgeFuncs;
 	bool disasm;
 	bool kinf;
+	bool xmloutput;
 
 	string startFuncName;
 	string stopFuncName;
@@ -46,6 +49,7 @@ public:
 		purgeFuncs=false;	
 		disasm=false;
 		kinf=false;
+		xmloutput=false;
 	}
 
 	void initFromGlobalOptions();

@@ -1,4 +1,5 @@
 
+#include <ctype.h>
 #include "config.h"
 #include "debug.h"
 #include "kCCF.h"
@@ -16,6 +17,16 @@ using namespace std;
 #define OUTPUT_PLINE	"---------------------------------------------------------------------------------------------\n"
 #define OUTPUT_PLINE2	"---------------------------------------------------------------------------------------------\n\n"
 
+
+inline void openTag(const char *tag, bool ret=false, ostream &s = globalSharedContext->OutFile) {
+
+	s << "<" << tag << (ret ? ">\n" : ">");
+}
+
+inline void closeTag(const char *tag, ostream &s = globalSharedContext->OutFile) {
+
+	s << "</" << tag << ">\n";
+}
 
 inline void benchmark_dump_before_kCCF(kCCFContextClass *globalCtx, BenchmarkObj *ctx)
 {
@@ -69,6 +80,32 @@ inline void print_thread_id(kCCFContextClass *ctx, T str)
 
 
 template <typename T>
+inline void print_openThread(T th)
+{
+	if (globalSharedContext->options.xmloutput) {
+	
+		openTag("thread", true);
+
+		openTag("id");
+		globalSharedContext->OutFile << th;
+		closeTag("id");
+
+	} else {
+
+		if (!globalSharedContext->options.joinThreads)
+			print_thread_id(globalSharedContext, th);
+	}
+}
+
+
+inline void print_closeThread()
+{
+	if (globalSharedContext->options.xmloutput)
+		closeTag("thread");
+}
+
+
+template <typename T>
 inline void print_func_name(kCCFContextClass *ctx, T str)
 {
 	ctx->OutFile << OUTPUT_LINE;
@@ -76,9 +113,70 @@ inline void print_func_name(kCCFContextClass *ctx, T str)
 	ctx->OutFile << OUTPUT_LINE;
 }
 
+bool isStringPrintable(const char *str) {
+
+	const char *ptr = str;
+
+	if (!str)
+		return false;
+
+	while (*ptr)
+		if (!isprint(*ptr++))
+			return false;
+
+	return true;
+}
+
+void dumpXmlNode(kCCFNode &n, int ident=0) {
+
+	kCCFContextClass *ctx = globalSharedContext;
+	ostream &o = globalSharedContext->OutFile;
+
+
+	openTag("objAddr");
+	o << "0x" << hex << (void*)n.getKey() << dec;
+	closeTag("objAddr");
+
+	openTag("counter");
+	o << n.getCounter();
+	closeTag("counter");
+
+	if (n.childrenCount()) {
+
+		openTag("children",true);
+	
+		kCCFNode::nodesIterator it;
+
+		for (it = n.getNodesIteratorBegin(); it != n.getNodesIteratorEnd(); it++) {
+
+			openTag("child",true);
+			dumpXmlNode(*it,ident+1);
+			closeTag("child");
+		}
+	
+		closeTag("children");
+	}
+
+}
+
+void dumpXmlForest(kCCFForest &f) {
+
+	kCCFContextClass *ctx = globalSharedContext;
+	ostream &o = globalSharedContext->OutFile;
+
+	kCCFForest::treesIterator it;
+
+	for (it = f.getTreesIteratorBegin(); it != f.getTreesIteratorEnd(); it++) {
+	
+		openTag("tree",true);
+		dumpXmlNode(*it);
+		closeTag("tree");
+	}
+}
 
 void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 
+	kCCFForest kccf;
 	kCCFForest *kSFCopy = 0;
 
 	//Operations in this copy shouldn't be counted in benchmark
@@ -95,46 +193,68 @@ void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 		BENCHMARK_ON
 	}
 
+	if (!globalCtx->options.xmloutput) {
+		
+		globalCtx->OutFile << "Nodes count of k slab forest: " << ctx->kSlabForest.recursiveAllNodesCount() << endl;
+		benchmark_dump_before_kCCF(globalCtx, ctx);
+	}
 
-	globalCtx->OutFile << "Nodes count of k slab forest: " << ctx->kSlabForest.recursiveAllNodesCount() << endl;
-
-
-	benchmark_dump_before_kCCF(globalCtx, ctx);
-
-	kCCFForest kccf;
+	
 
 	if (globalCtx->options.showkCCF) {
 	
 		kSlabForestKLevelCountersClear(ctx->kSlabForest, ctx->rootKey, globalCtx->kval());
 		kccf = ctx->kSlabForest.inverseK(globalCtx->kval());
 
-		benchmark_dump_after_kCCF(globalCtx, ctx);
-		globalCtx->OutFile << "Nodes count of kCCF: " << kccf.recursiveAllNodesCount() << endl << endl;
+		if (!globalCtx->options.xmloutput) {
+			
+			benchmark_dump_after_kCCF(globalCtx, ctx);
+			globalCtx->OutFile << "Nodes count of kCCF: " << kccf.recursiveAllNodesCount() << endl << endl;
+		}
 	}
 
 
 	if (globalCtx->options.showkSF) {
 
-		print_title(globalCtx, "DUMP of K-SF");
+		if (!globalCtx->options.xmloutput) {
 
-		dump(*kSFCopy, globalCtx->OutFile);
+			print_title(globalCtx, "DUMP of K-SF");
+			dump(*kSFCopy, globalCtx->OutFile);
+
+		} else {
+			
+			openTag("kSF",true);
+			dumpXmlForest(*kSFCopy);
+			closeTag("kSF");
+		}
 
 		delete kSFCopy;
 	}	
 
 	if (globalCtx->options.showkSF2) {
 
-		print_title(globalCtx, "DUMP of K-SF with resetted counters");
-
-		dump(ctx->kSlabForest, globalCtx->OutFile);
+		if (!globalCtx->options.xmloutput) {
+			print_title(globalCtx, "DUMP of K-SF with resetted counters");
+			dump(ctx->kSlabForest, globalCtx->OutFile);
+		}
 	}
 
-	globalCtx->OutFile << "\n\n\n";
+	if (!globalCtx->options.xmloutput)
+		globalCtx->OutFile << "\n\n\n";
 
 	if (globalCtx->options.showkCCF) {
 
-		print_title(globalCtx, "DUMP of K-CCF");	
-		dump(kccf, globalCtx->OutFile);
+		if (!globalCtx->options.xmloutput) {
+
+			print_title(globalCtx, "DUMP of K-CCF");	
+			dump(kccf, globalCtx->OutFile);
+
+		} else {
+		
+			openTag("kCCF",true);
+			dumpXmlForest(kccf);
+			closeTag("kCCF");
+		}
 	}
 }
 
@@ -154,7 +274,8 @@ void printThreadContextInfo(kCCFContextClass *globalCtx, kCCFThreadContextClass 
 		ADDRINT funcAddr = tradCtx->getFunctionAddr();
 		FunctionObj *fc = globalCtx->allFuncs[funcAddr];
 
-		print_func_name(globalCtx, fc->functionName());
+		if (!globalCtx->options.xmloutput)
+			print_func_name(globalCtx, fc->functionName());
 
 		BENCHMARK_SET_FUNC(funcAddr);
 
@@ -364,60 +485,111 @@ void makeHumanDisasm() {
 	}
 }
 
-void Fini(INT32 code, void *)
-{
+
+
+
+void writeXmlConfig() {
+
+	kCCFContextClass *ctx = globalSharedContext;
+	ostream &o = globalSharedContext->OutFile;
+
+	openTag("configuration",true);
+
+	openTag("WorkingMode");
+	o << WorkingModesString[ctx->WorkingMode()];
+	closeTag("WorkingMode");
+
+	openTag("joinThreads");
+	o << ctx->options.joinThreads;
+	closeTag("joinThreads");
+
+	openTag("rollLoops");
+	o << ctx->options.rollLoops;
+	closeTag("rollLoops");
+
+	openTag("kvalue");
+	o << ctx->kval();
+	closeTag("kvalue");
+
+	openTag("insTracing");
+	o << ENABLE_INS_TRACING;
+	closeTag("insTracing");
+
+	openTag("subCallCheck");
+	o << ENABLE_SUBCALL_CHECK;
+	closeTag("subCallCheck");
+
+	openTag("relyOnSpCheck");
+	o << ENABLE_RELY_ON_SP_CHECK;
+	closeTag("relyOnSpCheck");
+
+	openTag("insTracingFwdJmpRec");
+	o << ENABLE_INS_FORWARD_JMP_RECOGNITION;
+	closeTag("insTracingFwdJmpRec");
+
+	openTag("windows");
+	o << USING_WINDOWS;
+	closeTag("windows");
+
+	openTag("archbits");
+	o << sizeof(void*)*8;
+	closeTag("archbits");
+
+	openTag("winFullTracingLongjmpTracing");
+	o << ENABLE_WIN32_FULLTRACE_TARGET_TRACING_LONGJMP;
+	closeTag("winFullTracingLongjmpTracing");
+
+	openTag("winMainAlignment");
+	o << ENABLE_WIN32_MAIN_ALIGNMENT;
+	closeTag("winMainAlignment");
+
+	closeTag("configuration");
+}
+
+void print_outputInit() {
+
 	kCCFContextClass *ctx = globalSharedContext;
 
-	if (ctx->options.disasm)
-		makeHumanDisasm();
+	if (!ctx->options.xmloutput) {
 
+		if (ctx->options.disasm)
+			makeHumanDisasm();
 
-	ctx->OutFile << endl << endl << endl;
+		ctx->OutFile << endl << endl << endl;
 
-	ctx->OutFile << "Size of a node: " << sizeof(kCCFNode) << endl;
+		ctx->OutFile << "Size of a node: " << sizeof(kCCFNode) << endl;
 	
-	if (!ctx->options.kinf) {
-		ctx->OutFile << "K value: " << ctx->kval() << endl;
+		if (!ctx->options.kinf) {
+			ctx->OutFile << "K value: " << ctx->kval() << endl;
+		} else {
+			ctx->OutFile << "K value: INFINITE" << endl;
+		}
+
+		if (ctx->WorkingMode() != FuncMode) {
+	
+			ctx->OutFile << "Basic blocks count: " << ctx->allBlocks.size() << endl;
+
+		} else {
+
+			ctx->OutFile << "Functions count: " << ctx->allFuncs.size() << endl;
+
+		}
+
+		ctx->OutFile << "Maximum number of different threads: " << ctx->threadContexts.size() << endl;
+		ctx->OutFile << endl << endl;
+	
 	} else {
-		ctx->OutFile << "K value: INFINITE" << endl;
+	
+		ctx->OutFile << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl;
+		openTag("output",true);
+		writeXmlConfig();
 	}
 
-	if (ctx->WorkingMode() != FuncMode) {
-	
-		ctx->OutFile << "Basic blocks count: " << ctx->allBlocks.size() << endl;
+}
 
-	} else {
+size_t getMaxFuncLen() {
 
-		ctx->OutFile << "Functions count: " << ctx->allFuncs.size() << endl;
-
-	}
-
-	ctx->OutFile << "Maximum number of different threads: " << ctx->threadContexts.size() << endl;
-	ctx->OutFile << endl << endl;
-
-	if (ctx->options.joinThreads) {
-	
-		if (ctx->WorkingMode() != TradMode)
-			blockFuncMode_joinThreads(ctx);
-		else
-			tradMode_joinThreads(ctx);
-	}
-
-	
-	for (unsigned i=0; i < ctx->threadContexts.size(); i++) {
-	
-		if (!ctx->options.joinThreads)
-			print_thread_id(ctx, ctx->threadContexts[i]->threadID);
-
-		//Operations in printContextInfo (inversion of the K slab forest and others)
-		//have to counted as operations made by thread "threadID" and not by current thread.
-		BENCHMARK_SET_THREAD(ctx->threadContexts[i]->threadID);
-
-		//cerr << "Computing kCCF for thread " << ctx->threadContexts[i]->threadID << "...\n";
-
-		printThreadContextInfo(ctx, ctx->threadContexts[i]);
-	}
-
+	kCCFContextClass *ctx = globalSharedContext;
 	size_t maxFuncLen=0;
 
 	if (ctx->options.showFuncs || (ctx->options.showBlocks && !ctx->funcsToTrace.size())) {
@@ -431,89 +603,225 @@ void Fini(INT32 code, void *)
 		}	
 	}
 
-	if (ctx->options.showBlocks) {
+	return maxFuncLen;
+}
 
-		size_t maxLen=0;
+void print_showBlocks(size_t maxFuncLen) {
 
-		if (ctx->funcsToTrace.size()) {
+	kCCFContextClass *ctx = globalSharedContext;
+	size_t maxLen=0;
+
+	if (ctx->funcsToTrace.size()) {
 		
-			for (set<string>::iterator it = ctx->funcsToTrace.begin(); it != ctx->funcsToTrace.end(); it++)
-				if (it->size() > maxLen)
-					maxLen=it->size();
+		for (set<string>::iterator it = ctx->funcsToTrace.begin(); it != ctx->funcsToTrace.end(); it++)
+			if (it->size() > maxLen)
+				maxLen=it->size();
 
-		} else {
+	} else {
 		
-			maxLen=maxFuncLen;
-		}
+		maxLen=maxFuncLen;
+	}
 
-		ctx->OutFile << "\n\n\n";
+	ctx->OutFile << "\n\n\n";
 
-		print_title(ctx, "All basic blocks");
+	print_title(ctx, "All basic blocks");
 
-		BlocksMapIt it = ctx->allBlocks.begin();
-		BlocksMapIt end = ctx->allBlocks.end();
+	BlocksMapIt it = ctx->allBlocks.begin();
+	BlocksMapIt end = ctx->allBlocks.end();
 
-		while (it != end) {
+	while (it != end) {
 	
-			BasicBlock& bb = *it->second;
+		BasicBlock& bb = *it->second;
 
-			ctx->OutFile << "block: ";
-			ctx->OutFile.width(maxLen+12);
-			ctx->OutFile << left << bb;
-			ctx->OutFile << " addr: 0x";
-			ctx->OutFile << hex << (void*)bb.getKey() << dec; 
-			ctx->OutFile << " simpleCounter: " << bb.getSimpleCounter();
+		ctx->OutFile << "block: ";
+		ctx->OutFile.width(maxLen+12);
+		ctx->OutFile << left << bb;
+		ctx->OutFile << " addr: 0x";
+		ctx->OutFile << hex << (void*)bb.getKey() << dec; 
+		ctx->OutFile << " simpleCounter: " << bb.getSimpleCounter();
 
-			if (ctx->options.disasm)
+		if (ctx->options.disasm)
+		{
+			ctx->OutFile << "\tDisassembly: \n";
+
+			map<ADDRINT,insInfo>::iterator it;
+
+			for (it = bb.functionPtr->instructions.begin(); it != bb.functionPtr->instructions.end(); it++)
 			{
-				ctx->OutFile << "\tDisassembly: \n";
+				if (it->first == bb.blockAddress())
+					break;
+			}
 
-				map<ADDRINT,insInfo>::iterator it;
+			for (; it != bb.functionPtr->instructions.end(); it++)
+			{
+				if (it->first > bb.blockEndAddress())
+					break;
 
-				for (it = bb.functionPtr->instructions.begin(); it != bb.functionPtr->instructions.end(); it++)
-				{
-					if (it->first == bb.blockAddress())
-						break;
-				}
+				string ins = it->second.ins_text;
 
-				for (; it != bb.functionPtr->instructions.end(); it++)
-				{
-					if (it->first > bb.blockEndAddress())
-						break;
-
-					string ins = it->second.ins_text;
-
-					ctx->OutFile.width(maxLen+12);
-					ctx->OutFile << "\t\t\t\t\t\t\t\t" << ins << endl;
-				}
-
-				ctx->OutFile << endl;
+				ctx->OutFile.width(maxLen+12);
+				ctx->OutFile << "\t\t\t\t\t\t\t\t" << ins << endl;
 			}
 
 			ctx->OutFile << endl;
-
-			it++;
 		}
-	
+
+		ctx->OutFile << endl;
+
+		it++;
 	}
+}
 
-	if (ctx->options.showFuncs) {
-		
+void print_showFuncs(size_t maxFuncLen) {
+
+	kCCFContextClass *ctx = globalSharedContext;
+
+	if (!ctx->options.xmloutput) {
+
 		ctx->OutFile << "\n\n\n";
-
 		print_title(ctx, "All functions");
 
-		for (FuncsMapIt it = ctx->allFuncs.begin(); it != ctx->allFuncs.end(); it++) {
+	} else {
 		
-			FunctionObj& fc = *it->second;
+		openTag("functions",true);
+	}
+
+	for (FuncsMapIt it = ctx->allFuncs.begin(); it != ctx->allFuncs.end(); it++) {
+		
+		FunctionObj& fc = *it->second;
 			
+		if (!ctx->options.xmloutput) {
+				
 			ctx->OutFile << "function: ";
 			ctx->OutFile.width(maxFuncLen+4);
 			ctx->OutFile << left << fc;
 			ctx->OutFile << " addr: 0x" << hex << (void*)fc.getKey() << dec; 
 			ctx->OutFile << " simpleCounter: " << fc.getSimpleCounter() << endl;
+			
+		} else {
+				
+			openTag("func",true);
+				
+			openTag("name");
+			ctx->OutFile << fc.functionName() << endl;
+			closeTag("name");
+
+			openTag("address");
+			ctx->OutFile << "0x" << hex << (void*)fc.functionAddress() << dec << endl;
+			closeTag("address");
+
+			openTag("fileName");
+			ctx->OutFile << fc.fileName() << endl;
+			closeTag("fileName");
+
+			if (fc.instructions.size()) {
+					
+				openTag("instructions");
+
+				map<ADDRINT,insInfo>::iterator it;
+
+				for (it = fc.instructions.begin(); it != fc.instructions.end(); it++) 
+				{
+					openTag("ins");
+
+					openTag("address");
+					ctx->OutFile << "0x" << hex << (void*)it->first << dec << endl;
+					closeTag("address");
+
+					openTag("isDirectBranch");
+					ctx->OutFile << (it->second.isDirectBranchOrCall() && !it->second.isCall);
+					closeTag("isDirectBranch");
+
+					openTag("isDirectCall");
+					ctx->OutFile << (it->second.isDirectBranchOrCall() && it->second.isCall);
+					closeTag("isDirectCall");
+
+					if (it->second.targetAddr) {
+						openTag("targetAddr");
+						ctx->OutFile << "0x" << hex << (void*)it->second.targetAddr << dec;
+						closeTag("targetAddr");
+					}
+
+					if (it->second.targetFuncAddr) {
+						openTag("targetAddrFunc");
+						ctx->OutFile << "0x" << hex << (void*)it->second.targetFuncAddr << dec;
+						closeTag("targetAddrFunc");
+					}
+
+					if (isStringPrintable(it->second.externFuncName)) {
+						
+						openTag("externFuncName");
+						ctx->OutFile << it->second.externFuncName;
+						closeTag("externFuncName");
+					}
+
+					openTag("disasm");
+					ctx->OutFile << it->second.ins_text;
+					closeTag("disasm");
+
+
+					closeTag("ins");
+				}
+
+				closeTag("instructions");
+			}
+
+			closeTag("func");
 		}
 	}
+
+	closeTag("functions");
+}
+
+void Fini(INT32 code, void *)
+{
+	kCCFContextClass *ctx = globalSharedContext;
+
+
+	print_outputInit();
+
+
+	if (ctx->options.joinThreads) {
+	
+		if (ctx->WorkingMode() != TradMode)
+			blockFuncMode_joinThreads(ctx);
+		else
+			tradMode_joinThreads(ctx);
+	}
+
+	
+	
+	for (unsigned i=0; i < ctx->threadContexts.size(); i++) {
+	
+		print_openThread(ctx->threadContexts[i]->threadID);
+
+
+
+		//Operations in printContextInfo (inversion of the K slab forest and others)
+		//have to counted as operations made by thread "threadID" and not by current thread.
+		BENCHMARK_SET_THREAD(ctx->threadContexts[i]->threadID);
+
+		//cerr << "Computing kCCF for thread " << ctx->threadContexts[i]->threadID << "...\n";
+
+		printThreadContextInfo(ctx, ctx->threadContexts[i]);
+
+		print_closeThread();
+	}
+
+	size_t maxFuncLen=getMaxFuncLen();
+
+	if (ctx->options.showBlocks) {
+
+		print_showBlocks(maxFuncLen);
+	}
+
+	if (ctx->options.showFuncs) {
+		
+		print_showFuncs(maxFuncLen);
+	}
+
+	if (ctx->options.xmloutput)
+		closeTag("output");
 
     ctx->OutFile.close();
 
@@ -533,5 +841,5 @@ void funcTraceDebugDump(kCCFContextClass *globalCtx, FunctionObj *fc,
 	else
 		globalCtx->OutFile << fc->functionName() << endl;
 		
-	globalCtx->OutFile << " ----------------------------------------------------------------------------------------------- \n";
+	globalCtx->OutFile << OUTPUT_PLINE;
 }

@@ -268,7 +268,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 
 		if (!INS_IsDirectBranchOrCall(ins)) {
 
-			fc->instructions[INS_Address(ins)] = insInfo(ins_text, INS_IsCall(ins), 0, 0);
+			fc->instructions[INS_Address(ins)] = insInfo(ins_text, /*INS_IsProcedureCall(ins),*/ 0, 0);
 			continue;
 		}
 					
@@ -277,7 +277,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 			
 		if (!RTN_Valid(r)) {
 		
-			fc->instructions[INS_Address(ins)] = insInfo(ins_text, INS_IsCall(ins), addr, 0);
+			fc->instructions[INS_Address(ins)] = insInfo(ins_text, /*INS_IsProcedureCall(ins),*/ addr, 0);
 			continue;
 		}
 
@@ -286,7 +286,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 		
 		//cerr << "func: " << RTN_Name(rtn) << " call: " << rname << ", ins: " << ins_text << endl;
 		
-		insInfo insData = insInfo(ins_text, INS_IsCall(ins), addr, RTN_Address(r));
+		insInfo insData = insInfo(ins_text, /*INS_IsProcedureCall(ins),*/ addr, RTN_Address(r));
 
 		RTN r2 = RTN_FindByName(img, rname.c_str());
 
@@ -381,10 +381,10 @@ void ImageLoad(IMG img, void *) {
 
 			if (trace || FUNC_IS_TEXT_N(funcName)) {
 				
-				if (ctx->WorkingMode() != BlockMode) {
+				//if (ctx->WorkingMode() != BlockMode) {
 				
-					imageLoad_doInsInstrumentation(img, rtn, fc);
-				}
+				imageLoad_doInsInstrumentation(img, rtn, fc);
+				//}
 			}
 
 			if (!trace)

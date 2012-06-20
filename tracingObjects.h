@@ -45,9 +45,10 @@ public:
 	bool isDirectBranchOrCall() { return targetAddr != 0; }
 
 	insInfo() : targetAddr(0), targetFuncAddr(0), externFuncName(0) { }
-	insInfo(string ins, bool _isCall, ADDRINT tAddr, ADDRINT tfuncAddr, const char *extFuncName=0) : 
-		ins_text(ins), isCall(_isCall), targetAddr(tAddr), targetFuncAddr(tfuncAddr), externFuncName(extFuncName)
+	insInfo(string ins, ADDRINT tAddr, ADDRINT tfuncAddr, const char *extFuncName=0) : 
+		ins_text(ins), targetAddr(tAddr), targetFuncAddr(tfuncAddr), externFuncName(extFuncName)
 	{ 
+		isCall = !ins_text.compare(0, 4, "call");
 	}
 };
 

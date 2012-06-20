@@ -34,6 +34,7 @@ static KNOB<bool> joinThreads(KNOB_MODE_WRITEONCE, "pintool", "joinThreads", "0"
 static KNOB<bool> rollLoops(KNOB_MODE_WRITEONCE, "pintool", "rollLoops", "0", "");
 static KNOB<bool> disasm(KNOB_MODE_WRITEONCE, "pintool", "disasm", "0", "");
 static KNOB<bool> kinf(KNOB_MODE_WRITEONCE, "pintool", "kinf", "0", "");
+static KNOB<bool> xmloutput(KNOB_MODE_WRITEONCE, "pintool", "xml", "0", "");
 
 static KNOB<string> startFunc(KNOB_MODE_WRITEONCE, "pintool", "startFunc", "-none-", "");
 static KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "-none-", "");
@@ -48,6 +49,9 @@ KNOB<string> &optionsClass::tracingFunctions() {
 }
 
 const char *optionsClass::getOutfileName() { 
+	
+	if (::outFileName.Value() == "out.txt" && ::xmloutput.Value())
+		return "out.xml";
 
 	return outFileName.Value().c_str(); 
 }
@@ -87,6 +91,9 @@ void optionsClass::initFromGlobalOptions()
 	showCalls = ::showCalls.Value();
 	disasm = ::disasm.Value();
 	kinf = ::kinf.Value();
+	xmloutput = ::xmloutput.Value();
+
+
 }
 
 
@@ -98,7 +105,7 @@ void optionsClass::showHelp()
 	cout << "k-Calling Context Forest profiling pintool\n" << endl;
 	cout << "-------------------------------------------\n" << endl;
 	cout << "Syntax: <PIN> -t " << KCCF_LIB_FILE << " <WORKING MODE> [ -f <func1> [-f <func2> [...]] ]\n"; 
-	cout << "\t\t\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] <SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
+	cout << "\t\t\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] [ -xml ] <SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
 	
 	cout << "\nWorking modes: " << endl;
 	cout << "\t -funcMode" << endl;
@@ -137,6 +144,11 @@ bool optionsClass::checkOptions()
 		return false;
 	} 
 
+	if (::showBlocks.Value() && funcMode.Value()) {
+	
+		cerr << "-showBlocks can't be used in funcMode." << endl;
+		return false;
+	}
 
 	if (::disasm.Value() && !::showBlocks.Value()) {
 	
