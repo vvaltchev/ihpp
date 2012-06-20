@@ -28,6 +28,16 @@ inline void closeTag(const char *tag, ostream &s = globalSharedContext->OutFile)
 	s << "</" << tag << ">\n";
 }
 
+inline void openAttr(const char *tag, ostream &s = globalSharedContext->OutFile) {
+
+	s << tag << "=\"";
+}
+
+inline void closeAttr(const char *tag, ostream &s = globalSharedContext->OutFile) {
+
+	s << "\" ";
+}
+
 inline void benchmark_dump_before_kCCF(kCCFContextClass *globalCtx, BenchmarkObj *ctx)
 {
 
@@ -672,6 +682,73 @@ void print_showBlocks(size_t maxFuncLen) {
 	}
 }
 
+void print_ins(ADDRINT addr, insInfo &info) {
+
+	kCCFContextClass *ctx = globalSharedContext;
+
+	openAttr("address");
+	ctx->OutFile << "0x" << hex << (void*)addr << dec;
+	closeAttr("address");
+
+	openAttr("isDirectBranch");
+	ctx->OutFile << (info.isDirectBranchOrCall() && !info.isCall);
+	closeAttr("isDirectBranch");
+
+	openAttr("isDirectCall");
+	ctx->OutFile << (info.isDirectBranchOrCall() && info.isCall);
+	closeAttr("isDirectCall");
+
+	if (info.targetAddr) {
+		openAttr("targetAddr");
+		ctx->OutFile << "0x" << hex << (void*)info.targetAddr << dec;
+		closeAttr("targetAddr");
+	}
+
+	if (info.targetFuncAddr) {
+		openAttr("targetAddrFunc");
+		ctx->OutFile << "0x" << hex << (void*)info.targetFuncAddr << dec;
+		closeAttr("targetAddrFunc");
+	}
+
+	if (isStringPrintable(info.externFuncName)) {
+						
+		openAttr("externFuncName");
+		ctx->OutFile << info.externFuncName;
+		closeAttr("externFuncName");
+	}
+
+	ctx->OutFile << ">\n";
+
+	openTag("disasm");
+	ctx->OutFile << info.ins_text;
+	closeTag("disasm");
+
+	if (info.externFuncName)
+		return;
+
+	if (!info.isCall)
+		return;
+
+	FuncsMapIt it = ctx->allFuncs.find(addr);
+
+	if (it != ctx->allFuncs.end())
+		return;
+
+	FuncsMapIt it2 = ctx->allFuncs.find(info.targetFuncAddr);
+
+	if (it2 == ctx->allFuncs.end())
+		return;
+
+	insInfo targetIns = it2->second->instructions[info.targetAddr];
+
+	if (targetIns.ins_text.size() && targetIns.isDirectBranchOrCall()) {
+	
+		openTag("twoStepCallIns", true);
+		print_ins(info.targetAddr, targetIns);
+		closeTag("twoStepCallIns");
+	}
+}
+
 void print_showFuncs(size_t maxFuncLen) {
 
 	kCCFContextClass *ctx = globalSharedContext;
@@ -716,49 +793,16 @@ void print_showFuncs(size_t maxFuncLen) {
 
 			if (fc.instructions.size()) {
 					
-				openTag("instructions");
+				openTag("instructions",true);
 
 				map<ADDRINT,insInfo>::iterator it;
 
 				for (it = fc.instructions.begin(); it != fc.instructions.end(); it++) 
 				{
-					openTag("ins");
+					//openTag("ins");
+					ctx->OutFile << "<ins ";
 
-					openTag("address");
-					ctx->OutFile << "0x" << hex << (void*)it->first << dec << endl;
-					closeTag("address");
-
-					openTag("isDirectBranch");
-					ctx->OutFile << (it->second.isDirectBranchOrCall() && !it->second.isCall);
-					closeTag("isDirectBranch");
-
-					openTag("isDirectCall");
-					ctx->OutFile << (it->second.isDirectBranchOrCall() && it->second.isCall);
-					closeTag("isDirectCall");
-
-					if (it->second.targetAddr) {
-						openTag("targetAddr");
-						ctx->OutFile << "0x" << hex << (void*)it->second.targetAddr << dec;
-						closeTag("targetAddr");
-					}
-
-					if (it->second.targetFuncAddr) {
-						openTag("targetAddrFunc");
-						ctx->OutFile << "0x" << hex << (void*)it->second.targetFuncAddr << dec;
-						closeTag("targetAddrFunc");
-					}
-
-					if (isStringPrintable(it->second.externFuncName)) {
-						
-						openTag("externFuncName");
-						ctx->OutFile << it->second.externFuncName;
-						closeTag("externFuncName");
-					}
-
-					openTag("disasm");
-					ctx->OutFile << it->second.ins_text;
-					closeTag("disasm");
-
+					print_ins(it->first, it->second);
 
 					closeTag("ins");
 				}

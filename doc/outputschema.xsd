@@ -2,16 +2,20 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <xs:complexType name="InstructionType">
+
     <xs:sequence>
-      <xs:element name="address"/>
-      <xs:element name="isDirectBranch" type="xs:boolean"/>
-      <xs:element name="isDirectCall" type="xs:boolean"/>
-      <xs:element name="targetAddr" minOccurs="0"/>
-      <xs:element name="targetAddrFunc" minOccurs="0"/>
-      <xs:element name="externFuncName" minOccurs="0"/>
       <xs:element name="disasm" type="xs:string" minOccurs="0"/>
       <xs:element name="twoStepCallIns" type="InstructionType" minOccurs="0"/>
     </xs:sequence>
+
+    
+    <xs:attribute name="address" use="required"/>
+    <xs:attribute name="isDirectBranch" type="xs:boolean" use="required"/>
+    <xs:attribute name="isDirectCall" type="xs:boolean" use="required"/>
+    <xs:attribute name="targetAddr" use="optional"/>
+    <xs:attribute name="targetAddrFunc" use="optional"/>
+    <xs:attribute name="externFuncName" use="optional"/>
+
   </xs:complexType>
 
   <xs:complexType name="node">
