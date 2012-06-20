@@ -2,7 +2,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <xs:complexType name="InstructionType">
-
     <xs:sequence>
       <xs:element name="address"/>
       <xs:element name="isDirectBranch" type="xs:boolean"/>
@@ -13,22 +12,56 @@
       <xs:element name="disasm" type="xs:string" minOccurs="0"/>
       <xs:element name="twoStepCallIns" type="InstructionType" minOccurs="0"/>
     </xs:sequence>
-
   </xs:complexType>
 
-  <xs:element name="functions">
+  <xs:complexType name="node">
+    <xs:sequence>
+      <xs:element name="objAddr"/>
+      <xs:element name="counter" type="xs:nonNegativeInteger"/>
+      <xs:element name="children" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="child" type="node" maxOccurs="unbounded" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
+  <xs:complexType name="forest">
+    <xs:sequence>
+      <xs:element name="tree" type="node" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+    
+  <xs:element name="configuration">
     <xs:complexType>
-
       <xs:sequence>
-
+        <xs:element name="WorkingMode" type="xs:string"/>
+        <xs:element name="joinThreads" type="xs:boolean"/>
+        <xs:element name="rollLoops" type="xs:boolean"/>
+        <xs:element name="kvalue" type="xs:nonNegativeInteger"/>
+        <xs:element name="insTracing" type="xs:boolean"/>
+        <xs:element name="subCallCheck" type="xs:boolean"/>
+        <xs:element name="relyOnSpCheck" type="xs:boolean"/>
+        <xs:element name="insTracingFwdJmpRec" type="xs:boolean"/>
+        <xs:element name="windows" type="xs:boolean"/>
+        <xs:element name="archbits" type="xs:positiveInteger"/>
+        <xs:element name="winFullTracingLongjmpTracing" type="xs:boolean"/>
+        <xs:element name="winMainAlignment" type="xs:boolean"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="functions">
+    <xs:complexType>
+      <xs:sequence>
         <xs:element name="func" maxOccurs="unbounded">
           <xs:complexType>
-
             <xs:sequence>
               <xs:element name="name" type="xs:string" />
               <xs:element name="address"/>
-
+              <xs:element name="fileName" type="xs:string" minOccurs="0"/>
               <xs:element name="instructions">
                 <xs:complexType>
                   <xs:sequence>
@@ -36,40 +69,57 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-
             </xs:sequence>
-          
-        </xs:complexType>
+          </xs:complexType>
         </xs:element>
-
       </xs:sequence>
-
     </xs:complexType>
-
   </xs:element>
 
   <xs:element name="basicblocks">
     <xs:complexType>
       <xs:sequence>
-
         <xs:element name="bb" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>
-
               <xs:element name="firstInsAddr"/>
               <xs:element name="lastInsAddr"/>
               <xs:element name="funcAddr"/>
               <xs:element name="isFirstBlock" type="xs:boolean"/>
               <xs:element name="line" type="xs:nonNegativeInteger"/>
               <xs:element name="col" type="xs:nonNegativeInteger"/>
-              <xs:element name="file" type="xs:string" minOccurs="0"/>
-              
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
+
+  
+  <xs:element name="threads">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="thread" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="id"/>
+              <xs:element name="funcMode_kSF" type="forest" minOccurs="0"/>
+              <xs:element name="funcMode_kCCF" type="forest" minOccurs="0"/>
+              <xs:element name="tradMode_ctx" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="funcAddr"/>
+                    <xs:element name="kSF" type="forest"/>
+                    <xs:element name="kCCF" type="forest"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
 </xs:schema>

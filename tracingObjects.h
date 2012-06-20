@@ -54,15 +54,18 @@ public:
 class FunctionObj : public TracingObject<ADDRINT> {
 
 	string _functionName;
+	string _fileName;
 
 public:
 
 	map<ADDRINT, insInfo> instructions;
 
-	FunctionObj(ADDRINT ptr, string funcName) : TracingObject<ADDRINT>(ptr), _functionName(funcName) { }
+	FunctionObj(ADDRINT ptr, string funcName, string fileName) : 
+		TracingObject<ADDRINT>(ptr), _functionName(funcName), _fileName(fileName) { }
 
 	ADDRINT functionAddress() { return key; }
 	string functionName() { return _functionName; }
+	string fileName() { return _fileName; }
 
 	operator string() { return functionName()+"()"; }
 };

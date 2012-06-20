@@ -345,6 +345,9 @@ void ImageLoad(IMG img, void *) {
 
 			ADDRINT funcAddr = RTN_Address(rtn);
 			string funcName = RTN_Name(rtn);
+			string fileName;
+
+			PIN_GetSourceLocation(funcAddr, 0, 0, &fileName);
 
 			imageload_specialfunc(funcAddr, funcName);
 							
@@ -366,7 +369,7 @@ void ImageLoad(IMG img, void *) {
 
 			assert(ctx->allFuncs.find(funcAddr) == ctx->allFuncs.end());
 
-			fc = new FunctionObj(funcAddr, funcName);
+			fc = new FunctionObj(funcAddr, funcName, fileName);
 			ctx->allFuncs[funcAddr]=fc;
 			
 
