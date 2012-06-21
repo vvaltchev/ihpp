@@ -20,7 +20,7 @@ static KNOB<bool> showkSF2(KNOB_MODE_WRITEONCE, "pintool", "ksf2", "0", "");
 static KNOB<bool> showkCCF(KNOB_MODE_WRITEONCE, "pintool", "kccf", "0", "");
 
 ////////
-static KNOB<bool> purge(KNOB_MODE_WRITEONCE, "pintool", "purge", "0", "");
+//static KNOB<bool> purge(KNOB_MODE_WRITEONCE, "pintool", "purge", "0", "");
 static KNOB<bool> experimental(KNOB_MODE_WRITEONCE, "pintool", "experimental", "0", "");
 /////////
 
@@ -39,8 +39,8 @@ static KNOB<bool> funcsDisasm(KNOB_MODE_WRITEONCE, "pintool", "funcsDisasm", "0"
 static KNOB<bool> kinf(KNOB_MODE_WRITEONCE, "pintool", "kinf", "0", "");
 static KNOB<bool> xmloutput(KNOB_MODE_WRITEONCE, "pintool", "xml", "0", "");
 
-static KNOB<string> startFunc(KNOB_MODE_WRITEONCE, "pintool", "startFunc", "-none-", "");
-static KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "-none-", "");
+static KNOB<string> startFunc(KNOB_MODE_WRITEONCE, "pintool", "startFunc", "--", "");
+static KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "--", "");
 
 //----------------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ void optionsClass::initFromGlobalOptions()
 
 	startFuncName = ::startFunc.Value();
 	stopFuncName = ::stopFunc.Value();
-	purgeFuncs = ::purge.Value();
+	//purgeFuncs = ::purge.Value();
 
 	joinThreads = ::joinThreads.Value();
 	rollLoops = ::rollLoops.Value();
@@ -96,8 +96,6 @@ void optionsClass::initFromGlobalOptions()
 	funcsDisasm = ::funcsDisasm.Value();
 	kinf = ::kinf.Value();
 	xmloutput = ::xmloutput.Value();
-
-
 }
 
 
@@ -176,6 +174,12 @@ bool optionsClass::checkOptions()
 		return false;
 	}
 
+	if (::kinf.Value() && ::blockMode.Value()) {
+	
+		cerr << "-kinf option can't be used with -blockMode.\n";
+		return false;
+	}
+
 #ifdef _WIN32
 	
 	if ( !singleFunctions.NumberOfValues() && !experimental.Value() ) {
@@ -190,11 +194,13 @@ bool optionsClass::checkOptions()
 	}
 #endif
 
+/*
 	if (::purge.Value() && ::singleFunctions.NumberOfValues()) {
 	
 		cerr << "Purge option is available only in full tracing mode.\n";
 		return false;
 	}
+*/
 
 	if (::rollLoops.Value() && !::tradMode.Value()) {
 	

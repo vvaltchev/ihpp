@@ -6,8 +6,19 @@
 #include <fstream>
 #include <string>
 
+#include <string.h>
 #include <stdlib.h>
 
+#include "forest.h"
+
+inline const char *duplicate_string(string &s) {
+
+	char *ptr = new char [s.size()+1];
+
+	strcpy(ptr, s.c_str());
+
+	return ptr;
+}
 
 template <typename keyT>
 void dump(node<keyT> &n, ostream& out=cerr, int ident=0) {

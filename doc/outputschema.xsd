@@ -115,11 +115,23 @@
             <xs:sequence>
               <xs:element name="bb" maxOccurs="unbounded">
                 <xs:complexType>
+
+                  <xs:sequence>
+                    <xs:element name="instructions" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="ins" type="InstructionType" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  
                   <xs:attribute name="firstInsAddr" type="addrType" use="required"/>
                   <xs:attribute name="lastInsAddr" type="addrType" use="required"/>
                   <xs:attribute name="funcAddr" type="addrType" use="required"/>
                   <xs:attribute name="line" type="xs:nonNegativeInteger" use="required"/>
                   <xs:attribute name="col" type="xs:nonNegativeInteger" use="required"/>
+
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
@@ -140,9 +152,15 @@
                     <xs:element name="tradMode_ctx" minOccurs="0">
                       <xs:complexType>
                         <xs:sequence>
-                          <xs:element name="funcAddr" type="addrType"/>
-                          <xs:element name="kSF" type="forest" minOccurs="0"/>
-                          <xs:element name="kCCF" type="forest" minOccurs="0"/>
+                          <xs:element name="func_ctx" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="funcAddr" type="addrType"/>
+                                <xs:element name="kSF" type="forest" minOccurs="0"/>
+                                <xs:element name="kCCF" type="forest" minOccurs="0"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
                         </xs:sequence>
                       </xs:complexType>
                     </xs:element>

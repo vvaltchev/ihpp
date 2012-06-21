@@ -144,7 +144,7 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
     
 	RTN rtn;
 	string file;
-	string funcName;
+	//string funcName;
 	INT32 row,col;
 	BasicBlock *bb;
 	ADDRINT blockPtr,funcAddr;
@@ -170,9 +170,10 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 		}
 
 
-		funcName=RTN_Name(rtn);
+		//funcName=RTN_Name(rtn);
 		funcAddr=RTN_Address(rtn);
 
+		/*
 		if (ctx->options.purgeFuncs) {
 				
 			if (funcName[0] == '_') {
@@ -180,7 +181,7 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 				continue;
 			}
 		}
-
+		*/
 
 
 		if (!ctx->hasToTrace(funcAddr)) {
@@ -195,6 +196,8 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 
 			INS ins = BBL_InsTail(bbl);
 			ADDRINT lastAddr = INS_Address(ins);
+
+			assert(ctx->allFuncs.find(funcAddr) != ctx->allFuncs.end());
 
 			bb = new BasicBlock(blockPtr, ctx->allFuncs.find(funcAddr)->second, lastAddr, row, col); 
 			ctx->allBlocks[blockPtr]=bb;
@@ -256,19 +259,23 @@ inline void imageload_specialfunc(ADDRINT &funcAddr, string &funcName) {
 
 void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 
+	kCCFContextClass *ctx = globalSharedContext;
+
 	RTN_Open(rtn);
 
 	for( INS ins = RTN_InsHead(rtn); INS_Valid(ins); ins = INS_Next(ins) ) {
 						
-		insInstrumentation(rtn, ins);			
+		if (ctx->WorkingMode() != BlockMode)
+			insInstrumentation(rtn, ins);			
+
+		if (!ctx->options.blocksDisasm && !ctx->options.funcsDisasm)
+			continue;
 
 		string ins_text = INS_Disassemble(ins);
-		//cerr << "ins_text orig: " << ins_text << endl;
-
 
 		if (!INS_IsDirectBranchOrCall(ins)) {
 
-			fc->instructions[INS_Address(ins)] = insInfo(ins_text, /*INS_IsProcedureCall(ins),*/ 0, 0);
+			fc->instructions[INS_Address(ins)] = insInfo(duplicate_string(ins_text), 0, 0);
 			continue;
 		}
 					
@@ -277,36 +284,24 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 			
 		if (!RTN_Valid(r)) {
 		
-			fc->instructions[INS_Address(ins)] = insInfo(ins_text, /*INS_IsProcedureCall(ins),*/ addr, 0);
+			fc->instructions[INS_Address(ins)] = insInfo(duplicate_string(ins_text), addr, 0);
 			continue;
 		}
 
 
 		string rname = RTN_Name(r);
 		
-		//cerr << "func: " << RTN_Name(rtn) << " call: " << rname << ", ins: " << ins_text << endl;
 		
-		insInfo insData = insInfo(ins_text, /*INS_IsProcedureCall(ins),*/ addr, RTN_Address(r));
+		insInfo insData = insInfo(duplicate_string(ins_text), addr, RTN_Address(r));
 
 		RTN r2 = RTN_FindByName(img, rname.c_str());
 
-		if (!RTN_Valid(r2)) {	
+		if (!RTN_Valid(r2) && !FUNC_IS_TEXT(RTN_Address(r))) {	
 
-			//cerr << "------------- func ext: " << rname << endl;
-
-			insData.externFuncName = rname.c_str();
-
+			insData.externFuncName = duplicate_string(rname);
 			fc->instructions[INS_Address(ins)] = insData;
 			continue;
-
-		} /*else {
-		
-			cerr << "call/branch verso: " <<hex<<(void*)addr<<dec<<
-				", appartenente alla func locale: " << rname << "(" << hex<< (void*)RTN_Address(r) << dec << ")\n";
-		}
-
-		cerr << "ins_text now: " << ins_text << endl;			
-		*/
+		} 
 
 		fc->instructions[INS_Address(ins)] = insData;
 	}
@@ -357,14 +352,14 @@ void ImageLoad(IMG img, void *) {
 				continue;
 
 #endif
-
+			/*
 			if (ctx->options.purgeFuncs) {
 				
 				if (funcName[0] == '_' && !IS_WIN32_NLG_NOTIFY(funcAddr)) {
 					continue;
 				}
 			}
-
+			*/
 			
 
 			assert(ctx->allFuncs.find(funcAddr) == ctx->allFuncs.end());
@@ -380,11 +375,8 @@ void ImageLoad(IMG img, void *) {
 			
 
 			if (trace || FUNC_IS_TEXT_N(funcName)) {
-				
-				//if (ctx->WorkingMode() != BlockMode) {
-				
+
 				imageLoad_doInsInstrumentation(img, rtn, fc);
-				//}
 			}
 
 			if (!trace)
@@ -411,7 +403,7 @@ void ImageLoad(IMG img, void *) {
 	
 
 
-	if (ctx->options.startFuncName != "-none-") {
+	if (ctx->options.startFuncName != "--") {
 		
 		rtn2 = RTN_FindByName(img, ctx->options.startFuncName.c_str());
 
@@ -424,7 +416,7 @@ void ImageLoad(IMG img, void *) {
 		ctx->startFuncAddr = RTN_Address(rtn2);
 	}
 
-	if (ctx->options.stopFuncName != "-none-") {
+	if (ctx->options.stopFuncName != "--") {
 	
 		rtn2 = RTN_FindByName(img, ctx->options.stopFuncName.c_str());
 
@@ -467,7 +459,6 @@ int main(int argc, char ** argv) {
 	
 		return 0;
 	}
-
 
 	optionsClass options;
 

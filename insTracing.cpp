@@ -5,8 +5,6 @@
 
 using namespace std;
 
-//extern kCCFContextClass *globalSharedContext;
-
 #include "tracingFuncs.h"
 
 inline void getTargetFunc(ADDRINT &targetAddr, ADDRINT &targetFuncAddr)
@@ -17,7 +15,6 @@ inline void getTargetFunc(ADDRINT &targetAddr, ADDRINT &targetFuncAddr)
 	rtn = RTN_FindByAddress(targetAddr);
 	
 	if(RTN_Valid(rtn)) {
-		//targetFuncName = RTN_Name(rtn);
 		targetFuncAddr = RTN_Address(rtn);
 	}
 

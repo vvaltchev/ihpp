@@ -28,15 +28,17 @@ public:
 	virtual unsigned int getSimpleCounter() { return simpleCounter; }
 	virtual void incSimpleCounter() { simpleCounter++; }
 
-	virtual operator string() { return string(); }
+	virtual operator string() const = 0;
 };
 
 
+//In this simple class (more struct-like) char pointers are used instead of std::string objects
+//because in 32 bit archs they have sizeof = 28 bytes, versus the 4 bytes of the char*.
 class insInfo {
 
 public:
 
-	string ins_text;
+	const char *ins_text;
 	ADDRINT targetAddr;
 	ADDRINT targetFuncAddr;
 	const char *externFuncName;
@@ -45,11 +47,12 @@ public:
 	bool isDirectBranchOrCall() { return targetAddr != 0; }
 
 	insInfo() : targetAddr(0), targetFuncAddr(0), externFuncName(0) { }
-	insInfo(string ins, ADDRINT tAddr, ADDRINT tfuncAddr, const char *extFuncName=0) : 
+	insInfo(const char *ins, ADDRINT tAddr, ADDRINT tfuncAddr, const char *extFuncName=0) : 
 		ins_text(ins), targetAddr(tAddr), targetFuncAddr(tfuncAddr), externFuncName(extFuncName)
 	{ 
-		isCall = !ins_text.compare(0, 4, "call");
+		isCall = !strncmp(ins_text,"call",4);
 	}
+
 };
 
 class FunctionObj : public TracingObject<ADDRINT> {
@@ -64,11 +67,11 @@ public:
 	FunctionObj(ADDRINT ptr, string funcName, string fileName) : 
 		TracingObject<ADDRINT>(ptr), _functionName(funcName), _fileName(fileName) { }
 
-	ADDRINT functionAddress() { return key; }
-	string functionName() { return _functionName; }
-	string fileName() { return _fileName; }
+	ADDRINT functionAddress() const { return key; }
+	string functionName() const { return _functionName; }
+	string fileName() const { return _fileName; }
 
-	operator string() { return functionName()+"()"; }
+	operator string() const { return functionName()+"()"; }
 };
 
 class BasicBlock : public TracingObject<ADDRINT> {

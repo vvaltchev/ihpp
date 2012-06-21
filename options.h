@@ -28,7 +28,7 @@ public:
 	bool showFuncs;
 	bool showBlocks;
 	bool showCalls;
-	bool purgeFuncs;
+	//bool purgeFuncs;
 	bool blocksDisasm;
 	bool funcsDisasm;
 	bool kinf;
@@ -47,7 +47,7 @@ public:
 		showFuncs=false;
 		showBlocks=false;
 		showCalls=false;
-		purgeFuncs=false;	
+		//purgeFuncs=false;	
 		blocksDisasm=false;
 		funcsDisasm=false;
 		kinf=false;
