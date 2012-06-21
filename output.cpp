@@ -96,8 +96,12 @@ inline void print_openThread(T th)
 	
 		openTag("thread", true);
 
+		
 		openTag("id");
-		globalSharedContext->OutFile << th;
+		
+		if (!globalSharedContext->options.joinThreads)
+			globalSharedContext->OutFile << th;
+		
 		closeTag("id");
 
 	} else {
@@ -562,7 +566,7 @@ void print_outputInit() {
 
 	if (!ctx->options.xmloutput) {
 
-		if (ctx->options.disasm)
+		if (ctx->options.blocksDisasm || ctx->options.funcsDisasm)
 			makeHumanDisasm();
 
 		ctx->OutFile << endl << endl << endl;
@@ -621,65 +625,102 @@ void print_showBlocks(size_t maxFuncLen) {
 	kCCFContextClass *ctx = globalSharedContext;
 	size_t maxLen=0;
 
-	if (ctx->funcsToTrace.size()) {
-		
-		for (set<string>::iterator it = ctx->funcsToTrace.begin(); it != ctx->funcsToTrace.end(); it++)
-			if (it->size() > maxLen)
-				maxLen=it->size();
+	if (!ctx->options.xmloutput) {
 
-	} else {
+		if (ctx->funcsToTrace.size()) {
 		
-		maxLen=maxFuncLen;
+			for (set<string>::iterator it = ctx->funcsToTrace.begin(); it != ctx->funcsToTrace.end(); it++)
+				if (it->size() > maxLen)
+					maxLen=it->size();
+
+		} else {
+		
+			maxLen=maxFuncLen;
+		}
+
+
+		ctx->OutFile << "\n\n\n";
+		print_title(ctx, "All basic blocks");
+	
+	} else {
+	
+		openTag("basicblocks",true);
+
 	}
 
-	ctx->OutFile << "\n\n\n";
+	//BlocksMapIt it = ctx->allBlocks.begin();
+	//BlocksMapIt end = ctx->allBlocks.end();
 
-	print_title(ctx, "All basic blocks");
-
-	BlocksMapIt it = ctx->allBlocks.begin();
-	BlocksMapIt end = ctx->allBlocks.end();
-
-	while (it != end) {
+	for(BlocksMapIt it = ctx->allBlocks.begin(); it != ctx->allBlocks.end(); it++) {
 	
 		BasicBlock& bb = *it->second;
 
-		ctx->OutFile << "block: ";
-		ctx->OutFile.width(maxLen+12);
-		ctx->OutFile << left << bb;
-		ctx->OutFile << " addr: 0x";
-		ctx->OutFile << hex << (void*)bb.getKey() << dec; 
-		ctx->OutFile << " simpleCounter: " << bb.getSimpleCounter();
+		if (!ctx->options.xmloutput) {
 
-		if (ctx->options.disasm)
-		{
-			ctx->OutFile << "\tDisassembly: \n";
+			ctx->OutFile << "block: ";
+			ctx->OutFile.width(maxLen+12);
+			ctx->OutFile << left << bb;
+			ctx->OutFile << " addr: 0x";
+			ctx->OutFile << hex << (void*)bb.getKey() << dec; 
+			ctx->OutFile << " simpleCounter: " << bb.getSimpleCounter();
 
-			map<ADDRINT,insInfo>::iterator it;
-
-			for (it = bb.functionPtr->instructions.begin(); it != bb.functionPtr->instructions.end(); it++)
+			if (ctx->options.blocksDisasm)
 			{
-				if (it->first == bb.blockAddress())
-					break;
-			}
+				ctx->OutFile << "\tDisassembly: \n";
 
-			for (; it != bb.functionPtr->instructions.end(); it++)
-			{
-				if (it->first > bb.blockEndAddress())
-					break;
+				map<ADDRINT,insInfo>::iterator insIt;
 
-				string ins = it->second.ins_text;
+				for (insIt = bb.functionPtr->instructions.begin(); insIt != bb.functionPtr->instructions.end(); insIt++)
+					if (insIt->first == bb.blockAddress())
+						break;
 
-				ctx->OutFile.width(maxLen+12);
-				ctx->OutFile << "\t\t\t\t\t\t\t\t" << ins << endl;
+				for (; insIt != bb.functionPtr->instructions.end(); insIt++)
+				{
+					if (insIt->first > bb.blockEndAddress())
+						break;
+
+					string ins = insIt->second.ins_text;
+
+					ctx->OutFile.width(maxLen+12);
+					ctx->OutFile << "\t\t\t\t\t\t\t\t" << ins << endl;
+				}
+
+				ctx->OutFile << endl;
 			}
 
 			ctx->OutFile << endl;
+
+		} else {
+		
+			ctx->OutFile << "<bb ";
+
+			openAttr("firstInsAddr");
+			ctx->OutFile << "0x" << hex << (void*)bb.blockAddress() << dec;
+			closeAttr("firstInsAddr");
+
+			openAttr("lastInsAddr");
+			ctx->OutFile << "0x" << hex << (void*)bb.blockEndAddress() << dec;
+			closeAttr("lastInsAddr");
+
+			openAttr("funcAddr");
+			ctx->OutFile << "0x" << hex << (void*)bb.functionAddr() << dec;
+			closeAttr("funcAddr");
+
+			openAttr("line");
+			ctx->OutFile << bb.firstLine();
+			closeAttr("line");
+
+			openAttr("col");
+			ctx->OutFile << bb.firstCh();
+			closeAttr("col");
+
+
+			ctx->OutFile << "/>" << endl;
 		}
 
-		ctx->OutFile << endl;
-
-		it++;
 	}
+
+	closeTag("basicblocks");
 }
 
 void print_ins(ADDRINT addr, insInfo &info) {
@@ -774,35 +815,60 @@ void print_showFuncs(size_t maxFuncLen) {
 			ctx->OutFile << left << fc;
 			ctx->OutFile << " addr: 0x" << hex << (void*)fc.getKey() << dec; 
 			ctx->OutFile << " simpleCounter: " << fc.getSimpleCounter() << endl;
+
+			if (ctx->options.funcsDisasm) {
+
+				map<ADDRINT,insInfo>::iterator insIt;
 			
+				ctx->OutFile << endl;
+
+				for (insIt = fc.instructions.begin(); insIt != fc.instructions.end(); insIt++) {
+			
+					ctx->OutFile << "\t\t";
+					ctx->OutFile << hex << (void*)insIt->first << dec << "    "; 
+					ctx->OutFile << insIt->second.ins_text << endl;
+				}
+
+				ctx->OutFile << endl;
+
+			}
+
 		} else {
 				
 			openTag("func",true);
 				
 			openTag("name");
-			ctx->OutFile << fc.functionName() << endl;
+			ctx->OutFile << fc.functionName();
 			closeTag("name");
 
 			openTag("address");
-			ctx->OutFile << "0x" << hex << (void*)fc.functionAddress() << dec << endl;
+			ctx->OutFile << "0x" << hex << (void*)fc.functionAddress() << dec;
 			closeTag("address");
 
-			openTag("fileName");
-			ctx->OutFile << fc.fileName() << endl;
-			closeTag("fileName");
+			openTag("simpleCounter");
+			ctx->OutFile << "0x" << fc.getSimpleCounter();
+			closeTag("simpleCounter");
 
-			if (fc.instructions.size()) {
+
+			if (fc.fileName().size()) {
+				
+				openTag("fileName");
+				ctx->OutFile << fc.fileName();
+				closeTag("fileName");
+			}
+
+			if (fc.instructions.size() && ctx->options.funcsDisasm) {
 					
 				openTag("instructions",true);
 
-				map<ADDRINT,insInfo>::iterator it;
+				map<ADDRINT,insInfo>::iterator insIt;
 
-				for (it = fc.instructions.begin(); it != fc.instructions.end(); it++) 
+				for (insIt = fc.instructions.begin(); insIt != fc.instructions.end(); insIt++) 
 				{
 					//openTag("ins");
 					ctx->OutFile << "<ins ";
 
-					print_ins(it->first, it->second);
+					print_ins(insIt->first, insIt->second);
 
 					closeTag("ins");
 				}
@@ -814,7 +880,8 @@ void print_showFuncs(size_t maxFuncLen) {
 		}
 	}
 
-	closeTag("functions");
+	if (ctx->options.xmloutput)
+		closeTag("functions");
 }
 
 void Fini(INT32 code, void *)

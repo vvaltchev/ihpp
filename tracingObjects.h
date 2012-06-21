@@ -74,30 +74,31 @@ public:
 class BasicBlock : public TracingObject<ADDRINT> {
 
 	ADDRINT lastInsAddr;
+	INT32 _firstLine;
+	INT32 _firstCh;
 
 public:
 
 	FunctionObj *functionPtr;
-	INT32 firstLine;
-	INT32 firstCh;
-
 
 
 	BasicBlock(ADDRINT ptr, FunctionObj *funcPtr, ADDRINT lastInsAddress, INT32 line, INT32 col) 
 		: TracingObject<ADDRINT>(ptr), lastInsAddr(lastInsAddress), 
-		functionPtr(funcPtr), firstLine(line), firstCh(col) 
+		functionPtr(funcPtr), _firstLine(line), _firstCh(col) 
 	{
 		assert(functionPtr); 
 	}
 
-	ADDRINT blockAddress() { return key; }
-	ADDRINT blockEndAddress() { return lastInsAddr; }
-	ADDRINT functionAddr() { return functionPtr->functionAddress(); }
-	string functionName() { return functionPtr->functionName(); }
+	ADDRINT blockAddress() const { return key; }
+	ADDRINT blockEndAddress() const { return lastInsAddr; }
+	ADDRINT functionAddr() const { return functionPtr->functionAddress(); }
+	string functionName() const { return functionPtr->functionName(); }
+	INT32 firstLine() const { return _firstLine; }
+	INT32 firstCh() const { return _firstCh; }
 
-	bool isFirstBlock() { return blockAddress() == functionPtr->functionAddress(); }
+	bool isFirstBlock() const { return blockAddress() == functionPtr->functionAddress(); }
 
-	operator string() { return "{"+functionName()+","+firstLine+","+firstCh+"}"; }
+	operator string() const { return "{"+functionName()+","+_firstLine+","+_firstCh+"}"; }
 };
 
 

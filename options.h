@@ -29,7 +29,8 @@ public:
 	bool showBlocks;
 	bool showCalls;
 	bool purgeFuncs;
-	bool disasm;
+	bool blocksDisasm;
+	bool funcsDisasm;
 	bool kinf;
 	bool xmloutput;
 
@@ -47,7 +48,8 @@ public:
 		showBlocks=false;
 		showCalls=false;
 		purgeFuncs=false;	
-		disasm=false;
+		blocksDisasm=false;
+		funcsDisasm=false;
 		kinf=false;
 		xmloutput=false;
 	}

@@ -32,7 +32,10 @@ static KNOB<bool> showBlocks(KNOB_MODE_WRITEONCE, "pintool", "showBlocks", "0", 
 static KNOB<bool> showFuncs(KNOB_MODE_WRITEONCE, "pintool", "showFuncs", "0", "");
 static KNOB<bool> joinThreads(KNOB_MODE_WRITEONCE, "pintool", "joinThreads", "0", "");
 static KNOB<bool> rollLoops(KNOB_MODE_WRITEONCE, "pintool", "rollLoops", "0", "");
-static KNOB<bool> disasm(KNOB_MODE_WRITEONCE, "pintool", "disasm", "0", "");
+
+static KNOB<bool> blocksDisasm(KNOB_MODE_WRITEONCE, "pintool", "blocksDisasm", "0", "");
+static KNOB<bool> funcsDisasm(KNOB_MODE_WRITEONCE, "pintool", "funcsDisasm", "0", "");
+
 static KNOB<bool> kinf(KNOB_MODE_WRITEONCE, "pintool", "kinf", "0", "");
 static KNOB<bool> xmloutput(KNOB_MODE_WRITEONCE, "pintool", "xml", "0", "");
 
@@ -89,7 +92,8 @@ void optionsClass::initFromGlobalOptions()
 	showFuncs = ::showFuncs.Value();
 	showBlocks = ::showBlocks.Value();
 	showCalls = ::showCalls.Value();
-	disasm = ::disasm.Value();
+	blocksDisasm = ::blocksDisasm.Value();
+	funcsDisasm = ::funcsDisasm.Value();
 	kinf = ::kinf.Value();
 	xmloutput = ::xmloutput.Value();
 
@@ -117,9 +121,11 @@ void optionsClass::showHelp()
 	cout << "\t-kccf: shows the k-Calling Context Forest" << endl;
 	cout << "\t-showFuncs: shows function's list" << endl;
 	cout << "\t-showBlocks: shows block's list" << endl;
-	cout << "\t-disasm: shows disassembly in the section 'All basic blocks'" << endl;
+	cout << "\t-blocksDisasm: shows disassembly in the section 'All basic blocks'" << endl;
+	cout << "\t-funcsDisasm: shows disassembly in the section 'All functions'" << endl;
 
 	cout << "\nOther options:\n";
+	cout << "\t-xml option produces the output file in xml format" << endl;
 	cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
 	cout << "\t-rollLoops: when building the kSF in TradMode, loops will be rolled" << endl;
 
@@ -150,10 +156,18 @@ bool optionsClass::checkOptions()
 		return false;
 	}
 
-	if (::disasm.Value() && !::showBlocks.Value()) {
+	if (::blocksDisasm.Value() && !::showBlocks.Value()) {
 	
-		cerr << "-disasm option only applicable with -showBlocks option." << endl;
+		cerr << "-blocksDisasm option only applicable with -showBlocks option." << endl;
 		return false;
+	}
+
+	
+
+	if (::funcsDisasm.Value() && !::showFuncs.Value()) {
+		
+		cerr << "-funcsDisasm option only applicable with -showFuncs option." << endl;
+		return false;	
 	}
 
 	if (::kinf.Value() && !::rollLoops.Value() && ::tradMode.Value()) {

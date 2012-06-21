@@ -1,6 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <xs:simpleType name="WorkingModeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="funcMode"/>
+      <xs:enumeration value="tradMode"/>
+      <xs:enumeration value="blockMode"/>
+    </xs:restriction>
+  </xs:simpleType>
 
+  <xs:simpleType name="archBitsType">
+    <xs:restriction base="xs:positiveInteger">
+      <xs:enumeration value="32"/>
+      <xs:enumeration value="64"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="addrType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="0x[0-9a-fA-F]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
   <xs:complexType name="InstructionType">
 
     <xs:sequence>
@@ -12,9 +33,9 @@
     <xs:attribute name="address" use="required"/>
     <xs:attribute name="isDirectBranch" type="xs:boolean" use="required"/>
     <xs:attribute name="isDirectCall" type="xs:boolean" use="required"/>
-    <xs:attribute name="targetAddr" use="optional"/>
-    <xs:attribute name="targetAddrFunc" use="optional"/>
-    <xs:attribute name="externFuncName" use="optional"/>
+    <xs:attribute name="targetAddr" use="optional" type="addrType"/>
+    <xs:attribute name="targetAddrFunc" use="optional" type="addrType"/>
+    <xs:attribute name="externFuncName" use="optional" type="xs:string"/>
 
   </xs:complexType>
 
@@ -38,6 +59,8 @@
     </xs:sequence>
   </xs:complexType>
 
+
+  
   <xs:element name="output">
     <xs:complexType>
       <xs:all>
@@ -47,7 +70,7 @@
         <xs:element name="configuration">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="WorkingMode" type="xs:string"/>
+              <xs:element name="WorkingMode" type="WorkingModeType"/>
               <xs:element name="joinThreads" type="xs:boolean"/>
               <xs:element name="rollLoops" type="xs:boolean"/>
               <xs:element name="kvalue" type="xs:nonNegativeInteger"/>
@@ -56,21 +79,22 @@
               <xs:element name="relyOnSpCheck" type="xs:boolean"/>
               <xs:element name="insTracingFwdJmpRec" type="xs:boolean"/>
               <xs:element name="windows" type="xs:boolean"/>
-              <xs:element name="archbits" type="xs:positiveInteger"/>
+              <xs:element name="archbits" type="archBitsType"/>
               <xs:element name="winFullTracingLongjmpTracing" type="xs:boolean"/>
               <xs:element name="winMainAlignment" type="xs:boolean"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
 
-        <xs:element name="functions">
+        <xs:element name="functions" minOccurs="0">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="func" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="name" type="xs:string" />
-                    <xs:element name="address"/>
+                    <xs:element name="address" type="addrType"/>
+                    <xs:element name="simpleCounter" type="xs:nonNegativeInteger"/>
                     <xs:element name="fileName" type="xs:string" minOccurs="0"/>
                     <xs:element name="instructions" minOccurs="0">
                       <xs:complexType>
@@ -91,14 +115,11 @@
             <xs:sequence>
               <xs:element name="bb" maxOccurs="unbounded">
                 <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="firstInsAddr"/>
-                    <xs:element name="lastInsAddr"/>
-                    <xs:element name="funcAddr"/>
-                    <xs:element name="isFirstBlock" type="xs:boolean"/>
-                    <xs:element name="line" type="xs:nonNegativeInteger"/>
-                    <xs:element name="col" type="xs:nonNegativeInteger"/>
-                  </xs:sequence>
+                  <xs:attribute name="firstInsAddr" type="addrType" use="required"/>
+                  <xs:attribute name="lastInsAddr" type="addrType" use="required"/>
+                  <xs:attribute name="funcAddr" type="addrType" use="required"/>
+                  <xs:attribute name="line" type="xs:nonNegativeInteger" use="required"/>
+                  <xs:attribute name="col" type="xs:nonNegativeInteger" use="required"/>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
@@ -119,7 +140,7 @@
                     <xs:element name="tradMode_ctx" minOccurs="0">
                       <xs:complexType>
                         <xs:sequence>
-                          <xs:element name="funcAddr"/>
+                          <xs:element name="funcAddr" type="addrType"/>
                           <xs:element name="kSF" type="forest" minOccurs="0"/>
                           <xs:element name="kCCF" type="forest" minOccurs="0"/>
                         </xs:sequence>
