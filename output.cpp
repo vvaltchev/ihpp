@@ -11,7 +11,7 @@ using namespace std;
 
 #include "tracingFuncs.h"
 
-#define OUTPUT_LINE		"=============================================================================================\n"
+#define OUTPUT_LINE	"=============================================================================================\n"
 #define OUTPUT_LINE2	"=============================================================================================\n\n"
 
 #define OUTPUT_PLINE	"---------------------------------------------------------------------------------------------\n"
@@ -143,7 +143,6 @@ bool isStringPrintable(const char *str) {
 
 void dumpXmlNode(kCCFNode &n, int ident=0) {
 
-	kCCFContextClass *ctx = globalSharedContext;
 	ostream &o = globalSharedContext->OutFile;
 
 
@@ -174,9 +173,6 @@ void dumpXmlNode(kCCFNode &n, int ident=0) {
 }
 
 void dumpXmlForest(kCCFForest &f) {
-
-	kCCFContextClass *ctx = globalSharedContext;
-	ostream &o = globalSharedContext->OutFile;
 
 	kCCFForest::treesIterator it;
 

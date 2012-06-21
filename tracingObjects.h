@@ -3,6 +3,7 @@
 #define __TRACING_OBJECTS__
 
 #include <sstream>
+#include <string.h>
 
 #include "dataStructures.h"
 
@@ -101,7 +102,7 @@ public:
 
 	BasicBlock(ADDRINT ptr, FunctionObj *funcPtr, ADDRINT lastInsAddress, INT32 line, INT32 col) 
 		: TracingObject<ADDRINT>(ptr), lastInsAddr(lastInsAddress), 
-		functionPtr(funcPtr), _firstLine(line), _firstCh(col) 
+		_firstLine(line), _firstCh(col), functionPtr(funcPtr)
 	{
 		assert(functionPtr); 
 	}
