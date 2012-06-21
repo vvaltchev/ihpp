@@ -14,9 +14,7 @@
 inline const char *duplicate_string(string &s) {
 
 	char *ptr = new char [s.size()+1];
-
 	strcpy(ptr, s.c_str());
-
 	return ptr;
 }
 

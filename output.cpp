@@ -990,7 +990,7 @@ void Fini(INT32 code, void *)
 		********************************
 	*/
 
-    ctx->OutFile.close();
+	ctx->OutFile.close();
 
 	freeMemory();
 	delete ctx;

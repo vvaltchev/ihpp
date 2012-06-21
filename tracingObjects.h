@@ -2,15 +2,29 @@
 #ifndef __TRACING_OBJECTS__
 #define __TRACING_OBJECTS__
 
+#include <sstream>
+
 #include "dataStructures.h"
 
 
 inline string operator +(string str, INT32 n) {
 
-	char buf[32];
-	sprintf(buf, "%d", n);
-	return str+string(buf);
+	stringstream ss;
+	ss << str;
+	ss << n;
+
+	return ss.str();
 }
+
+inline string operator +(string str, ADDRINT n) {
+
+	stringstream ss;
+	ss << str;
+	ss << n;
+
+	return ss.str();
+}
+
 
 
 template <typename keyT>

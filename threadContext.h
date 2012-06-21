@@ -92,7 +92,7 @@ public:
 
 	
 #if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT
-	unsigned int __tmainCRTStartup_stack_size; 
+	size_t __tmainCRTStartup_stack_size; 
 #endif
 	
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
