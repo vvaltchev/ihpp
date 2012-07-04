@@ -134,15 +134,15 @@ inline ostream& operator << (ostream& s, FunctionObj& fc) {
 
 
 
-typedef node<ADDRINT> kCCFNode;
-typedef forest<ADDRINT> kCCFForest;
-typedef map<ADDRINT, kCCFNode*> kCCFNodeMap;
+typedef node<ADDRINT> ihppNode;
+typedef forest<ADDRINT> ihppForest;
+typedef map<ADDRINT, ihppNode*> ihppNodeMap;
 typedef map<ADDRINT, FunctionObj*> FuncsMap;
 typedef map<ADDRINT, BasicBlock*> BlocksMap;
 typedef FuncsMap::iterator FuncsMapIt;
 typedef BlocksMap::iterator BlocksMapIt;
 
-inline ostream& operator << (ostream& s, kCCFNode &n) { 
+inline ostream& operator << (ostream& s, ihppNode &n) { 
 	
 	TracingObject<ADDRINT> *obj = static_cast<TracingObject<ADDRINT> *>(n.getValue()); 
 
@@ -151,7 +151,7 @@ inline ostream& operator << (ostream& s, kCCFNode &n) {
 	return s << (string)*obj;
 }
 
-inline ostream& operator << (ostream& s, kCCFNode *n) { 
+inline ostream& operator << (ostream& s, ihppNode *n) { 
 
 	if (n) {
 		

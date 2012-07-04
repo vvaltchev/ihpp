@@ -141,7 +141,7 @@ bool isStringPrintable(const char *str) {
 	return true;
 }
 
-void dumpXmlNode(kCCFNode &n, int ident=0) {
+void dumpXmlNode(ihppNode &n, int ident=0) {
 
 	ostream &o = globalSharedContext->OutFile;
 
@@ -158,7 +158,7 @@ void dumpXmlNode(kCCFNode &n, int ident=0) {
 
 		openTag("children",true);
 	
-		kCCFNode::nodesIterator it;
+		ihppNode::nodesIterator it;
 
 		for (it = n.getNodesIteratorBegin(); it != n.getNodesIteratorEnd(); it++) {
 
@@ -172,9 +172,9 @@ void dumpXmlNode(kCCFNode &n, int ident=0) {
 
 }
 
-void dumpXmlForest(kCCFForest &f) {
+void dumpXmlForest(ihppForest &f) {
 
-	kCCFForest::treesIterator it;
+	ihppForest::treesIterator it;
 
 	for (it = f.getTreesIteratorBegin(); it != f.getTreesIteratorEnd(); it++) {
 	
@@ -184,10 +184,10 @@ void dumpXmlForest(kCCFForest &f) {
 	}
 }
 
-void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
+void printContextInfo(kCCFContextClass *globalCtx, ihppAbstractContext *ctx) {
 
-	kCCFForest kccf;
-	kCCFForest *kSFCopy = 0;
+	ihppForest kccf;
+	ihppForest *kSFCopy = 0;
 
 	//Operations in this copy shouldn't be counted in benchmark
 	//because they are computed only for a visualization propouse:
@@ -197,7 +197,7 @@ void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 	
 		BENCHMARK_OFF
 
-		kSFCopy = new kCCFForest;
+		kSFCopy = new ihppForest;
 		*kSFCopy=ctx->kSlabForest;
 
 		BENCHMARK_ON
@@ -268,7 +268,7 @@ void printContextInfo(kCCFContextClass *globalCtx, kCCFAbstractContext *ctx) {
 	}
 }
 
-void printThreadContextInfo(kCCFContextClass *globalCtx, kCCFThreadContextClass *ctx) 
+void printThreadContextInfo(kCCFContextClass *globalCtx, ihppThreadContextClass *ctx) 
 {
 	if (globalCtx->WorkingMode() == FuncMode || globalCtx->WorkingMode() == BlockMode) {
 	
@@ -281,10 +281,10 @@ void printThreadContextInfo(kCCFContextClass *globalCtx, kCCFThreadContextClass 
 		openTag("tradMode_ctx",true);
 	}
 
-	for (map<ADDRINT, kCCFTradModeContext*>::iterator it = ctx->tradModeContexts.begin(); it != ctx->tradModeContexts.end(); it++)
+	for (map<ADDRINT, ihppTradModeContext*>::iterator it = ctx->tradModeContexts.begin(); it != ctx->tradModeContexts.end(); it++)
 	{
 
-		kCCFTradModeContext *tradCtx = it->second;
+		ihppTradModeContext *tradCtx = it->second;
 		ADDRINT funcAddr = tradCtx->getFunctionAddr();
 		FunctionObj *fc = globalCtx->allFuncs[funcAddr];
 
@@ -315,9 +315,9 @@ void printThreadContextInfo(kCCFContextClass *globalCtx, kCCFThreadContextClass 
 
 void blockFuncMode_joinThreads(kCCFContextClass *globalCtx) {
 
-	kCCFThreadContextClass *thCtx = globalCtx->threadContexts[0];
-	kCCFThreadContextClass *thCtx2;
-	kCCFForest *forest = &thCtx->kSlabForest;
+	ihppThreadContextClass *thCtx = globalCtx->threadContexts[0];
+	ihppThreadContextClass *thCtx2;
+	ihppForest *forest = &thCtx->kSlabForest;
 
 	for (unsigned i=1; i < globalCtx->threadContexts.size(); i++) {
 		
@@ -337,10 +337,10 @@ void blockFuncMode_joinThreads(kCCFContextClass *globalCtx) {
 
 void tradMode_joinThreads(kCCFContextClass *globalCtx) {
 
-	kCCFThreadContextClass *th0Ctx = globalCtx->threadContexts[0];
-	kCCFThreadContextClass *thCtx2;
-	kCCFTradModeContext *tradCtx;
-	kCCFForest *forest;
+	ihppThreadContextClass *th0Ctx = globalCtx->threadContexts[0];
+	ihppThreadContextClass *thCtx2;
+	ihppTradModeContext *tradCtx;
+	ihppForest *forest;
 
 	for (FuncsMapIt funcIt = globalCtx->allFuncs.begin(); funcIt != globalCtx->allFuncs.end(); funcIt++)
 	{
@@ -356,7 +356,7 @@ void tradMode_joinThreads(kCCFContextClass *globalCtx) {
 	
 			thCtx2 = globalCtx->threadContexts[i];
 
-			map<ADDRINT, kCCFTradModeContext*>::iterator it = thCtx2->tradModeContexts.find(funcIt->first);
+			map<ADDRINT, ihppTradModeContext*>::iterator it = thCtx2->tradModeContexts.find(funcIt->first);
 
 			if (it != thCtx2->tradModeContexts.end()) 
 			{
@@ -566,7 +566,7 @@ void print_outputInit() {
 
 		ctx->OutFile << endl << endl << endl;
 
-		ctx->OutFile << "Size of a node: " << sizeof(kCCFNode) << endl;
+		ctx->OutFile << "Size of a node: " << sizeof(ihppNode) << endl;
 	
 		if (!ctx->options.kinf) {
 			ctx->OutFile << "K value: " << ctx->kval() << endl;
@@ -993,8 +993,8 @@ void Fini(INT32 code, void *)
 }
 
 void funcTraceDebugDump(kCCFContextClass *globalCtx, FunctionObj *fc, 
-						kCCFThreadContextClass *ctx, ADDRINT reg_sp, 
-						kCCFNode *treeTop, kCCFNode *treeBottom) 
+						ihppThreadContextClass *ctx, ADDRINT reg_sp, 
+						ihppNode *treeTop, ihppNode *treeBottom) 
 {
 
 	for (unsigned int i=0; i < ctx->shadowStack.size(); i++)

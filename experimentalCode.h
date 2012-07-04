@@ -5,7 +5,7 @@
 
 void simpleIns(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRINT insCat, ADDRINT sp) {
 
-	kCCFThreadContextClass *ctx;
+	ihppThreadContextClass *ctx;
 	
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());	
 
@@ -42,7 +42,7 @@ void branch(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRI
 	string currentFuncName;
 	string targetFuncName;
 	
-	kCCFThreadContextClass *ctx;
+	ihppThreadContextClass *ctx;
 	
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());	
 

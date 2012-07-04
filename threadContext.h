@@ -12,8 +12,8 @@ class ShadowStackType {
 
 public:
 
-	kCCFNode *treeTop;
-	kCCFNode *treeBottom;
+	ihppNode *treeTop;
+	ihppNode *treeBottom;
 	ADDRINT stackPtr;
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
@@ -22,7 +22,7 @@ public:
 
 #endif
 
-	ShadowStackType(kCCFNode *t, kCCFNode *b, ADDRINT ptr) : treeTop(t), treeBottom(b), stackPtr(ptr) 
+	ShadowStackType(ihppNode *t, ihppNode *b, ADDRINT ptr) : treeTop(t), treeBottom(b), stackPtr(ptr) 
 	{ 
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
@@ -33,39 +33,39 @@ public:
 	}
 };
 
-class kCCFAbstractContext: public BenchmarkObj {
+class ihppAbstractContext: public BenchmarkObj {
 
 public:
 
 	ADDRINT rootKey;
-	kCCFForest kSlabForest;
-	kCCFNodeMap R;
+	ihppForest kSlabForest;
+	ihppNodeMap R;
 	
 	unsigned int counter;
 
 	kStack<ShadowStackType> shadowStack;
 
-	kCCFAbstractContext() : rootKey(0), counter(0) 
+	ihppAbstractContext() : rootKey(0), counter(0) 
 	{ 
 		BENCHMARK_INIT_VARS
 	}
 
 };
 
-class kCCFTradModeContext : public kCCFAbstractContext {
+class ihppTradModeContext : public ihppAbstractContext {
 
 	ADDRINT funcAddr;
 
 public:
 
-	kCCFTradModeContext(ADDRINT functionAddr) : kCCFAbstractContext(), funcAddr(functionAddr) { }
+	ihppTradModeContext(ADDRINT functionAddr) : ihppAbstractContext(), funcAddr(functionAddr) { }
 
 	ADDRINT getFunctionAddr() { return funcAddr; }
 };
 
 
 
-class kCCFThreadContextClass : public kCCFAbstractContext {
+class ihppThreadContextClass : public ihppAbstractContext {
 
 	ADDRINT currentFunction;
 
@@ -75,8 +75,8 @@ public:
 	
 	//BlockMode and FuncMode properies
 
-	kCCFNode *treeTop;
-	kCCFNode *treeBottom;
+	ihppNode *treeTop;
+	ihppNode *treeBottom;
 
 	//FuncMode properties
 
@@ -107,26 +107,26 @@ public:
 	ADDRINT stopFuncAddr;
 
 	//TradMode properties
-	map<ADDRINT, kCCFTradModeContext*> tradModeContexts;
+	map<ADDRINT, ihppTradModeContext*> tradModeContexts;
 
 	//Methods
 
-	kCCFThreadContextClass(PIN_THREAD_UID tid, ADDRINT startFuncAddr, ADDRINT stopFuncAddr);
+	ihppThreadContextClass(PIN_THREAD_UID tid, ADDRINT startFuncAddr, ADDRINT stopFuncAddr);
 
-	~kCCFThreadContextClass();
+	~ihppThreadContextClass();
 
 	inline bool canPopStack();
 	inline bool popShadowStack();
 
-	kCCFTradModeContext *getFunctionCtx(ADDRINT funcAddr);
-	kCCFTradModeContext *getCurrentFunctionCtx();
+	ihppTradModeContext *getFunctionCtx(ADDRINT funcAddr);
+	ihppTradModeContext *getCurrentFunctionCtx();
 
 	ADDRINT getCurrentFunction();
-	kCCFTradModeContext *setCurrentFunction(ADDRINT currFunc);
+	ihppTradModeContext *setCurrentFunction(ADDRINT currFunc);
 	string getCurrentFunctionName(); 
 };
 
-inline bool kCCFThreadContextClass::canPopStack() {
+inline bool ihppThreadContextClass::canPopStack() {
 	
 #if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT
 	
@@ -140,7 +140,7 @@ inline bool kCCFThreadContextClass::canPopStack() {
 #endif
 }
 
-inline bool kCCFThreadContextClass::popShadowStack() 
+inline bool ihppThreadContextClass::popShadowStack() 
 {
 	if (canPopStack()) {
 			
@@ -151,8 +151,8 @@ inline bool kCCFThreadContextClass::popShadowStack()
 	return false;
 }
 
-inline kCCFThreadContextClass::kCCFThreadContextClass(PIN_THREAD_UID tid, ADDRINT startFuncAddr, ADDRINT stopFuncAddr)
-	 :  kCCFAbstractContext(),  currentFunction(0), threadID(tid)
+inline ihppThreadContextClass::ihppThreadContextClass(PIN_THREAD_UID tid, ADDRINT startFuncAddr, ADDRINT stopFuncAddr)
+	 :  ihppAbstractContext(),  currentFunction(0), threadID(tid)
 	{
 		INIT_SUBCALL_CHECK_VARS();
 		INIT_THREAD_CTX_W32_VARS();
@@ -169,8 +169,8 @@ inline kCCFThreadContextClass::kCCFThreadContextClass(PIN_THREAD_UID tid, ADDRIN
 		fjmpsFuncAddr=0;
 #endif
 
-		kCCFThreadContextClass::startFuncAddr = startFuncAddr;
-		kCCFThreadContextClass::stopFuncAddr = stopFuncAddr;
+		ihppThreadContextClass::startFuncAddr = startFuncAddr;
+		ihppThreadContextClass::stopFuncAddr = stopFuncAddr;
 
 		if (startFuncAddr)
 			haveToTrace = false;
@@ -179,36 +179,36 @@ inline kCCFThreadContextClass::kCCFThreadContextClass(PIN_THREAD_UID tid, ADDRIN
 	}
 
 
-inline kCCFTradModeContext *kCCFThreadContextClass::getCurrentFunctionCtx() 
+inline ihppTradModeContext *ihppThreadContextClass::getCurrentFunctionCtx() 
 { 
 	return getFunctionCtx(currentFunction); 
 }
 
 
-inline ADDRINT kCCFThreadContextClass::getCurrentFunction() 
+inline ADDRINT ihppThreadContextClass::getCurrentFunction() 
 { 
 	return currentFunction; 
 }
 
-inline kCCFTradModeContext *kCCFThreadContextClass::setCurrentFunction(ADDRINT currFunc)
+inline ihppTradModeContext *ihppThreadContextClass::setCurrentFunction(ADDRINT currFunc)
 {
 	currentFunction=currFunc; 
 	return getCurrentFunctionCtx();
 }
 
-inline kCCFThreadContextClass::~kCCFThreadContextClass()
+inline ihppThreadContextClass::~ihppThreadContextClass()
 {
-	for (map<ADDRINT, kCCFTradModeContext*>::iterator it = tradModeContexts.begin(); it != tradModeContexts.end(); it++)
+	for (map<ADDRINT, ihppTradModeContext*>::iterator it = tradModeContexts.begin(); it != tradModeContexts.end(); it++)
 		delete it->second;
 }
 
-inline kCCFTradModeContext *kCCFThreadContextClass::getFunctionCtx(ADDRINT funcAddr) 
+inline ihppTradModeContext *ihppThreadContextClass::getFunctionCtx(ADDRINT funcAddr) 
 {
 
 	if (tradModeContexts.find(funcAddr) == tradModeContexts.end()) {
 	
-		kCCFTradModeContext *tradCtx;
-		tradCtx = new kCCFTradModeContext(funcAddr);
+		ihppTradModeContext *tradCtx;
+		tradCtx = new ihppTradModeContext(funcAddr);
 		tradModeContexts[funcAddr] = tradCtx;
 		return tradCtx;
 	}

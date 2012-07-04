@@ -71,7 +71,7 @@ public:
 
 	BlocksMap allBlocks;
 	FuncsMap allFuncs;
-	vector<kCCFThreadContextClass*> threadContexts;
+	vector<ihppThreadContextClass*> threadContexts;
 
 	bool exitPassed;
 	
@@ -90,7 +90,7 @@ public:
 	kCCFContextClass(WorkingModeType wm, unsigned kval, optionsClass options);
 	~kCCFContextClass();
 
-	kCCFThreadContextClass *getThreadCtx(PIN_THREAD_UID tid);
+	ihppThreadContextClass *getThreadCtx(PIN_THREAD_UID tid);
 	
 	WorkingModeType WorkingMode() { return _WorkingMode; }
 	unsigned int kval() { return _K_CCF_VAL; }

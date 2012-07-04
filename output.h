@@ -7,7 +7,7 @@
 
 VOID Fini(INT32 code, VOID *v);
 void funcTraceDebugDump(kCCFContextClass *globalCtx, FunctionObj *fc, 
-						kCCFThreadContextClass *ctx, ADDRINT reg_sp, 
-						kCCFNode *treeTop, kCCFNode *treeBottom);
+						ihppThreadContextClass *ctx, ADDRINT reg_sp, 
+						ihppNode *treeTop, ihppNode *treeBottom);
 
 #endif

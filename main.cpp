@@ -44,7 +44,7 @@ using namespace std;
 
 VOID blockModeBlockTrace(TracingObject<ADDRINT> *to) { 
 
-	kCCFThreadContextClass *ctx;
+	ihppThreadContextClass *ctx;
 	BasicBlock *bb = static_cast<BasicBlock*>(to);
 
 	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());

@@ -12,13 +12,13 @@ using namespace std;
 
 
 	
-string kCCFThreadContextClass::getCurrentFunctionName() { 
+string ihppThreadContextClass::getCurrentFunctionName() { 
 	return globalSharedContext->allFuncs[currentFunction]->functionName(); 
 }
 
-kCCFThreadContextClass *kCCFContextClass::getThreadCtx(PIN_THREAD_UID tid) { 
+ihppThreadContextClass *kCCFContextClass::getThreadCtx(PIN_THREAD_UID tid) { 
 	
-	kCCFThreadContextClass *ret;
+	ihppThreadContextClass *ret;
 
 	GetLock(&lock, 1);
 
@@ -33,7 +33,7 @@ kCCFThreadContextClass *kCCFContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 		}
 	}
 
-	threadContexts.push_back(new kCCFThreadContextClass(tid, startFuncAddr, stopFuncAddr));
+	threadContexts.push_back(new ihppThreadContextClass(tid, startFuncAddr, stopFuncAddr));
 
 	ret = threadContexts.back();
 	ReleaseLock(&lock);

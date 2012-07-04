@@ -27,10 +27,10 @@ using namespace std;
 VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
 
 	kCCFContextClass *globalCtx = globalSharedContext;
-	kCCFThreadContextClass *ctx;
-	kCCFTradModeContext *tradCtx;
-	kCCFNode *treeTop;
-	kCCFNode *treeBottom;
+	ihppThreadContextClass *ctx;
+	ihppTradModeContext *tradCtx;
+	ihppNode *treeTop;
+	ihppNode *treeBottom;
 
 	BasicBlock *bb = static_cast<BasicBlock *>(to);
 
@@ -96,7 +96,7 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 		} else {
 		
 			bool found=false;
-			kCCFNode *parent = treeTop->getParentRef();
+			ihppNode *parent = treeTop->getParentRef();
 
 			while (parent) {
 			
@@ -179,8 +179,8 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 void tradMode_ret() 
 {
-	kCCFThreadContextClass *ctx;
-	kCCFTradModeContext *tradCtx;
+	ihppThreadContextClass *ctx;
+	ihppTradModeContext *tradCtx;
 
 	kCCFContextClass *globalCtx = globalSharedContext;
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
@@ -208,8 +208,8 @@ void tradMode_ret()
 
 	if (!tradCtx->shadowStack.size()) {
 		
-		kCCFNode *treeTop;
-		kCCFNode *treeBottom;
+		ihppNode *treeTop;
+		ihppNode *treeBottom;
 	
 		dbg_tradret_lastret();
 

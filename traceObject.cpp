@@ -5,13 +5,13 @@
 #include "benchmark.h"
 
 
-void (*traceObject)(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx, 
-										kCCFNode* &treeTop, kCCFNode* &treeBottom)=0;
+void (*traceObject)(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx, 
+										ihppNode* &treeTop, ihppNode* &treeBottom)=0;
 
-void traceObject_acc_kinf(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx, 
-										kCCFNode* &treeTop, kCCFNode* &treeBottom)
+void traceObject_acc_kinf(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx, 
+										ihppNode* &treeTop, ihppNode* &treeBottom)
 {
-	kCCFNode *n;
+	ihppNode *n;
 	ADDRINT key = to->getKey();
 
 	if (!treeTop && !treeBottom) {
@@ -27,14 +27,14 @@ void traceObject_acc_kinf(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx,
 
 	if (!treeTop) {
 			
-		treeTop = ctx->kSlabForest.addTreeByVal(kCCFNode(key, to, 1));
+		treeTop = ctx->kSlabForest.addTreeByVal(ihppNode(key, to, 1));
 
 	} else {
 
 		n = treeTop->getChildRef(key);
 			
 		if (!n)
-			n = treeTop->addChildByVal(kCCFNode(key, to, 1));
+			n = treeTop->addChildByVal(ihppNode(key, to, 1));
 		else
 			n->incCounter();
 
@@ -43,12 +43,12 @@ void traceObject_acc_kinf(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx,
 
 }
 
-void traceObject_generic(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx, 
-										kCCFNode* &treeTop, kCCFNode* &treeBottom) 
+void traceObject_generic(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx, 
+										ihppNode* &treeTop, ihppNode* &treeBottom) 
 {
 
-	kCCFNode *n;
-	kCCFNodeMap::iterator it;
+	ihppNode *n;
+	ihppNodeMap::iterator it;
 	ADDRINT key = to->getKey();
 	unsigned int k = globalSharedContext->kval();
 	bool accumulate = globalSharedContext->WorkingMode() != BlockMode;
@@ -85,14 +85,14 @@ void traceObject_generic(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx,
 	
 		if (!treeTop) {
 			
-			treeTop = ctx->kSlabForest.addTreeByVal(kCCFNode(key, to, 1));
+			treeTop = ctx->kSlabForest.addTreeByVal(ihppNode(key, to, 1));
 
 		} else {
 
 			n = treeTop->getChildRef(key);
 			
 			if (!n)
-				n = treeTop->addChildByVal(kCCFNode(key, to, 1));
+				n = treeTop->addChildByVal(ihppNode(key, to, 1));
 			else
 				n->incCounter();
 
@@ -109,7 +109,7 @@ void traceObject_generic(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx,
 		if (n) 
 			n->incCounter();
 		else 
-			ctx->kSlabForest.addTreeByVal(kCCFNode(key,to,1));
+			ctx->kSlabForest.addTreeByVal(ihppNode(key,to,1));
 		
 		return;
 	}
@@ -121,7 +121,7 @@ void traceObject_generic(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx,
 		it = ctx->R.find(key);
 
 		if (it == ctx->R.end())
-			ctx->R[key] = ( treeTop = ctx->kSlabForest.addTreeByVal(kCCFNode(key, to, 0))  );
+			ctx->R[key] = ( treeTop = ctx->kSlabForest.addTreeByVal(ihppNode(key, to, 0))  );
 		else
 			treeTop = it->second;
 	
@@ -132,7 +132,7 @@ void traceObject_generic(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx,
 		n = treeTop->getChildRef(key);
 
 		if (!n)
-			n = treeTop->addChildByVal(kCCFNode(key, to, 0));
+			n = treeTop->addChildByVal(ihppNode(key, to, 0));
 		
 		treeTop=n;
 	}
@@ -146,7 +146,7 @@ void traceObject_generic(TracingObject<ADDRINT> *to, kCCFAbstractContext *ctx,
 		n = treeBottom->getChildRef(key);
 
 		if (!n)
-			n = treeBottom->addChildByVal(kCCFNode(key, to, 0));
+			n = treeBottom->addChildByVal(ihppNode(key, to, 0));
 		
 		treeBottom=n;
 		treeBottom->incCounter();

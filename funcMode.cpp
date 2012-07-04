@@ -15,7 +15,7 @@ using namespace std;
 #define FUNCMODE_STORE_TOP_BOTTOM(sp)		ctx->shadowStack.push(ShadowStackType(treeTop,treeBottom,(sp)));
 #define FUNCMODE_SET_TOP_BOTTOM_TO_ROOT()	ctx->counter=0; treeTop=ctx->kSlabForest.getTreeRef(ctx->rootKey); treeBottom=0;
 
-inline void funcMode_sp_check(kCCFThreadContextClass *ctx, ADDRINT reg_sp)
+inline void funcMode_sp_check(ihppThreadContextClass *ctx, ADDRINT reg_sp)
 {
 	if (reg_sp >= FUNCMODE_TOP_STACKPTR()) {
 	
@@ -35,9 +35,9 @@ inline void funcMode_sp_check(kCCFThreadContextClass *ctx, ADDRINT reg_sp)
 
 VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
-	kCCFNode *treeTop=0;
-	kCCFNode *treeBottom=0;	
-	kCCFThreadContextClass *ctx;
+	ihppNode *treeTop=0;
+	ihppNode *treeBottom=0;	
+	ihppThreadContextClass *ctx;
 	kCCFContextClass *globalCtx = globalSharedContext;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
@@ -133,7 +133,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 void funcMode_ret()
 {
 	kCCFContextClass *globalCtx = globalSharedContext;
-	kCCFThreadContextClass *ctx;
+	ihppThreadContextClass *ctx;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 

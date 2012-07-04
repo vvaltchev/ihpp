@@ -33,17 +33,17 @@ void indirect_branchOrCall(ADDRINT currentFuncAddr,
 
 
 void traceObject_generic(TracingObject<ADDRINT> *to, 
-										kCCFAbstractContext *ctx, kCCFNode* &treeTop, 
-										kCCFNode* &treeBottom);
+										ihppAbstractContext *ctx, ihppNode* &treeTop, 
+										ihppNode* &treeBottom);
 
 void traceObject_acc_kinf(TracingObject<ADDRINT> *to, 
-										kCCFAbstractContext *ctx, kCCFNode* &treeTop, 
-										kCCFNode* &treeBottom);
+										ihppAbstractContext *ctx, ihppNode* &treeTop, 
+										ihppNode* &treeBottom);
 
 
 extern void (*traceObject)(TracingObject<ADDRINT> *to, 
-										kCCFAbstractContext *ctx, kCCFNode* &treeTop, 
-										kCCFNode* &treeBottom);
+										ihppAbstractContext *ctx, ihppNode* &treeTop, 
+										ihppNode* &treeBottom);
 
 
 #endif

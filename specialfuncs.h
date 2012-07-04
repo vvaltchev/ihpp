@@ -76,7 +76,7 @@
 #ifdef _WIN32
 
 #if ENABLE_WIN32_MAIN_ALIGNMENT
-inline void win32_main_alignment(kCCFThreadContextClass *ctx, FunctionObj *fc)
+inline void win32_main_alignment(ihppThreadContextClass *ctx, FunctionObj *fc)
 {
 	if (fc->functionAddress() == globalSharedContext->spAttrs.__tmainCRTStartup_addr)
 		ctx->__tmainCRTStartup_stack_size = ctx->shadowStack.size();
@@ -99,7 +99,7 @@ inline void win32_main_alignment(kCCFThreadContextClass *ctx, FunctionObj *fc)
 #endif
 
 #if ENABLE_INS_TRACING
-inline bool win32_check_nlg_notify(kCCFThreadContextClass *ctx, ADDRINT currFuncAddr)
+inline bool win32_check_nlg_notify(ihppThreadContextClass *ctx, ADDRINT currFuncAddr)
 {
 	
 	if (IS_WIN32_NLG_NOTIFY(currFuncAddr)) {
@@ -116,7 +116,7 @@ inline bool win32_check_nlg_notify(kCCFThreadContextClass *ctx, ADDRINT currFunc
 
 #if ENABLE_SUBCALL_CHECK && ENABLE_INS_TRACING
 
-inline bool subcall_false_jmp_check(kCCFThreadContextClass *ctx, ADDRINT currFuncAddr)
+inline bool subcall_false_jmp_check(ihppThreadContextClass *ctx, ADDRINT currFuncAddr)
 {
 	if (ctx->subcallcount <= 2)						
 	{												
