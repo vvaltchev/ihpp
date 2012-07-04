@@ -32,7 +32,7 @@ Under Linux:
 
 Under Windows:
 
-3. Open VC2010/kCCF.sln with Microsoft Visual Studio 2010
+3. Open VC2010/ihpp.sln with Microsoft Visual Studio 2010
 4. Build as every other project
 
 
