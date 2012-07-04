@@ -1,7 +1,7 @@
 /*
 	============================================================================
 
-		k-Calling Context Forest profiling pintool
+		IHPP: An Intraprocedural Hot Path Profiler
 
 		Author: Vladislav K. Valtchev (vladi32@gmail.com)
 
@@ -28,11 +28,11 @@
 
 */
 
-#define MAIN_KCCF_MODULE
+#define MAIN_IHPP_MODULE
 
 #include "config.h"
 #include "debug.h"
-#include "kCCF.h"
+#include "ihpp.h"
 
 using namespace std;
 

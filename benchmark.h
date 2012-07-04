@@ -4,7 +4,7 @@
 #ifndef __BENCHMARK_MACROS__
 #define __BENCHMARK_MACROS__
 
-#if KCCF_BENCHMARK 
+#if IHPP_BENCHMARK 
 
 	extern bool benchmark;
 	extern bool usePinThread;
@@ -52,7 +52,7 @@ public:
 
 	BENCHMARK_VARS
 
-#if KCCF_BENCHMARK
+#if IHPP_BENCHMARK
 	void _BM_sumBenchmarkInfo(BenchmarkObj *obj) {
 	
 		nodes_created+=obj->nodes_created;
@@ -66,9 +66,9 @@ public:
 
 #endif
 
-#ifdef __KCCF_HEADER__
+#ifdef __IHPP_HEADER__
 
-#if KCCF_BENCHMARK 
+#if IHPP_BENCHMARK 
 
 	inline void BM_inc_nodes_created() 
 	{ if (benchmark) ((!__BM_TRADMODE || !__BM_GET_FUNC) ? __BM_CURR_TH->nodes_created++ : __BM_CURR_FUNC->nodes_created++);  }

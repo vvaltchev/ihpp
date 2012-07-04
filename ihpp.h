@@ -16,8 +16,8 @@
 #include "threadContext.h"
 #include "options.h"
 
-#ifndef __KCCF_HEADER__
-#define __KCCF_HEADER__
+#ifndef __IHPP_HEADER__
+#define __IHPP_HEADER__
 
 
 
@@ -99,7 +99,7 @@ public:
 	inline bool hasToTrace(ADDRINT funcAddr);
 };
 
-#ifdef MAIN_KCCF_MODULE
+#ifdef MAIN_IHPP_MODULE
 
 kCCFContextClass *globalSharedContext=0;
 

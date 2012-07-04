@@ -1,7 +1,7 @@
 
 #include "config.h"
 #include "debug.h"
-#include "kCCF.h"
+#include "ihpp.h"
 
 #define OPTIONS_MOUDLE
 
@@ -104,7 +104,7 @@ void optionsClass::showHelp()
 {
 	
 	cout << endl << endl;
-	cout << "k-Calling Context Forest profiling pintool\n" << endl;
+	cout << "IHPP: An Intraprocedural Hot Path Profiler\n" << endl;
 	cout << "-------------------------------------------\n" << endl;
 	cout << "Syntax: <PIN> -t " << KCCF_LIB_FILE << " <WORKING MODE> [ -f <func1> [-f <func2> [...]] ]\n"; 
 	cout << "\t\t\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] [ -xml ] <SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 

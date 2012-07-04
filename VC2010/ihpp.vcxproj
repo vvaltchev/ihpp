@@ -110,8 +110,8 @@
   <ItemGroup>
     <ClCompile Include="..\benchmark.cpp" />
     <ClCompile Include="..\insTracing.cpp" />
-    <ClCompile Include="..\kCCF.cpp" />
     <ClCompile Include="..\kCCFContextClass.cpp" />
+    <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\options.cpp" />
     <ClCompile Include="..\output.cpp" />
   </ItemGroup>
@@ -125,7 +125,7 @@
     <ClCompile Include="..\funcMode.cpp">
       <FileType>CppHeader</FileType>
     </ClCompile>
-    <ClInclude Include="..\kCCF.h" />
+    <ClInclude Include="..\ihpp.h" />
     <ClInclude Include="..\node.h" />
     <ClInclude Include="..\options.h" />
     <ClInclude Include="..\output.h" />

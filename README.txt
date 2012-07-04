@@ -1,5 +1,5 @@
 
-k-Calling Context Forest profiling pintool
+IHPP: An Intraprocedural Hot Path Profiler
 -------------------------------------------
 
 Author: Vladislav K. Valtchev (vladi32@gmail.com)

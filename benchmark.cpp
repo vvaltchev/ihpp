@@ -1,7 +1,7 @@
 #include "config.h"
 #include "pin.H"
 
-#if KCCF_BENCHMARK 
+#if IHPP_BENCHMARK 
 
 	bool benchmark=true;
 	bool usePinThread=true;

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kCCF", "kCCF.vcxproj", "{2D0F600D-A221-4D75-A9D7-D0D1D7377770}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ihpp", "ihpp.vcxproj", "{2D0F600D-A221-4D75-A9D7-D0D1D7377770}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

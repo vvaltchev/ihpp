@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include "config.h"
 #include "debug.h"
-#include "kCCF.h"
+#include "ihpp.h"
 
 using namespace std;
 
@@ -41,7 +41,7 @@ inline void closeAttr(const char *tag, ostream &s = globalSharedContext->OutFile
 inline void benchmark_dump_before_kCCF(kCCFContextClass *globalCtx, BenchmarkObj *ctx)
 {
 
-#if KCCF_BENCHMARK 
+#if IHPP_BENCHMARK 
 
 	globalCtx->OutFile << endl;
 	globalCtx->OutFile << "Before creation of k-CCF\n";
@@ -57,7 +57,7 @@ inline void benchmark_dump_before_kCCF(kCCFContextClass *globalCtx, BenchmarkObj
 inline void benchmark_dump_after_kCCF(kCCFContextClass *globalCtx, BenchmarkObj *ctx)
 {
 
-#if KCCF_BENCHMARK 
+#if IHPP_BENCHMARK 
 
 	globalCtx->OutFile << "After the creation of k-CCF\n";
 	globalCtx->OutFile << "Nodes created (valid):  " << ctx->nodes_created << endl;
@@ -325,7 +325,7 @@ void blockFuncMode_joinThreads(kCCFContextClass *globalCtx) {
 			
 		*forest=forest->join(thCtx2->kSlabForest);
 
-#if KCCF_BENCHMARK
+#if IHPP_BENCHMARK
 		thCtx->_BM_sumBenchmarkInfo(thCtx2);
 #endif
 
@@ -361,7 +361,7 @@ void tradMode_joinThreads(kCCFContextClass *globalCtx) {
 			if (it != thCtx2->tradModeContexts.end()) 
 			{
 				*forest = forest->join(it->second->kSlabForest);
-#if KCCF_BENCHMARK
+#if IHPP_BENCHMARK
 				tradCtx->_BM_sumBenchmarkInfo(it->second);
 #endif
 			}
