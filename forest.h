@@ -8,7 +8,7 @@
 template <typename keyT>
 class forest {
 
-	kNodeChildrenContainer< keyT, node<keyT> > trees;
+	ihppNodeChildrenContainer< keyT, node<keyT> > trees;
 	static void _joinChildren(forest<keyT> &res, node<keyT>  &t1, node<keyT>  &t2);
 
 public:
@@ -17,7 +17,7 @@ public:
 	static forest<keyT> join(forest<keyT> &f1, forest<keyT> &f2);
 	static forest<keyT> join(forest<keyT> &f1, node<keyT>  &t2);
 
-	typedef typename kNodeChildrenContainer< keyT, node<keyT>  >::iterator treesIterator;
+	typedef typename ihppNodeChildrenContainer< keyT, node<keyT>  >::iterator treesIterator;
 
 	forest();
 	forest(const forest &f);

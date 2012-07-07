@@ -43,7 +43,7 @@ public:
 	
 	unsigned int counter;
 
-	kStack<ShadowStackType> shadowStack;
+	ihppStack<ShadowStackType> shadowStack;
 
 	ihppAbstractContext() : rootKey(0), counter(0) 
 	{ 

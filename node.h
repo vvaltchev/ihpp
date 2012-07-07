@@ -13,17 +13,17 @@ using namespace std;
 
 
 template <typename keyT>
-class node : public kObjectWithKey<keyT> {
+class node : public ihppObjectWithKey<keyT> {
 
 private:
 	node<keyT> *parent; 
 
 protected:
 
-	kObjectWithKey<keyT> *val;
+	ihppObjectWithKey<keyT> *val;
 	size_t counter;
 
-	kNodeChildrenContainer< keyT, node<keyT> > children;
+	ihppNodeChildrenContainer< keyT, node<keyT> > children;
 	
 	void clearLevelKCounters(unsigned int k, unsigned int deepth);
 	void getAllTreeNodesRef(vector< node<keyT>* > &vec);
@@ -31,11 +31,11 @@ protected:
 public:
 
 
-	typedef typename kNodeChildrenContainer< keyT, node<keyT> >::iterator nodesIterator;
+	typedef typename ihppNodeChildrenContainer< keyT, node<keyT> >::iterator nodesIterator;
 
 	node(); 
 	node(const node& n);
-	node(keyT key, kObjectWithKey<keyT>* val, size_t counter=0);
+	node(keyT key, ihppObjectWithKey<keyT>* val, size_t counter=0);
 	~node();
 	
 	node<keyT>* getChildRef(keyT k);
@@ -55,7 +55,7 @@ public:
 	bool isValid() { return val != 0; }
 
 	keyT getKey() { assert(isValid()); return val->getKey(); }
-	kObjectWithKey<keyT> * getValue() { assert(isValid()); return val; }
+	ihppObjectWithKey<keyT> * getValue() { assert(isValid()); return val; }
 	
 	nodesIterator getNodesIteratorBegin() { return nodesIterator(children.begin()); }
 	nodesIterator getNodesIteratorEnd() { return nodesIterator(children.end()); }	
@@ -114,7 +114,7 @@ inline node<keyT>::node() {
 }
 
 template <typename keyT>
-inline node<keyT>::node(keyT key, kObjectWithKey<keyT>* val, size_t counter) {
+inline node<keyT>::node(keyT key, ihppObjectWithKey<keyT>* val, size_t counter) {
 
 	this->val=val;
 	this->counter=counter;

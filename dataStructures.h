@@ -13,7 +13,7 @@
 	node<keyT> and TracingObject<keyT> implement this interface
 */
 template <typename keyT>
-class kObjectWithKey {
+class ihppObjectWithKey {
 
 public:
 
@@ -23,13 +23,13 @@ public:
 
 
 template <typename T>
-class kStack {
+class ihppStack {
 
 	std::vector<T> _data;
 
 public:
 
-	kStack() { }
+	ihppStack() { }
 
 	void push(T val) { _data.push_back(val); }
 	void pop() { _data.pop_back(); }
@@ -40,7 +40,7 @@ public:
 
 
 template <typename keyT, typename valueT>
-class kNodeChildrenContainerMap {
+class ihppNodeChildrenContainerMap {
 
 	std::map<keyT, valueT> _data;
 
@@ -48,7 +48,7 @@ public:
 
 	class iterator {
 	
-		friend class kNodeChildrenContainerMap<keyT, valueT>;
+		friend class ihppNodeChildrenContainerMap<keyT, valueT>;
 
 		bool valid;
 
@@ -90,10 +90,10 @@ public:
 
 
 /*
-	valueT is assumed to be an kObjectWithKey and to be NOT a pointer.
+	valueT is assumed to be an ihppObjectWithKey and to be NOT a pointer.
 */
 template <typename keyT, typename valueT>
-class kNodeChildrenContainerList1 {
+class ihppNodeChildrenContainerList1 {
 
 	std::list<valueT> _data;
 
@@ -101,7 +101,7 @@ public:
 
 	class iterator {
 	
-		friend class kNodeChildrenContainerList1<keyT, valueT>;
+		friend class ihppNodeChildrenContainerList1<keyT, valueT>;
 
 		bool valid;
 
@@ -150,10 +150,10 @@ public:
 
 
 /*
-	valueT is assumed to be an kObjectWithKey and to be NOT a pointer.
+	valueT is assumed to be an ihppObjectWithKey and to be NOT a pointer.
 */
 template <typename keyT, typename valueT>
-class kNodeChildrenContainerList2 {
+class ihppNodeChildrenContainerList2 {
 
 	/*
 		Using a level of indirection for _data saves space when list is empty
@@ -164,7 +164,7 @@ public:
 
 	class iterator {
 	
-		friend class kNodeChildrenContainerList2<keyT, valueT>;
+		friend class ihppNodeChildrenContainerList2<keyT, valueT>;
 
 		bool valid;
 
@@ -191,18 +191,18 @@ public:
 		bool operator>=(iterator _it2) { return *this > _it2 || *this == _it2; }
 	};
 
-	kNodeChildrenContainerList2() { 
+	ihppNodeChildrenContainerList2() { 
 	
 		_data=0;
 	}
-	~kNodeChildrenContainerList2() { 
+	~ihppNodeChildrenContainerList2() { 
 	
 		if (_data)
 			delete _data; 
 	}
 
 	
-	kNodeChildrenContainerList2(const kNodeChildrenContainerList2 &c) {
+	ihppNodeChildrenContainerList2(const ihppNodeChildrenContainerList2 &c) {
 	
 		if (c._data) {
 
@@ -214,7 +214,7 @@ public:
 		}
 	}
 	
-	kNodeChildrenContainerList2<keyT,valueT>& operator=(kNodeChildrenContainerList2<keyT,valueT> c) {
+	ihppNodeChildrenContainerList2<keyT,valueT>& operator=(ihppNodeChildrenContainerList2<keyT,valueT> c) {
 		
 
 		if (!c._data) {
@@ -272,6 +272,6 @@ public:
 
 };
 
-#define kNodeChildrenContainer kNodeChildrenContainerList1
+#define ihppNodeChildrenContainer ihppNodeChildrenContainerList1
 
 #endif

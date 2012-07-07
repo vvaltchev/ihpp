@@ -29,7 +29,7 @@ inline string operator +(string str, ADDRINT n) {
 
 
 template <typename keyT>
-class TracingObject : public kObjectWithKey<keyT> {
+class TracingObject : public ihppObjectWithKey<keyT> {
 
 protected:
 
