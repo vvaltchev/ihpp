@@ -6,7 +6,7 @@
 #include "util.h"
 
 VOID Fini(INT32 code, VOID *v);
-void funcTraceDebugDump(kCCFContextClass *globalCtx, FunctionObj *fc, 
+void funcTraceDebugDump(ihppContextClass *globalCtx, FunctionObj *fc, 
 						ihppThreadContextClass *ctx, ADDRINT reg_sp, 
 						ihppNode *treeTop, ihppNode *treeBottom);
 

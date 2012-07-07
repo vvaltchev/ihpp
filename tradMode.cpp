@@ -26,7 +26,7 @@ using namespace std;
 
 VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
 
-	kCCFContextClass *globalCtx = globalSharedContext;
+	ihppContextClass *globalCtx = globalSharedContext;
 	ihppThreadContextClass *ctx;
 	ihppTradModeContext *tradCtx;
 	ihppNode *treeTop;
@@ -182,7 +182,7 @@ void tradMode_ret()
 	ihppThreadContextClass *ctx;
 	ihppTradModeContext *tradCtx;
 
-	kCCFContextClass *globalCtx = globalSharedContext;
+	ihppContextClass *globalCtx = globalSharedContext;
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 
 

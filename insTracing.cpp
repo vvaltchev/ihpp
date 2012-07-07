@@ -26,7 +26,7 @@ inline void getTargetFunc(ADDRINT &targetAddr, ADDRINT &targetFuncAddr)
 
 void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr) {
 
-	kCCFContextClass *globalCtx = globalSharedContext;
+	ihppContextClass *globalCtx = globalSharedContext;
 	ihppThreadContextClass *ctx;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());	

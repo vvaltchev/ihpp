@@ -38,7 +38,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 	ihppNode *treeTop=0;
 	ihppNode *treeBottom=0;	
 	ihppThreadContextClass *ctx;
-	kCCFContextClass *globalCtx = globalSharedContext;
+	ihppContextClass *globalCtx = globalSharedContext;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 	
@@ -83,13 +83,14 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 	
 	} 
 
-	assert(ctx->shadowStack.size() || !ctx->rootKey);
+	//assert(ctx->shadowStack.size() || !ctx->rootKey);
 
 	//stackSize == 0 && rootKey != null
-	//This should never happen for functions
+	//This should never happen for functions in full trace mode
 	//because stack size is FORCED to be > 0 after the first function call
+	//but it can happen in funcMode or tradMode when tracing only a few functions,
+	//or very often when tracing only one function.
 
-	/*
 	else if (ctx->rootKey) {
 
 		//Reset top,bottom pointers to root of the function's tree
@@ -104,7 +105,9 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 		goto before_ret;
 	}
-	*/
+
+	/////////////////////////////////////////////
+	
 	if (globalCtx->options.showCalls)
 		funcTraceDebugDump(globalCtx, fc, ctx, reg_sp, treeTop, treeBottom);
 
@@ -113,7 +116,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 	FUNCMODE_STORE_TOP_BOTTOM(reg_sp);
 
 
-//before_ret:
+before_ret:
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
 	
@@ -132,7 +135,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 void funcMode_ret()
 {
-	kCCFContextClass *globalCtx = globalSharedContext;
+	ihppContextClass *globalCtx = globalSharedContext;
 	ihppThreadContextClass *ctx;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());

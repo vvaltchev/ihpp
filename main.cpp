@@ -150,7 +150,7 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 	ADDRINT blockPtr,funcAddr;
 	map<ADDRINT,BasicBlock*>::iterator it;
 
-	kCCFContextClass *ctx = globalSharedContext;
+	ihppContextClass *ctx = globalSharedContext;
 
     for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl))
     {
@@ -259,7 +259,7 @@ inline void imageload_specialfunc(ADDRINT &funcAddr, string &funcName) {
 
 void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 
-	kCCFContextClass *ctx = globalSharedContext;
+	ihppContextClass *ctx = globalSharedContext;
 
 	RTN_Open(rtn);
 
@@ -312,7 +312,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 void ImageLoad(IMG img, void *) {
 
 	RTN rtn2;
-	kCCFContextClass *ctx = globalSharedContext;
+	ihppContextClass *ctx = globalSharedContext;
 	
 	FunctionObj *fc;
 	map<ADDRINT, FunctionObj*>::iterator it;
@@ -464,7 +464,7 @@ int main(int argc, char ** argv) {
 
 	options.initFromGlobalOptions();
 
-	globalSharedContext = new kCCFContextClass(optionsClass::getGlobalWM(), optionsClass::getGlobalKVal(), options);
+	globalSharedContext = new ihppContextClass(optionsClass::getGlobalWM(), optionsClass::getGlobalKVal(), options);
 	
 	KNOB<string> &funcs = optionsClass::tracingFunctions();
 

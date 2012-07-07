@@ -3,7 +3,7 @@
 
 #if ENABLE_INS_TRACING
 
-void simpleIns(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRINT insCat, ADDRINT sp) {
+void simpleIns(ihppContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRINT insCat, ADDRINT sp) {
 
 	ihppThreadContextClass *ctx;
 	
@@ -33,7 +33,7 @@ void simpleIns(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, AD
 
 }
 
-void branch(kCCFContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat, ADDRINT sp) {
+void branch(ihppContextClass *globalCtx, FunctionObj *fc, ADDRINT insAddr, ADDRINT targetAddr, ADDRINT insCat, ADDRINT sp) {
 	
 	RTN rtn;
 	ADDRINT currentFuncAddr=0;
@@ -139,7 +139,7 @@ void InstructionIns2(INS ins, void *arg)
 	FunctionObj *fc;
 	map<ADDRINT, FunctionObj*>::iterator it;
 
-	kCCFContextClass *globalCtx = static_cast<kCCFContextClass *>(arg);
+	ihppContextClass *globalCtx = static_cast<ihppContextClass *>(arg);
 
 	insAddr = INS_Address(ins);
 
@@ -190,7 +190,7 @@ void InstructionIns2(INS ins, void *arg)
 VOID ImageLoad2(IMG img, VOID *v) {
 
 	
-	kCCFContextClass *globalCtx = static_cast<kCCFContextClass *>(v);
+	ihppContextClass *globalCtx = static_cast<ihppContextClass *>(v);
 	bool mainImage = IMG_IsMainExecutable(img);
 	
 	dbg_imgload_imgname();

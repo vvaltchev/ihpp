@@ -13,7 +13,7 @@
 #include "benchmark.h"
 #include "forest.h"
 #include "tracingObjects.h"
-#include "threadContext.h"
+#include "ihppThreadContextClass.h"
 #include "options.h"
 
 #ifndef __IHPP_HEADER__
@@ -56,7 +56,7 @@ public:
 
 
 
-class kCCFContextClass {
+class ihppContextClass {
 
 	PIN_LOCK lock;
 	unsigned int _K_CCF_VAL;
@@ -87,8 +87,8 @@ public:
 
 
 	
-	kCCFContextClass(WorkingModeType wm, unsigned kval, optionsClass options);
-	~kCCFContextClass();
+	ihppContextClass(WorkingModeType wm, unsigned kval, optionsClass options);
+	~ihppContextClass();
 
 	ihppThreadContextClass *getThreadCtx(PIN_THREAD_UID tid);
 	
@@ -101,16 +101,16 @@ public:
 
 #ifdef MAIN_IHPP_MODULE
 
-kCCFContextClass *globalSharedContext=0;
+ihppContextClass *globalSharedContext=0;
 
 #else
 
-extern kCCFContextClass *globalSharedContext;
+extern ihppContextClass *globalSharedContext;
 
 #endif
 
 
-inline bool kCCFContextClass::hasToTraceByName(string funcName, ADDRINT funcAddr) 
+inline bool ihppContextClass::hasToTraceByName(string funcName, ADDRINT funcAddr) 
 {
 	if (funcsToTrace.size()) 
 		return funcsToTrace.find(funcName) != funcsToTrace.end();
@@ -119,7 +119,7 @@ inline bool kCCFContextClass::hasToTraceByName(string funcName, ADDRINT funcAddr
 }
 
 
-inline bool kCCFContextClass::hasToTrace(ADDRINT funcAddr)
+inline bool ihppContextClass::hasToTrace(ADDRINT funcAddr)
 {
 	return funcAddrsToTrace.find(funcAddr) != funcAddrsToTrace.end();
 }

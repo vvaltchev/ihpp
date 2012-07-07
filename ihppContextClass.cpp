@@ -16,7 +16,7 @@ string ihppThreadContextClass::getCurrentFunctionName() {
 	return globalSharedContext->allFuncs[currentFunction]->functionName(); 
 }
 
-ihppThreadContextClass *kCCFContextClass::getThreadCtx(PIN_THREAD_UID tid) { 
+ihppThreadContextClass *ihppContextClass::getThreadCtx(PIN_THREAD_UID tid) { 
 	
 	ihppThreadContextClass *ret;
 
@@ -41,7 +41,7 @@ ihppThreadContextClass *kCCFContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 	return ret;
 }
 
-kCCFContextClass::kCCFContextClass(WorkingModeType wm, unsigned kval, optionsClass options) : 
+ihppContextClass::ihppContextClass(WorkingModeType wm, unsigned kval, optionsClass options) : 
 	_K_CCF_VAL(kval), _WorkingMode(wm)
 {
 	startFuncAddr=0;
@@ -59,7 +59,7 @@ kCCFContextClass::kCCFContextClass(WorkingModeType wm, unsigned kval, optionsCla
 
 }
 
-kCCFContextClass::~kCCFContextClass() {
+ihppContextClass::~ihppContextClass() {
 
 	for (unsigned i=0; i < threadContexts.size(); i++)
 		delete threadContexts[i];

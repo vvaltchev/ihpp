@@ -109,8 +109,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\benchmark.cpp" />
+    <ClCompile Include="..\ihppContextClass.cpp" />
     <ClCompile Include="..\insTracing.cpp" />
-    <ClCompile Include="..\kCCFContextClass.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\options.cpp" />
     <ClCompile Include="..\output.cpp" />
@@ -126,11 +126,11 @@
       <FileType>CppHeader</FileType>
     </ClCompile>
     <ClInclude Include="..\ihpp.h" />
+    <ClInclude Include="..\ihppThreadContextClass.h" />
     <ClInclude Include="..\node.h" />
     <ClInclude Include="..\options.h" />
     <ClInclude Include="..\output.h" />
     <ClInclude Include="..\specialfuncs.h" />
-    <ClInclude Include="..\threadContext.h" />
     <ClInclude Include="..\tracingFuncs.h" />
     <ClInclude Include="..\tracingObjects.h" />
     <ClCompile Include="..\traceObject.cpp" />
