@@ -37,13 +37,13 @@ VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 
-	
+
 	if (!ctx->haveToTrace)
 		return;
 
 	if ( FUNC_IS_TEXT(bb->functionAddr()) )
 		return;
-	
+
 #ifdef _WIN32
 
 	if (IS_WIN32_NLG_NOTIFY(bb->functionAddr())) {
@@ -53,31 +53,31 @@ VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 	}
 
 #endif
-	
+
 	dbg_intratr_begin();
-	
+
 #if ENABLE_RELY_ON_SP_CHECK
-	
+
 	ctx->setCurrentFunction(bb->functionAddr());
 
 #else
 
 	if ( ctx->getCurrentFunction() && ctx->getCurrentFunction() != bb->functionAddr() ) {
-	
+
 		dbg_intratr_longjmp();
-		
+
 		intraMode_ret();
 		ctx->setCurrentFunction(bb->functionAddr());
 	}
 
 #endif	
-	
+
 	intraCtx = ctx->getCurrentFunctionCtx();
 
 	dbg_intratr_begin_sp();
 
 	if (!bb->isFirstBlock()) {
-	
+
 		//If this function wasn't traced before (due to startFunc), don't it trace now..
 		if (!intraCtx->shadowStack.size())
 			return;
@@ -89,33 +89,33 @@ VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 		ADDRINT oldStackPtr = TOP_STACKPTR();
 
 		if (!globalCtx->options.rollLoops) {
-			
+
 			traceObject(bb, intraCtx, treeTop, treeBottom);
 
 		} else {
-		
+
 			bool found=false;
 			ihppNode *parent = treeTop->getParentRef();
 
 			while (parent) {
-			
-			
+
+
 				if (parent->getKey() == bb->getKey()) {
-				
+
 					treeTop=parent;
 					treeBottom=0;
 					intraCtx->counter=1;
 					found=true;
 					treeTop->incCounter();
 					break;
-										
+
 				}
 
 				parent = parent->getParentRef();
 			}
 
 			if (!found) {
-				
+
 				traceObject(bb, intraCtx, treeTop, treeBottom);
 			} 
 		}
@@ -128,36 +128,36 @@ VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 	}
 
 	/*
-		First block of a function is met: it has the SAME address as the function.
-		This happens where there is a RECURSION or a NORMAL CALL of the function (maybe also the first time)
+	First block of a function is met: it has the SAME address as the function.
+	This happens where there is a RECURSION or a NORMAL CALL of the function (maybe also the first time)
 	*/
 	dbg_intratr_first_block();
 
-	
+
 
 	if (!intraCtx->rootKey) {
-		
+
 		/*
-			Rootkey is null, so this is the first the function is called (in this thread): everything is very simple.
+		Rootkey is null, so this is the first the function is called (in this thread): everything is very simple.
 		*/
 
 		dbg_intratr_first_call();
-			
+
 		treeTop=0; treeBottom=0;
-		
+
 		//here accumulate was false
 		traceObject(bb, intraCtx, treeTop, treeBottom);
 
 		assert(intraCtx->rootKey);
 		assert(treeTop);
-				
+
 		INTRAMODE_STORE_TOP_BOTTOM(reg_sp);
 		return;
 	}
 
-	
+
 	//This was NOT the first time something called this function.
-	
+
 	INTRAMODE_LOAD_TOP_BOTTOM();
 
 	if (!INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()) 
@@ -196,7 +196,7 @@ void intraMode_ret()
 	dbg_intraret_begin();
 
 	if (!intraCtx->shadowStack.size()) {
-	
+
 		dbg_intraret_cantpop();
 		return;
 	}
@@ -206,15 +206,15 @@ void intraMode_ret()
 	intraCtx->shadowStack.pop();
 
 	if (!intraCtx->shadowStack.size()) {
-		
+
 		ihppNode *treeTop;
 		ihppNode *treeBottom;
-	
+
 		dbg_intraret_lastret();
 
 		/*
-			Since now shadow stack is empty, on the next activation of the function
-			top and bottom pointers MUST point to the calling tree's root.
+		Since now shadow stack is empty, on the next activation of the function
+		top and bottom pointers MUST point to the calling tree's root.
 		*/
 
 		//Reset top,bottom pointers to root of the function's tree

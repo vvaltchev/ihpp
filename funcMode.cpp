@@ -18,13 +18,13 @@ using namespace std;
 inline void funcMode_sp_check(ihppThreadContextClass *ctx, ADDRINT reg_sp)
 {
 	if (reg_sp >= FUNCMODE_TOP_STACKPTR()) {
-	
+
 		dbg_functr_regsp_gt();
 
 		while (ctx->shadowStack.size() > 1 && reg_sp >= FUNCMODE_TOP_STACKPTR()) {
-		
+
 			dbg_functr_pop();
-			
+
 			if (!ctx->popShadowStack())
 				break;
 		}
@@ -41,7 +41,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 	ihppContextClass *globalCtx = globalSharedContext;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
-	
+
 	if (fc->functionAddress() == ctx->startFuncAddr)
 		ctx->haveToTrace=true;
 
@@ -69,18 +69,18 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 	dbg_functr_funcname();
 	dbg_functr_stackptr();
-	
+
 #if ENABLE_RELY_ON_SP_CHECK
-	
+
 	funcMode_sp_check(ctx, reg_sp);
-	
+
 #endif
 
 
 	if (ctx->shadowStack.size()) {
-		
+
 		FUNCMODE_LOAD_TOP_BOTTOM();
-	
+
 	} 
 
 	//assert(ctx->shadowStack.size() || !ctx->rootKey);
@@ -107,21 +107,21 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 	}
 
 	/////////////////////////////////////////////
-	
+
 	if (globalCtx->options.showCalls)
 		funcTraceDebugDump(globalCtx, fc, ctx, reg_sp, treeTop, treeBottom);
 
 	traceObject(fc, ctx, treeTop, treeBottom);
-	
+
 	FUNCMODE_STORE_TOP_BOTTOM(reg_sp);
 
 
 before_ret:
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
-	
+
 	if (ctx->forwardJmpHappened && ctx->fjmpsFuncAddr == fc->functionAddress()) {
-	
+
 		ctx->forwardJmpHappened=false;
 		ctx->shadowStack.top().fjmps = ctx->lastfjmps+1;
 		dbg_functr_fjmps_set();
@@ -144,11 +144,11 @@ void funcMode_ret()
 		return;
 
 	dbg_funcret_name();
-		
+
 	assert( ctx->shadowStack.size() || globalCtx->exitPassed );
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
-	
+
 	dbg_funcret_fjmps();
 
 	while (ctx->shadowStack.top().fjmps--) 
@@ -168,11 +168,11 @@ void funcMode_ret()
 #endif
 
 	if (ctx->shadowStack.size() == 1) {
-		
+
 		dbg_funcret_pop_err();
 		goto function_end;
 	}
-	
+
 	dbg_funcret_pop();
 
 	if (ctx->canPopStack())
