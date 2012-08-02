@@ -88,7 +88,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 	//stackSize == 0 && rootKey != null
 	//This should never happen for functions in full trace mode
 	//because stack size is FORCED to be > 0 after the first function call
-	//but it can happen in funcMode or tradMode when tracing only a few functions,
+	//but it can happen in funcMode or intraMode when tracing only a few functions,
 	//or very often when tracing only one function.
 
 	else if (ctx->rootKey) {
@@ -161,8 +161,8 @@ void funcMode_ret()
 		else
 			break;
 
-		if (globalCtx->WorkingMode() == TradMode)
-			tradMode_ret();
+		if (globalCtx->WorkingMode() == IntraMode)
+			intraMode_ret();
 	}
 
 #endif
@@ -185,8 +185,8 @@ void funcMode_ret()
 
 function_end:
 
-	if (globalCtx->WorkingMode() == TradMode)
-		tradMode_ret();
+	if (globalCtx->WorkingMode() == IntraMode)
+		intraMode_ret();
 
 	ctx->setCurrentFunction(ctx->shadowStack.top().treeTop->getValue()->getKey());
 }

@@ -213,9 +213,9 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 								IARG_PTR, bb, 
 								IARG_END);		
 
-		if (ctx->WorkingMode() == TradMode)
+		if (ctx->WorkingMode() == IntraMode)
 			BBL_InsertCall(bbl, 
-								IPOINT_BEFORE, AFUNPTR(tradModeBlockTrace), 
+								IPOINT_BEFORE, AFUNPTR(intraModeBlockTrace), 
 								IARG_CALL_ORDER, CALL_ORDER_LAST, 
 								IARG_PTR, bb, 
 								IARG_REG_VALUE, REG_STACK_PTR, 

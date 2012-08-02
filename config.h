@@ -17,8 +17,8 @@
 #define DEBUG_IMGLOAD		1
 #define DEBUG_FUNC_TRACE	1
 #define DEBUG_FUNC_RET		1
-#define DEBUG_TRAD_TRACE	1
-#define DEBUG_TRAD_RET		1
+#define DEBUG_INTRA_TRACE	1
+#define DEBUG_INTRA_RET		1
 
 #if defined(_WIN32) 
 	#define ENABLE_INS_TRACING									1

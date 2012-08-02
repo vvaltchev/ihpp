@@ -24,9 +24,13 @@ static KNOB<bool> showkCCF(KNOB_MODE_WRITEONCE, "pintool", "kccf", "0", "");
 static KNOB<bool> experimental(KNOB_MODE_WRITEONCE, "pintool", "experimental", "0", "");
 /////////
 
-static KNOB<bool> funcMode(KNOB_MODE_WRITEONCE, "pintool", "funcMode", "0", "");
-static KNOB<bool> blockMode(KNOB_MODE_WRITEONCE, "pintool", "blockMode", "0", "");
-static KNOB<bool> tradMode(KNOB_MODE_WRITEONCE, "pintool", "tradMode", "0", "");
+
+//working modes options
+static KNOB<bool> opt_funcMode(KNOB_MODE_WRITEONCE, "pintool", "funcMode", "0", "");
+static KNOB<bool> opt_blockMode(KNOB_MODE_WRITEONCE, "pintool", "blockMode", "0", "");
+static KNOB<bool> opt_intraMode(KNOB_MODE_WRITEONCE, "pintool", "intraMode", "0", "");
+
+
 static KNOB<bool> showCalls(KNOB_MODE_WRITEONCE, "pintool", "showCalls", "0", "");
 static KNOB<bool> showBlocks(KNOB_MODE_WRITEONCE, "pintool", "showBlocks", "0", "");
 static KNOB<bool> showFuncs(KNOB_MODE_WRITEONCE, "pintool", "showFuncs", "0", "");
@@ -67,10 +71,10 @@ unsigned int optionsClass::getGlobalKVal() {
 
 WorkingModeType optionsClass::getGlobalWM() {
 
-	if (::tradMode.Value())
-		return TradMode;
+	if (::opt_intraMode.Value())
+		return IntraMode;
 
-	if (::blockMode.Value())
+	if (::opt_blockMode.Value())
 		return BlockMode;
 
 	return FuncMode;
@@ -111,8 +115,8 @@ void optionsClass::showHelp()
 	
 	cout << "\nWorking modes: " << endl;
 	cout << "\t -funcMode" << endl;
+	cout << "\t -intraMode" << endl;
 	cout << "\t -blockMode" << endl;
-	cout << "\t -tradMode" << endl;
 	
 	cout << "\nShow options:\n";
 	cout << "\t-ksf: shows the k-Slab Forest" << endl;
@@ -125,16 +129,16 @@ void optionsClass::showHelp()
 	cout << "\nOther options:\n";
 	cout << "\t-xml option produces the output file in xml format" << endl;
 	cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
-	cout << "\t-rollLoops: when building the kSF in TradMode, loops will be rolled" << endl;
+	cout << "\t-rollLoops: when building the kSF in IntraMode, loops will be rolled" << endl;
 
 	cout << endl << endl;
 }
 
 bool optionsClass::checkOptions() 
 {
-	if ((  funcMode.Value() && (blockMode.Value() || tradMode.Value())  ) ||
-		(  blockMode.Value() && (funcMode.Value() || tradMode.Value())  ) ||
-		(  tradMode.Value() && (blockMode.Value() || funcMode.Value())  )) 
+	if ((  opt_funcMode.Value() && (opt_blockMode.Value() || opt_intraMode.Value())  ) ||
+		(  opt_blockMode.Value() && (opt_funcMode.Value() || opt_intraMode.Value())  ) ||
+		(  opt_intraMode.Value() && (opt_blockMode.Value() || opt_funcMode.Value())  )) 
 	{
 
 		optionsClass::showHelp();
@@ -148,7 +152,7 @@ bool optionsClass::checkOptions()
 		return false;
 	} 
 
-	if (::showBlocks.Value() && funcMode.Value()) {
+	if (::showBlocks.Value() && opt_funcMode.Value()) {
 	
 		cerr << "-showBlocks can't be used in funcMode." << endl;
 		return false;
@@ -168,13 +172,13 @@ bool optionsClass::checkOptions()
 		return false;	
 	}
 
-	if (::kinf.Value() && !::rollLoops.Value() && ::tradMode.Value()) {
+	if (::kinf.Value() && !::rollLoops.Value() && ::opt_intraMode.Value()) {
 	
-		cerr << "It's an error to use k = infinite (-kinf) without -rollLoops option in tradMode.\n";
+		cerr << "It's an error to use k = infinite (-kinf) without -rollLoops option in intraMode.\n";
 		return false;
 	}
 
-	if (::kinf.Value() && ::blockMode.Value()) {
+	if (::kinf.Value() && ::opt_blockMode.Value()) {
 	
 		cerr << "-kinf option can't be used with -blockMode.\n";
 		return false;
@@ -202,9 +206,9 @@ bool optionsClass::checkOptions()
 	}
 */
 
-	if (::rollLoops.Value() && !::tradMode.Value()) {
+	if (::rollLoops.Value() && !::opt_intraMode.Value()) {
 	
-		cerr << "Roll loops option can be applied only with -tradMode option.\n";
+		cerr << "Roll loops option can be applied only with -intraMode option.\n";
 		return false;
 	}
 

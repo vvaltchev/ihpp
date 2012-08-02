@@ -52,13 +52,13 @@ public:
 
 };
 
-class ihppTradModeContext : public ihppAbstractContext {
+class ihppIntraModeContext : public ihppAbstractContext {
 
 	ADDRINT funcAddr;
 
 public:
 
-	ihppTradModeContext(ADDRINT functionAddr) : ihppAbstractContext(), funcAddr(functionAddr) { }
+	ihppIntraModeContext(ADDRINT functionAddr) : ihppAbstractContext(), funcAddr(functionAddr) { }
 
 	ADDRINT getFunctionAddr() { return funcAddr; }
 };
@@ -106,8 +106,8 @@ public:
 	ADDRINT startFuncAddr;
 	ADDRINT stopFuncAddr;
 
-	//TradMode properties
-	map<ADDRINT, ihppTradModeContext*> tradModeContexts;
+	//IntraMode properties
+	map<ADDRINT, ihppIntraModeContext*> intraModeContexts;
 
 	//Methods
 
@@ -118,11 +118,11 @@ public:
 	inline bool canPopStack();
 	inline bool popShadowStack();
 
-	ihppTradModeContext *getFunctionCtx(ADDRINT funcAddr);
-	ihppTradModeContext *getCurrentFunctionCtx();
+	ihppIntraModeContext *getFunctionCtx(ADDRINT funcAddr);
+	ihppIntraModeContext *getCurrentFunctionCtx();
 
 	ADDRINT getCurrentFunction();
-	ihppTradModeContext *setCurrentFunction(ADDRINT currFunc);
+	ihppIntraModeContext *setCurrentFunction(ADDRINT currFunc);
 	string getCurrentFunctionName(); 
 };
 
@@ -179,7 +179,7 @@ inline ihppThreadContextClass::ihppThreadContextClass(PIN_THREAD_UID tid, ADDRIN
 	}
 
 
-inline ihppTradModeContext *ihppThreadContextClass::getCurrentFunctionCtx() 
+inline ihppIntraModeContext *ihppThreadContextClass::getCurrentFunctionCtx() 
 { 
 	return getFunctionCtx(currentFunction); 
 }
@@ -190,7 +190,7 @@ inline ADDRINT ihppThreadContextClass::getCurrentFunction()
 	return currentFunction; 
 }
 
-inline ihppTradModeContext *ihppThreadContextClass::setCurrentFunction(ADDRINT currFunc)
+inline ihppIntraModeContext *ihppThreadContextClass::setCurrentFunction(ADDRINT currFunc)
 {
 	currentFunction=currFunc; 
 	return getCurrentFunctionCtx();
@@ -198,22 +198,22 @@ inline ihppTradModeContext *ihppThreadContextClass::setCurrentFunction(ADDRINT c
 
 inline ihppThreadContextClass::~ihppThreadContextClass()
 {
-	for (map<ADDRINT, ihppTradModeContext*>::iterator it = tradModeContexts.begin(); it != tradModeContexts.end(); it++)
+	for (map<ADDRINT, ihppIntraModeContext*>::iterator it = intraModeContexts.begin(); it != intraModeContexts.end(); it++)
 		delete it->second;
 }
 
-inline ihppTradModeContext *ihppThreadContextClass::getFunctionCtx(ADDRINT funcAddr) 
+inline ihppIntraModeContext *ihppThreadContextClass::getFunctionCtx(ADDRINT funcAddr) 
 {
 
-	if (tradModeContexts.find(funcAddr) == tradModeContexts.end()) {
+	if (intraModeContexts.find(funcAddr) == intraModeContexts.end()) {
 	
-		ihppTradModeContext *tradCtx;
-		tradCtx = new ihppTradModeContext(funcAddr);
-		tradModeContexts[funcAddr] = tradCtx;
-		return tradCtx;
+		ihppIntraModeContext *intraCtx;
+		intraCtx = new ihppIntraModeContext(funcAddr);
+		intraModeContexts[funcAddr] = intraCtx;
+		return intraCtx;
 	}
 
-	return tradModeContexts[funcAddr];
+	return intraModeContexts[funcAddr];
 }
 
 

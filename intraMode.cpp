@@ -10,24 +10,24 @@
 using namespace std;
 
 
-#define TRADMODE_LOAD_TOP_BOTTOM()					treeTop = tradCtx->shadowStack.top().treeTop; treeBottom = tradCtx->shadowStack.top().treeBottom; 
+#define INTRAMODE_LOAD_TOP_BOTTOM()					treeTop = intraCtx->shadowStack.top().treeTop; treeBottom = intraCtx->shadowStack.top().treeBottom; 
 
-#define TRADMODE_STORE_TOP_BOTTOM(sp)				tradCtx->shadowStack.push(ShadowStackType(treeTop,treeBottom, (sp) ));
-
-
-#define TRADMODE_REPLACE_TOP_BOTTOM(sp)				tradCtx->shadowStack.pop(); tradCtx->shadowStack.push(ShadowStackType(treeTop,treeBottom, (sp) ));
-
-#define TOP_STACKPTR()								(tradCtx->shadowStack.size()?tradCtx->shadowStack.top().stackPtr:(ADDRINT)-1)
-
-#define TRADMODE_SET_TOP_BOTTOM_TO_ROOT()			tradCtx->counter=1; treeTop=tradCtx->kSlabForest.getTreeRef(tradCtx->rootKey); treeBottom=0;
-#define TRADMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()	(treeTop==tradCtx->kSlabForest.getTreeRef(tradCtx->rootKey) && !treeBottom)
+#define INTRAMODE_STORE_TOP_BOTTOM(sp)				intraCtx->shadowStack.push(ShadowStackType(treeTop,treeBottom, (sp) ));
 
 
-VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
+#define INTRAMODE_REPLACE_TOP_BOTTOM(sp)			intraCtx->shadowStack.pop(); intraCtx->shadowStack.push(ShadowStackType(treeTop,treeBottom, (sp) ));
+
+#define TOP_STACKPTR()								(intraCtx->shadowStack.size()?intraCtx->shadowStack.top().stackPtr:(ADDRINT)-1)
+
+#define INTRAMODE_SET_TOP_BOTTOM_TO_ROOT()			intraCtx->counter=1; treeTop=intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey); treeBottom=0;
+#define INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()	(treeTop==intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey) && !treeBottom)
+
+
+VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
 
 	ihppContextClass *globalCtx = globalSharedContext;
 	ihppThreadContextClass *ctx;
-	ihppTradModeContext *tradCtx;
+	ihppIntraModeContext *intraCtx;
 	ihppNode *treeTop;
 	ihppNode *treeBottom;
 
@@ -48,13 +48,13 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 	if (IS_WIN32_NLG_NOTIFY(bb->functionAddr())) {
 
-		dbg_tradtr_nlog_skip();
+		dbg_intratr_nlog_skip();
 		return;
 	}
 
 #endif
 	
-	dbg_tradtr_begin();
+	dbg_intratr_begin();
 	
 #if ENABLE_RELY_ON_SP_CHECK
 	
@@ -64,33 +64,33 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 	if ( ctx->getCurrentFunction() && ctx->getCurrentFunction() != bb->functionAddr() ) {
 	
-		dbg_tradtr_longjmp();
+		dbg_intratr_longjmp();
 		
-		tradMode_ret();
+		intraMode_ret();
 		ctx->setCurrentFunction(bb->functionAddr());
 	}
 
 #endif	
 	
-	tradCtx = ctx->getCurrentFunctionCtx();
+	intraCtx = ctx->getCurrentFunctionCtx();
 
-	dbg_tradtr_begin_sp();
+	dbg_intratr_begin_sp();
 
 	if (!bb->isFirstBlock()) {
 	
 		//If this function wasn't traced before (due to startFunc), don't it trace now..
-		if (!tradCtx->shadowStack.size())
+		if (!intraCtx->shadowStack.size())
 			return;
 
-		dbg_tradtr_normal_trace();
+		dbg_intratr_normal_trace();
 
-		TRADMODE_LOAD_TOP_BOTTOM();
+		INTRAMODE_LOAD_TOP_BOTTOM();
 
 		ADDRINT oldStackPtr = TOP_STACKPTR();
 
 		if (!globalCtx->options.rollLoops) {
 			
-			traceObject(bb, tradCtx, treeTop, treeBottom);
+			traceObject(bb, intraCtx, treeTop, treeBottom);
 
 		} else {
 		
@@ -104,7 +104,7 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 				
 					treeTop=parent;
 					treeBottom=0;
-					tradCtx->counter=1;
+					intraCtx->counter=1;
 					found=true;
 					treeTop->incCounter();
 					break;
@@ -116,13 +116,13 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 			if (!found) {
 				
-				traceObject(bb, tradCtx, treeTop, treeBottom);
+				traceObject(bb, intraCtx, treeTop, treeBottom);
 			} 
 		}
 
-		TRADMODE_REPLACE_TOP_BOTTOM(oldStackPtr);
+		INTRAMODE_REPLACE_TOP_BOTTOM(oldStackPtr);
 
-		dbg_tradtr_end_sp();
+		dbg_intratr_end_sp();
 
 		return;
 	}
@@ -131,61 +131,61 @@ VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 		First block of a function is met: it has the SAME address as the function.
 		This happens where there is a RECURSION or a NORMAL CALL of the function (maybe also the first time)
 	*/
-	dbg_tradtr_first_block();
+	dbg_intratr_first_block();
 
 	
 
-	if (!tradCtx->rootKey) {
+	if (!intraCtx->rootKey) {
 		
 		/*
 			Rootkey is null, so this is the first the function is called (in this thread): everything is very simple.
 		*/
 
-		dbg_tradtr_first_call();
+		dbg_intratr_first_call();
 			
 		treeTop=0; treeBottom=0;
 		
 		//here accumulate was false
-		traceObject(bb, tradCtx, treeTop, treeBottom);
+		traceObject(bb, intraCtx, treeTop, treeBottom);
 
-		assert(tradCtx->rootKey);
+		assert(intraCtx->rootKey);
 		assert(treeTop);
 				
-		TRADMODE_STORE_TOP_BOTTOM(reg_sp);
+		INTRAMODE_STORE_TOP_BOTTOM(reg_sp);
 		return;
 	}
 
 	
 	//This was NOT the first time something called this function.
 	
-	TRADMODE_LOAD_TOP_BOTTOM();
+	INTRAMODE_LOAD_TOP_BOTTOM();
 
-	if (!TRADMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()) 
+	if (!INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()) 
 	{
 		//Reset top,bottom pointers to root of the function's tree
-		TRADMODE_SET_TOP_BOTTOM_TO_ROOT();
+		INTRAMODE_SET_TOP_BOTTOM_TO_ROOT();
 
 		//Push them on the shadow stack a increment the root counter
-		TRADMODE_STORE_TOP_BOTTOM(reg_sp);
+		INTRAMODE_STORE_TOP_BOTTOM(reg_sp);
 	}
 
 	treeTop->incCounter();
 
-	dbg_tradtr_end_sp();
+	dbg_intratr_end_sp();
 }
 
 
 
-void tradMode_ret() 
+void intraMode_ret() 
 {
 	ihppThreadContextClass *ctx;
-	ihppTradModeContext *tradCtx;
+	ihppIntraModeContext *intraCtx;
 
 	ihppContextClass *globalCtx = globalSharedContext;
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 
 
-	tradCtx = ctx->getCurrentFunctionCtx();
+	intraCtx = ctx->getCurrentFunctionCtx();
 
 
 #ifdef _WIN32
@@ -193,24 +193,24 @@ void tradMode_ret()
 		return;
 #endif
 
-	dbg_tradret_begin();
+	dbg_intraret_begin();
 
-	if (!tradCtx->shadowStack.size()) {
+	if (!intraCtx->shadowStack.size()) {
 	
-		dbg_tradret_cantpop();
+		dbg_intraret_cantpop();
 		return;
 	}
 
-	dbg_tradret_stackpop();
+	dbg_intraret_stackpop();
 
-	tradCtx->shadowStack.pop();
+	intraCtx->shadowStack.pop();
 
-	if (!tradCtx->shadowStack.size()) {
+	if (!intraCtx->shadowStack.size()) {
 		
 		ihppNode *treeTop;
 		ihppNode *treeBottom;
 	
-		dbg_tradret_lastret();
+		dbg_intraret_lastret();
 
 		/*
 			Since now shadow stack is empty, on the next activation of the function
@@ -218,9 +218,9 @@ void tradMode_ret()
 		*/
 
 		//Reset top,bottom pointers to root of the function's tree
-		TRADMODE_SET_TOP_BOTTOM_TO_ROOT();
+		INTRAMODE_SET_TOP_BOTTOM_TO_ROOT();
 
 		//Push them on the shadow stack a increment the root counter
-		TRADMODE_STORE_TOP_BOTTOM((ADDRINT)-1);		
+		INTRAMODE_STORE_TOP_BOTTOM((ADDRINT)-1);		
 	}
 }

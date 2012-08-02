@@ -26,7 +26,7 @@
 	#define __BM_CURR_TH		(globalSharedContext->getThreadCtx(__BM_GET_THREAD))
 	#define __BM_GET_FUNC		(useCurrFunc ? __BM_CURR_TH->getCurrentFunction() : __benchmarkFunc)
 	#define __BM_CURR_FUNC		(__BM_CURR_TH->getFunctionCtx(__BM_GET_FUNC))
-	#define __BM_TRADMODE		(globalSharedContext->WorkingMode() == TradMode)
+	#define __BM_INTRAMODE		(globalSharedContext->WorkingMode() == IntraMode)
 
 
 #else
@@ -71,16 +71,16 @@ public:
 #if IHPP_BENCHMARK 
 
 	inline void BM_inc_nodes_created() 
-	{ if (benchmark) ((!__BM_TRADMODE || !__BM_GET_FUNC) ? __BM_CURR_TH->nodes_created++ : __BM_CURR_FUNC->nodes_created++);  }
+	{ if (benchmark) ((!__BM_INTRAMODE || !__BM_GET_FUNC) ? __BM_CURR_TH->nodes_created++ : __BM_CURR_FUNC->nodes_created++);  }
 
 	inline void BM_inc_empty_nodes_created()
-	{ if (benchmark) ((!__BM_TRADMODE || !__BM_GET_FUNC) ? __BM_CURR_TH->empty_nodes_created++ : __BM_CURR_FUNC->empty_nodes_created++);  }
+	{ if (benchmark) ((!__BM_INTRAMODE || !__BM_GET_FUNC) ? __BM_CURR_TH->empty_nodes_created++ : __BM_CURR_FUNC->empty_nodes_created++);  }
 	
 	inline void BM_inc_nodes_copied()
-	{ if (benchmark) ((!__BM_TRADMODE || !__BM_GET_FUNC) ? __BM_CURR_TH->nodes_copied++ : __BM_CURR_FUNC->nodes_copied++);  }
+	{ if (benchmark) ((!__BM_INTRAMODE || !__BM_GET_FUNC) ? __BM_CURR_TH->nodes_copied++ : __BM_CURR_FUNC->nodes_copied++);  }
 	
 	inline void BM_inc_forests_copied()
-	{ if (benchmark) ((!__BM_TRADMODE || !__BM_GET_FUNC) ? __BM_CURR_TH->forests_copied++ : __BM_CURR_FUNC->forests_copied++);  }
+	{ if (benchmark) ((!__BM_INTRAMODE || !__BM_GET_FUNC) ? __BM_CURR_TH->forests_copied++ : __BM_CURR_FUNC->forests_copied++);  }
 
 #else
 

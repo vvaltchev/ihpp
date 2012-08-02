@@ -12,9 +12,9 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp);
 void funcMode_ret();
 
 
-VOID tradModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp);
+VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp);
 
-void tradMode_ret();
+void intraMode_ret();
 
 
 #if ENABLE_INS_TRACING

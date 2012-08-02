@@ -278,14 +278,14 @@ void printThreadContextInfo(ihppContextClass *globalCtx, ihppThreadContextClass 
 
 	if (globalCtx->options.xmloutput) {
 		
-		openTag("tradMode_ctx",true);
+		openTag("intraMode_ctx",true);
 	}
 
-	for (map<ADDRINT, ihppTradModeContext*>::iterator it = ctx->tradModeContexts.begin(); it != ctx->tradModeContexts.end(); it++)
+	for (map<ADDRINT, ihppIntraModeContext*>::iterator it = ctx->intraModeContexts.begin(); it != ctx->intraModeContexts.end(); it++)
 	{
 
-		ihppTradModeContext *tradCtx = it->second;
-		ADDRINT funcAddr = tradCtx->getFunctionAddr();
+		ihppIntraModeContext *intraCtx = it->second;
+		ADDRINT funcAddr = intraCtx->getFunctionAddr();
 		FunctionObj *fc = globalCtx->allFuncs[funcAddr];
 
 		if (!globalCtx->options.xmloutput)
@@ -302,14 +302,14 @@ void printThreadContextInfo(ihppContextClass *globalCtx, ihppThreadContextClass 
 			closeTag("funcAddr");
 		}
 
-		printContextInfo(globalCtx, tradCtx);
+		printContextInfo(globalCtx, intraCtx);
 
 		if (globalCtx->options.xmloutput)
 			closeTag("func_ctx");
 	}
 
 	if (globalCtx->options.xmloutput)
-		closeTag("tradMode_ctx");
+		closeTag("intraMode_ctx");
 
 }
 
@@ -335,11 +335,11 @@ void blockFuncMode_joinThreads(ihppContextClass *globalCtx) {
 		globalCtx->threadContexts.erase(globalCtx->threadContexts.begin()+1,globalCtx->threadContexts.end());
 }
 
-void tradMode_joinThreads(ihppContextClass *globalCtx) {
+void intraMode_joinThreads(ihppContextClass *globalCtx) {
 
 	ihppThreadContextClass *th0Ctx = globalCtx->threadContexts[0];
 	ihppThreadContextClass *thCtx2;
-	ihppTradModeContext *tradCtx;
+	ihppIntraModeContext *intraCtx;
 	ihppForest *forest;
 
 	for (FuncsMapIt funcIt = globalCtx->allFuncs.begin(); funcIt != globalCtx->allFuncs.end(); funcIt++)
@@ -348,21 +348,21 @@ void tradMode_joinThreads(ihppContextClass *globalCtx) {
 		if (!globalCtx->hasToTrace(funcIt->second->functionAddress()))
 			continue;
 
-		tradCtx = th0Ctx->getFunctionCtx(funcIt->first);
-		forest = &tradCtx->kSlabForest;
+		intraCtx = th0Ctx->getFunctionCtx(funcIt->first);
+		forest = &intraCtx->kSlabForest;
 
 		for (unsigned i=1; i < globalCtx->threadContexts.size(); i++) 
 		{
 	
 			thCtx2 = globalCtx->threadContexts[i];
 
-			map<ADDRINT, ihppTradModeContext*>::iterator it = thCtx2->tradModeContexts.find(funcIt->first);
+			map<ADDRINT, ihppIntraModeContext*>::iterator it = thCtx2->intraModeContexts.find(funcIt->first);
 
-			if (it != thCtx2->tradModeContexts.end()) 
+			if (it != thCtx2->intraModeContexts.end()) 
 			{
 				*forest = forest->join(it->second->kSlabForest);
 #if IHPP_BENCHMARK
-				tradCtx->_BM_sumBenchmarkInfo(it->second);
+				intraCtx->_BM_sumBenchmarkInfo(it->second);
 #endif
 			}
 		}
@@ -936,10 +936,10 @@ void Fini(INT32 code, void *)
 
 	if (ctx->options.joinThreads) {
 	
-		if (ctx->WorkingMode() != TradMode)
+		if (ctx->WorkingMode() != IntraMode)
 			blockFuncMode_joinThreads(ctx);
 		else
-			tradMode_joinThreads(ctx);
+			intraMode_joinThreads(ctx);
 	}
 
 	if (ctx->options.xmloutput)

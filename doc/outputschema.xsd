@@ -4,7 +4,7 @@
   <xs:simpleType name="WorkingModeType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="funcMode"/>
-      <xs:enumeration value="tradMode"/>
+      <xs:enumeration value="intraMode"/>
       <xs:enumeration value="blockMode"/>
     </xs:restriction>
   </xs:simpleType>
@@ -149,7 +149,7 @@
                     <xs:element name="id"/>
                     <xs:element name="kSF" type="forest" minOccurs="0"/>
                     <xs:element name="kCCF" type="forest" minOccurs="0"/>
-                    <xs:element name="tradMode_ctx" minOccurs="0">
+                    <xs:element name="intraMode_ctx" minOccurs="0">
                       <xs:complexType>
                         <xs:sequence>
                           <xs:element name="func_ctx" maxOccurs="unbounded">

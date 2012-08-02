@@ -126,50 +126,50 @@
 
 #endif
 
-#if DEBUG && DEBUG_TRAD_TRACE
+#if DEBUG && DEBUG_INTRA_TRACE
 
-	#define dbg_tradtr_begin()						if (__dcheck) cerr << "\nTRAD_MODE: tracing block: " << *bb << ", addr: 0x" << hex << (void*)bb->blockAddress() << dec << endl; \
-													if (__dcheck) cerr << "TRAD_MODE: reg_sp = " << reg_sp << endl;
+	#define dbg_intratr_begin()						if (__dcheck) cerr << "\nINTRA_MODE: tracing block: " << *bb << ", addr: 0x" << hex << (void*)bb->blockAddress() << dec << endl; \
+													if (__dcheck) cerr << "INTRA_MODE: reg_sp = " << reg_sp << endl;
 	
-	#define dbg_tradtr_nlog_skip()					if (__dcheck) cerr << "\nTRAD_MODE: SKIPPING block: " << *bb << endl;
+	#define dbg_intratr_nlog_skip()					if (__dcheck) cerr << "\nINTRA_MODE: SKIPPING block: " << *bb << endl;
 
-	#define dbg_tradtr_longjmp()					if (__dcheck) cerr << "TRAD_MODE: probable longjmp [cod3]\n"; \
+	#define dbg_intratr_longjmp()					if (__dcheck) cerr << "INTRA_MODE: probable longjmp [cod3]\n"; \
 													if (__dcheck) cerr << "currFunc: " << RTN_FindNameByAddress( ctx->getCurrentFunction() ) << endl; \
 													if (__dcheck) cerr << "blockFunc: " << RTN_FindNameByAddress( bb->functionAddr() ) << endl; \
-													if (__dcheck) cerr << "Calling tradmode return procedure..\n";
+													if (__dcheck) cerr << "Calling intramode return procedure..\n";
 
-	#define dbg_tradtr_begin_sp()					if (__dcheck) cerr << "begin stack size: " << tradCtx->shadowStack.size() << endl;
-	#define dbg_tradtr_normal_trace()				if (__dcheck) cerr << "NORMAL traceObject\n";
-	#define dbg_tradtr_end_sp()						if (__dcheck) cerr << "end stack size: " << tradCtx->shadowStack.size() << endl;
-	#define dbg_tradtr_first_block()				if (__dcheck) cerr << "FIRST BLOCK\n";
-	#define dbg_tradtr_first_call()					if (__dcheck) cerr << "FIRST FUNCTION CALL\n";
+	#define dbg_intratr_begin_sp()					if (__dcheck) cerr << "begin stack size: " << intraCtx->shadowStack.size() << endl;
+	#define dbg_intratr_normal_trace()				if (__dcheck) cerr << "NORMAL traceObject\n";
+	#define dbg_intratr_end_sp()					if (__dcheck) cerr << "end stack size: " << intraCtx->shadowStack.size() << endl;
+	#define dbg_intratr_first_block()				if (__dcheck) cerr << "FIRST BLOCK\n";
+	#define dbg_intratr_first_call()				if (__dcheck) cerr << "FIRST FUNCTION CALL\n";
 
 #else
 
-	#define dbg_tradtr_begin()
-	#define dbg_tradtr_nlog_skip()
-	#define dbg_tradtr_longjmp()	
-	#define dbg_tradtr_begin_sp()	
-	#define dbg_tradtr_normal_trace()	
-	#define dbg_tradtr_end_sp()			
-	#define dbg_tradtr_first_block()	
-	#define dbg_tradtr_first_call()		
+	#define dbg_intratr_begin()
+	#define dbg_intratr_nlog_skip()
+	#define dbg_intratr_longjmp()	
+	#define dbg_intratr_begin_sp()	
+	#define dbg_intratr_normal_trace()	
+	#define dbg_intratr_end_sp()			
+	#define dbg_intratr_first_block()	
+	#define dbg_intratr_first_call()		
 
 #endif
 
-#if DEBUG && DEBUG_TRAD_RET 
+#if DEBUG && DEBUG_INTRA_RET 
 
-	#define dbg_tradret_begin()						if (__dcheck) cerr << "TRAD_MODE ret: " << ctx->getCurrentFunctionName() << endl;
-	#define dbg_tradret_cantpop()					if (__dcheck) cerr << "TRAD_MODE ret: can't pop(), stack size() == 0\n";
-	#define dbg_tradret_stackpop()					if (__dcheck) cerr << "TRAD_MODE shadowStack.pop()\n";
-	#define dbg_tradret_lastret()					if (__dcheck) cerr << "TRAD_MODE: LAST RETURN, next call will be a NEW CALL\n";
+	#define dbg_intraret_begin()					if (__dcheck) cerr << "INTRA_MODE ret: " << ctx->getCurrentFunctionName() << endl;
+	#define dbg_intraret_cantpop()					if (__dcheck) cerr << "INTRA_MODE ret: can't pop(), stack size() == 0\n";
+	#define dbg_intraret_stackpop()					if (__dcheck) cerr << "INTRA_MODE shadowStack.pop()\n";
+	#define dbg_intraret_lastret()					if (__dcheck) cerr << "INTRA_MODE: LAST RETURN, next call will be a NEW CALL\n";
 
 #else
 
-	#define dbg_tradret_begin()
-	#define dbg_tradret_cantpop()
-	#define dbg_tradret_stackpop()
-	#define dbg_tradret_lastret()
+	#define dbg_intraret_begin()
+	#define dbg_intraret_cantpop()
+	#define dbg_intraret_stackpop()
+	#define dbg_intraret_lastret()
 
 #endif
 

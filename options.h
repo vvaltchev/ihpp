@@ -11,9 +11,9 @@
 #endif
 
 
-enum WorkingModeType { FuncMode, TradMode, BlockMode };
+enum WorkingModeType { FuncMode, IntraMode, BlockMode };
 
-const char * const WorkingModesString[] = { "funcMode", "tradMode", "blockMode" };
+const char * const WorkingModesString[] = { "funcMode", "intraMode", "blockMode" };
 
 class optionsClass {
 
