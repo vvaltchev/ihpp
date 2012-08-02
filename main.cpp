@@ -41,7 +41,7 @@ using namespace std;
 #include "tracingFuncs.h"
 
 
-VOID blockModeBlockTrace(TracingObject<ADDRINT> *to) { 
+VOID interModeBlockTrace(TracingObject<ADDRINT> *to) { 
 
 	ihppThreadContextClass *ctx;
 	BasicBlock *bb = static_cast<BasicBlock*>(to);
@@ -207,13 +207,13 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 		}
 
 
-		if (ctx->WorkingMode() == BlockMode)
+		if (ctx->WorkingMode() == WM_InterProcMode)
 			BBL_InsertCall(bbl, 
-								IPOINT_BEFORE, AFUNPTR(blockModeBlockTrace), 
+								IPOINT_BEFORE, AFUNPTR(interModeBlockTrace), 
 								IARG_PTR, bb, 
 								IARG_END);		
 
-		if (ctx->WorkingMode() == IntraMode)
+		if (ctx->WorkingMode() == WM_IntraMode)
 			BBL_InsertCall(bbl, 
 								IPOINT_BEFORE, AFUNPTR(intraModeBlockTrace), 
 								IARG_CALL_ORDER, CALL_ORDER_LAST, 
@@ -264,7 +264,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 
 	for( INS ins = RTN_InsHead(rtn); INS_Valid(ins); ins = INS_Next(ins) ) {
 						
-		if (ctx->WorkingMode() != BlockMode)
+		if (ctx->WorkingMode() != WM_InterProcMode)
 			insInstrumentation(rtn, ins);			
 
 		if (!ctx->options.blocksDisasm && !ctx->options.funcsDisasm)
@@ -383,7 +383,7 @@ void ImageLoad(IMG img, void *) {
 
 			ctx->funcAddrsToTrace.insert(funcAddr);
 				
-			if (ctx->WorkingMode() != BlockMode)
+			if (ctx->WorkingMode() != WM_InterProcMode)
 			{	
 				RTN_Open(rtn);
 				RTN_InsertCall(rtn, IPOINT_BEFORE, AFUNPTR(FunctionObjTrace), 
@@ -473,7 +473,7 @@ int main(int argc, char ** argv) {
 	globalSharedContext->OutFile.open(optionsClass::getOutfileName());
     
 
-	if (globalSharedContext->WorkingMode() != FuncMode) {
+	if (globalSharedContext->WorkingMode() != WM_FuncMode) {
 		TRACE_AddInstrumentFunction(BlockTraceInstrumentation, 0);
 	}
 

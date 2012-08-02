@@ -73,12 +73,12 @@ public:
 	
 	PIN_THREAD_UID threadID;
 	
-	//BlockMode and FuncMode properies
+	//WM_InterProcMode and WM_FuncMode properies
 
 	ihppNode *treeTop;
 	ihppNode *treeBottom;
 
-	//FuncMode properties
+	//WM_FuncMode properties
 
 #if ENABLE_INS_TRACING
 	ADDRINT jumpTargetFuncAddr;
@@ -106,7 +106,7 @@ public:
 	ADDRINT startFuncAddr;
 	ADDRINT stopFuncAddr;
 
-	//IntraMode properties
+	//WM_IntraMode properties
 	map<ADDRINT, ihppIntraModeContext*> intraModeContexts;
 
 	//Methods

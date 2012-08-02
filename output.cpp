@@ -270,7 +270,7 @@ void printContextInfo(ihppContextClass *globalCtx, ihppAbstractContext *ctx) {
 
 void printThreadContextInfo(ihppContextClass *globalCtx, ihppThreadContextClass *ctx) 
 {
-	if (globalCtx->WorkingMode() == FuncMode || globalCtx->WorkingMode() == BlockMode) {
+	if (globalCtx->WorkingMode() == WM_FuncMode || globalCtx->WorkingMode() == WM_InterProcMode) {
 	
 		printContextInfo(globalCtx, ctx);
 		return;
@@ -574,7 +574,7 @@ void print_outputInit() {
 			ctx->OutFile << "K value: INFINITE" << endl;
 		}
 
-		if (ctx->WorkingMode() != FuncMode) {
+		if (ctx->WorkingMode() != WM_FuncMode) {
 	
 			ctx->OutFile << "Basic blocks count: " << ctx->allBlocks.size() << endl;
 
@@ -936,7 +936,7 @@ void Fini(INT32 code, void *)
 
 	if (ctx->options.joinThreads) {
 	
-		if (ctx->WorkingMode() != IntraMode)
+		if (ctx->WorkingMode() != WM_IntraMode)
 			blockFuncMode_joinThreads(ctx);
 		else
 			intraMode_joinThreads(ctx);

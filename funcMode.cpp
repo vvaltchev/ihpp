@@ -161,7 +161,7 @@ void funcMode_ret()
 		else
 			break;
 
-		if (globalCtx->WorkingMode() == IntraMode)
+		if (globalCtx->WorkingMode() == WM_IntraMode)
 			intraMode_ret();
 	}
 
@@ -185,7 +185,7 @@ void funcMode_ret()
 
 function_end:
 
-	if (globalCtx->WorkingMode() == IntraMode)
+	if (globalCtx->WorkingMode() == WM_IntraMode)
 		intraMode_ret();
 
 	ctx->setCurrentFunction(ctx->shadowStack.top().treeTop->getValue()->getKey());

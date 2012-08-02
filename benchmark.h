@@ -26,7 +26,7 @@
 	#define __BM_CURR_TH		(globalSharedContext->getThreadCtx(__BM_GET_THREAD))
 	#define __BM_GET_FUNC		(useCurrFunc ? __BM_CURR_TH->getCurrentFunction() : __benchmarkFunc)
 	#define __BM_CURR_FUNC		(__BM_CURR_TH->getFunctionCtx(__BM_GET_FUNC))
-	#define __BM_INTRAMODE		(globalSharedContext->WorkingMode() == IntraMode)
+	#define __BM_INTRAMODE		(globalSharedContext->WorkingMode() == WM_IntraMode)
 
 
 #else

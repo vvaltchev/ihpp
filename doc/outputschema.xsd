@@ -5,7 +5,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="funcMode"/>
       <xs:enumeration value="intraMode"/>
-      <xs:enumeration value="blockMode"/>
+      <xs:enumeration value="interMode"/>
     </xs:restriction>
   </xs:simpleType>
 
