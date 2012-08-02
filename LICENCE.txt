@@ -20,7 +20,7 @@
 		Irene Finocchi (finocchi@di.uniroma1.it)
 		Donatella Firmani (firmani@dis.uniroma1.it)
 	
-	Sapienza University of Rome
+	Universita' degli studi di Roma "La Sapienza"
 
 
     ============================================================================

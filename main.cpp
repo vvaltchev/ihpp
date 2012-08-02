@@ -19,7 +19,7 @@
 			Irene Finocchi (finocchi@di.uniroma1.it)
 			Donatella Firmani (firmani@dis.uniroma1.it)
 	
-		Sapienza University of Rome
+		Universita' degli studi di Roma "La Sapienza"
 
 
     ============================================================================
@@ -30,12 +30,11 @@
 
 #define MAIN_IHPP_MODULE
 
+using namespace std;
+
 #include "config.h"
 #include "debug.h"
 #include "ihpp.h"
-
-using namespace std;
-
 #include "benchmark.h"
 #include "output.h"
 

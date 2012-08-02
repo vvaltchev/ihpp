@@ -3,13 +3,12 @@
 #include "config.h"
 #include "debug.h"
 #include "ihpp.h"
+#include "benchmark.h"
+#include "output.h"
+#include "tracingFuncs.h"
 
 using namespace std;
 
-#include "benchmark.h"
-#include "output.h"
-
-#include "tracingFuncs.h"
 
 #define TRADMODE_LOAD_TOP_BOTTOM()					treeTop = tradCtx->shadowStack.top().treeTop; treeBottom = tradCtx->shadowStack.top().treeBottom; 
 
