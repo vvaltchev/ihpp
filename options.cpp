@@ -26,10 +26,9 @@ static KNOB<bool> experimental(KNOB_MODE_WRITEONCE, "pintool", "experimental", "
 
 
 //working modes options
-static KNOB<bool> opt_funcMode(KNOB_MODE_WRITEONCE, "pintool", "funcMode", "0", "");
-static KNOB<bool> opt_interMode(KNOB_MODE_WRITEONCE, "pintool", "interMode", "0", "");
-static KNOB<bool> opt_intraMode(KNOB_MODE_WRITEONCE, "pintool", "intraMode", "0", "");
-
+static KNOB<bool> opt_funcMode(KNOB_MODE_WRITEONCE, "pintool", "funcMode", "0", "");        //0
+static KNOB<bool> opt_intraMode(KNOB_MODE_WRITEONCE, "pintool", "intraMode", "0", "");      //1
+static KNOB<bool> opt_interProcMode(KNOB_MODE_WRITEONCE, "pintool", "interMode", "0", "");  //2
 
 static KNOB<bool> showCalls(KNOB_MODE_WRITEONCE, "pintool", "showCalls", "0", "");
 static KNOB<bool> showBlocks(KNOB_MODE_WRITEONCE, "pintool", "showBlocks", "0", "");
@@ -74,7 +73,7 @@ WorkingModeType optionsClass::getGlobalWM() {
 	if (::opt_intraMode.Value())
 		return WM_IntraMode;
 
-	if (::opt_interMode.Value())
+	if (::opt_interProcMode.Value())
 		return WM_InterProcMode;
 
 	return WM_FuncMode;
@@ -114,9 +113,9 @@ void optionsClass::showHelp()
 	cout << "\t\t\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] [ -xml ] <SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
 	
 	cout << "\nWorking modes: " << endl;
-	cout << "\t -funcMode (procedure-level profiling)" << endl;
-	cout << "\t -intraMode (intra-procedural basic block profiling)" << endl;
-	cout << "\t -interMode (inter-procedural basic block profiling)" << endl;
+	cout << "\t -funcMode : procedure-level profiling [ default mode ]" << endl;
+	cout << "\t -intraMode : intra-procedural basic block profiling" << endl;
+	cout << "\t -interMode : inter-procedural basic block profiling" << endl;
 	
 	cout << "\nShow options:\n";
 	cout << "\t-ksf: shows the k-Slab Forest" << endl;
@@ -136,9 +135,9 @@ void optionsClass::showHelp()
 
 bool optionsClass::checkOptions() 
 {
-	if ((  opt_funcMode.Value() && (opt_interMode.Value() || opt_intraMode.Value())  ) ||
-		(  opt_interMode.Value() && (opt_funcMode.Value() || opt_intraMode.Value())  ) ||
-		(  opt_intraMode.Value() && (opt_interMode.Value() || opt_funcMode.Value())  )) 
+	if ((  opt_funcMode.Value() && (opt_interProcMode.Value() || opt_intraMode.Value())  ) ||
+		(  opt_interProcMode.Value() && (opt_funcMode.Value() || opt_intraMode.Value())  ) ||
+		(  opt_intraMode.Value() && (opt_interProcMode.Value() || opt_funcMode.Value())  )) 
 	{
 
 		optionsClass::showHelp();
@@ -178,7 +177,7 @@ bool optionsClass::checkOptions()
 		return false;
 	}
 
-	if (::kinf.Value() && ::opt_interMode.Value()) {
+	if (::kinf.Value() && ::opt_interProcMode.Value()) {
 	
 		cerr << "-kinf option can't be used with -interMode.\n";
 		return false;
