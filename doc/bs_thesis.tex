@@ -112,20 +112,47 @@ werwerwekr h jwekj rhwk jrhwk rhwl kjrh k kqhe qe wrkjehr r hk rhj
 
 \chapter{Program analysis}
 
-Program analysis is the process of analyzing the behavior of computer programs\footnote{Program analysis: \url{http://en.wikipedia.org/wiki/Program_analysis}}.
+Program analysis is the process of analyzing the behavior of computer programs\footnote{Program analysis: \url{http://en.wikipedia.org/wiki/Program_analysis}}. Main applications of program analysis are \emph{program correctness checking} and \emph{program optimization}.
 There are two main approaches in program analysis: static and dynamic analysis.
 The main difference between them is that in \emph{static} analysis nothing is executed: the analysis
-is made only by observing the program source code or the compiled program instructions. Instead, the \emph{dynamic} program analysis is based on executing the program and ``watching'' what exactly is it doing, even in real time if possible.
+is conducted only by observing the program source code or the compiled program instructions. Instead, the \emph{dynamic} program analysis is based on executing the program and observing what is it doing, even in real time if possible.
 
 \section{Static analysis}
 
-Static analysis can be made either by hand or by using another program.
+Static analysis can be done either by hand or by using another program. Information obtained by static analysis can be used in many ways, from highlighting possible coding errors to application of formal methods that mathematically prove the correctness of algorithms used or, in the general case, some properties. It's necessary to say, even if this isn't the right context, that, as 
+theoretical computer science proved, there is no way to prove the absolute correctness of every program because of the halting problem\footnote{The halting problem: \url{http://en.wikipedia.org/wiki/Halting_problem}}.
+By the way, there are a lot of methods that give us estimated solutions with a good level of reliability. We can mention four ways of doing static program
+analysis\footnote{\url{http://en.wikipedia.org/wiki/Static_program_analysis}}:
 
+
+\begin{description}
+\item[Model checking] considers systems that have finite state or may be reduced to finite state by abstraction
+\item[Data-flow analysis] is a lattice-based technique for gathering information about the possible set of values
+\item[Abstract interpretation] models the effect that every statement has on the state of an abstract machine (i.e., it 'executes' the software based on the mathematical properties of each statement and declaration)
+\item[Use of assertions] in program code as first suggested by Hoare logic\footnote{Hoare logic: \url{http://en.wikipedia.org/wiki/Hoare_logic}}
+\end{description}
+
+A more in deep explanation of these approaches goes too far away from the purpose of this paper.
 
 \section{Dynamic analysis}
 
-\subsection{The profiling}
+Dynamic program analysis is substantially done by executing the \emph{target program} in a sort of ``controlled environment''.
+This description is so vague because there a lot of very different ways of doing this type of analysis as there are different objectives that who does the analysis wants to achieve. For example, it can be done in order to trace memory allocations (and discover memory leaks), to discover race conditions, memory corruption, security vulnerabilities and in general to do a \emph{performance analysis}, also known as \textbf{profiling}. We refer as \emph{profiling} when the final goal of the work is to improve the program  \emph{performance} and not, for example, to improve program \emph{correctness}. So, a memory analysis is always a dynamic analysis but isn't always a form of \emph{profiling}.
 
+\subsection{The profiling}
+The profiling is probably the most common form of dynamic program analysis and it's goal is, as just said, to analyze the performance of a program: the \emph{performance} can be the amount of memory used, the frequency of certain instructions, the frequency and/or the time consumption of some \emph{procedures} / \emph{basic blocks} inside certain procedures. Let's focus our attention on the last kind of profilers, we can classify them in two ways: according to the type of output and according to the method of data acquisition. Using the first classification rule, we get:
+
+\begin{description}
+\item[Flat profilers] \hfill \\
+Profilers belonging to this kind count the number of function calls and/or average cpu time used by each function without keeping trace of the calling context of the function.
+\item[Call-graph profilers] \hfill \\
+These profilers do the same things that flat profilers do but they keep trace of the \emph{calling context} of a function or in the case of IHPP, also the \emph{``calling'' context} of the basic blocks (this will be explained in details later).
+
+\end{description}
+
+\begin{flushleft}
+Facendo la suddivisione per metodo di acquisizione otteniamo:
+\end{flushleft}
 
 
 \chapter{The Approach: An Intraprocedural Hot Path Profiler}
@@ -136,7 +163,7 @@ Static analysis can be made either by hand or by using another program.
 \chapter{The implementation}
 
 
-\chapter{Evalutation: Case studies}
+\chapter{Evaluation: Case studies}
 
 
 \chapter{Conclusions}
