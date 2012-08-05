@@ -12,6 +12,7 @@
 \usepackage{xcolor,graphicx}
 \usepackage{mdwlist}
 \usepackage{fix-cm}
+\usepackage{array}
 
 \hypersetup{
     colorlinks,
@@ -45,15 +46,25 @@
 {\huge\textsc{Facolt\`a di Ingegneria}\\[40pt]} 
 
 {\large Tesi di laurea in: \\}
-{\LARGE\textsc{Ingegneria Informatica}\\[50pt]}
+{\LARGE\textsc{Ingegneria Informatica}\\[30pt]}
 
-{\large Docente relatore: \\}
-{\large Prof. Camil Demetrescu\\[40pt]}
+{\LARGE \textbf{IHPP}\\[10pt]\textit{An \textbf{I}ntraprocedural \textbf{H}ot \textbf{P}ath \textbf{P}rofiler}}\\[50pt]
 
-{\large Candidato: \\}
-{\large \textbf{Vladislav K. Valtchev}\\[10pt]}
 
-{\large Matricola: 1250595\\[80pt]}
+\begin{tabular*}{0.9\textwidth}{@{\extracolsep{\fill}} @{} c @{} c @{} }
+{\normalsize Docente relatore: } & {\normalsize Candidato:}\\
+{\large \textit{Prof. Camil Demetrescu} } & {\large \textit{Vladislav K. Valtchev}}\\
+\end{tabular*}
+
+\mbox{}\\[90pt]
+
+%{\large Docente relatore: \\}
+%{\large Prof. Camil Demetrescu\\[40pt]}
+
+%{\large Candidato: \\}
+%{\large \textbf{Vladislav K. Valtchev}\\[10pt]}
+
+%{\large Matricola: 1250595\\[40pt]}
 {\large Anno accademico: 2011/2012\\}
 
 
@@ -72,7 +83,7 @@
 
 \fontsize{70}{90}\selectfont \textbf{IHPP}\\
 \fontsize{20}{35}\selectfont
-\textit{An Intraprocedural Hot Path Profiler}\\
+\textit{An \textbf{I}ntraprocedural \textbf{H}ot \textbf{P}ath \textbf{P}rofiler}\\
 
 \vspace{11cm}
 
@@ -122,7 +133,7 @@ There are a lot of profilers types today and a discrete number of profilers per 
 Even if it isn't too difficult to collect data with infinite context which is called ``building a \textbf{CCT}'' \emph{(calling context tree)}, this is practically useless because it grows too much specially due to function recursions: it is often too big to be physically stored and copied simply and it's too big to be human understandable. 
 So, in the last years researches in theoretical computer science from all the world have proposed different approaches for building \textbf{k-levels calling contexts}. IHPP, the project described in this paper, uses one of these approaches called \textbf{kCCF} (after explained).
 
-\section{Motivations}
+\section{Why building IHPP?}
 
 
 
