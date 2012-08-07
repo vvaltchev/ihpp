@@ -13,6 +13,9 @@
 \usepackage{mdwlist}
 \usepackage{fix-cm}
 \usepackage{array}
+\usepackage{tikz}
+
+\usetikzlibrary{arrows}
 
 \hypersetup{
     colorlinks,
@@ -145,8 +148,8 @@ For these great and innovative data structures and algorithms, the author warmly
 \section{Thesis structure}
 
 \chapter{Program analysis}
-
-%The short introduction of before used the concept of \emph{profiling} 
+The short introduction of before used the concept of \emph{profiling} without too many explanations. 
+Instead, the goal of this chapter is to explain a \emph{little more} about profiling contextualizing it in the more general concept of program analysis. This kind of \emph{scientific background} has an encyclopedic form and absolutely has no claim to be a good and an exhaustive coverage about the subject since it isn't the purpose of this paper.\\ 
 
 Program analysis is the process of analyzing the behavior of computer programs\footnote{Program analysis: \url{http://en.wikipedia.org/wiki/Program_analysis}}. Main applications of program analysis are \emph{program correctness checking} and \emph{program optimization}.
 There are two main approaches in program analysis: static and dynamic analysis.
@@ -181,19 +184,38 @@ The profiling is probably the most common form of dynamic program analysis and i
 \item[Flat profilers] \hfill \\
 This profilers count the number of function calls and/or average cpu time used by each function without keeping trace of the calling context of the function.
 \item[Call-graph profilers] \hfill \\
-These profilers do the same things flat profilers do but also produce in output the call-chains involved on the callee, which means that we know, at the end of the execution of the target program, for every function, say it \verb|f()|, which are the functions called by \verb|f()|, which functions are \verb|f()|'s callers and how many times each function called each other. With this information, as the category's name itself says, it's possible to draw a \emph{call-graph} like this:
+These profilers do the same things flat profilers do but also produce in output the call-chains involved on the callee, which means that we know, at the end of the execution of the target program, for every function, say it $f()$, which are the functions called by $f()$, which functions are $f()$'s callers and how many times each function called each other. With this information, as the category's name itself says, it's possible to draw a \emph{call-graph} like this:
 
-%%%%%%%%%%%%%%%%%
-%insert graph here
-%%%%%%%%%%%%%%%%%
+\begin{centering}
 
-but this is \emph{not} calling context profiling because, for example, we know that $a()$ called $b()$ 8 times and $a()$ was called 20 times, 5 by $x()$ and 15 by $y()$ but we \emph{don't know} how many times the distinct calling sequence 
-$x()\rightarrow a()\rightarrow b()$ occurred and how many times the other calling sequence $y()\rightarrow a()\rightarrow b()$ occurred.
+\begin{tikzpicture}
+[->,>=stealth',shorten >=1pt,
+node distance=1.5cm,
+minimum size=7mm,
+main node/.style={circle, draw, font=\itshape\large}]
+
+  \node[main node] (1) {x};
+  \node[main node] (3) [below right of = 1] {f};
+  \node[main node] (2) [above right of = 3] {y};
+  \node[main node] (4) [below of = 3] {b};
+
+  \path[every node/.style={font=\itshape\small}]
+    
+    (1) edge node [left] {5} (3)
+    (2) edge node [right] {15} (3)
+    (3) edge node [right] {8} (4);
+    
+\end{tikzpicture}
+
+\end{centering}
+
+but this is \emph{not} calling context profiling (which is what \textbf{IHPP} does) because, for example, we know that $f()$ called $b()$ 8 times and $f()$ was called 20 times, 5 by $x()$ and 15 by $y()$ but we \emph{don't know} how many times the distinct calling sequence 
+$x()\rightarrow f()\rightarrow b()$ occurred and how many times the other calling sequence $y()\rightarrow f()\rightarrow b()$ occurred.
 
 \end{description}
 
 \begin{flushleft}
-Instead, using the second classification method, we get:
+Instead, classifying profilers according to the method of data acquisition:
 \end{flushleft}
 
 
