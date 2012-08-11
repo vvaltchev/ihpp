@@ -14,6 +14,9 @@
 \usepackage{fix-cm}
 \usepackage{array}
 \usepackage{tikz}
+\usepackage{wrapfig}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usetikzlibrary{arrows}
 
@@ -284,9 +287,16 @@ the call-chains involved on the callee, which means that we know, at the end of
 the execution of the target program, for every function, say it $f()$, which are
 the functions called by $f()$, which functions are $f()$'s callers and how many
 times each function called each other. With this information, as the category's
-name itself says, it's possible to draw a \emph{call-graph} like this:
+name itself says, it's possible to draw a \emph{call-graph} like the one in
+figure~\ref{callgraph1}. But, this is \emph{not} calling context profiling (which is what \textbf{IHPP} does) because, for example, we know that $f()$ called $b()$ 8 times and $f()$
+was called 20 times, 5 by $x()$ and 15 by $y()$ but we \emph{don't know} how
+many times the distinct calling sequence $x()\rightarrow f()\rightarrow b()$
+occurred and how many times the other calling sequence $y()\rightarrow
+f()\rightarrow b()$ occurred.
 
-\begin{centering}
+\begin{figure}[!]
+
+\begin{center}
 
 \begin{tikzpicture}
 [->,>=stealth',shorten >=1pt,
@@ -307,14 +317,14 @@ main node/.style={circle, draw, font=\itshape\large}]
     
 \end{tikzpicture}
 
-\end{centering}
+\end{center}
 
-but this is \emph{not} calling context profiling (which is what \textbf{IHPP}
-does) because, for example, we know that $f()$ called $b()$ 8 times and $f()$
-was called 20 times, 5 by $x()$ and 15 by $y()$ but we \emph{don't know} how
-many times the distinct calling sequence $x()\rightarrow f()\rightarrow b()$
-occurred and how many times the other calling sequence $y()\rightarrow
-f()\rightarrow b()$ occurred.
+\caption{A call graph}
+\label{callgraph1}
+
+\end{figure}
+
+
 
 \end{description}
 
@@ -412,10 +422,75 @@ which adopted this approach were IBM SIMMON and IBM OLIVER.
 Since IHPP uses new and not yet published\footnote{The conference \emph{(OOPSLA
 2012)} in which is going to be presented the work \emph{k-Calling Context
 Profiling} will be held in October 2012, as written here:
-\url{http://splashcon.org/2012/}} data structures like kSF and kCCF, an
+\mbox{\url{http://splashcon.org/2012/}}} data structures like kSF and kCCF, an
 explanation of these ones is \emph{strictly} necessary in this paper.
+Let's start with an example\footnote{This example, like some other ones in this chapter, was taken, for simplicity, from the article \emph{k-Calling Context Profiling}.}: 
 
+\begin{wrapfigure}[21]{l}{6cm}
+\begin{center}
+\begin{tabular}{r|l}
+\textbf{operation} & \textbf{current context} \\
+\hline
+start & $\langle$$\rangle$ \\
+call(r) & $\langle$r$\rangle$ \\
+call(a) & $\langle$r,a$\rangle$ \\
+call(b) & $\langle$r,a,b$\rangle$ \\
+return & $\langle$r,a$\rangle$ \\
+return & $\langle$r$\rangle$ \\
+call(c) & $\langle$r,c$\rangle$ \\
+call(a) & $\langle$r,c,a$\rangle$ \\
+call(b) & $\langle$r,c,a,b$\rangle$ \\
+return & $\langle$r,c,a$\rangle$ \\
+call(b) & $\langle$r,c,a,b$\rangle$ \\
+return & $\langle$r,c,a$\rangle$ \\
+return & $\langle$r,c$\rangle$ \\
+return & $\langle$r$\rangle$ \\
+return & $\langle$$\rangle$ \\
+%\hline
 
+\end{tabular}
+\caption{an execution trace}
+\label{callex1}
+\end{center}
+\end{wrapfigure}
+
+\mbox{}\\ \mbox{}\\
+The figure on the left is an execution trace of a very simple imaginary program; on its right part a very important information is shown: the current \emph{calling context}. 
+Here is finally possible to continue the talk about context-sensitive profiling started before: instead of counting the number of activations of a function (which is called \emph{vertex profiling}), in context-sensitive profiling we count the number of activations of a \emph{path}. A path can have an arbitrary length, let's call it $k$, so a $k$-path will be a path of length $k$. A \emph{\mbox{$k$-(calling)} context} is a path containing the last $k$ elements of a calling context or, more formally, it's the maximal suffix of a calling context of length \emph{at most} $k$.
+An important disambiguation note is necessary: in figure~\ref{callex1} it's reported the calling context \emph{after} call/return operations instead, the last definition uses the proper meaning of calling \emph{context}: the last function call doesn't belong to its context so, for example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$ and \emph{not} $\langle\rangle$.
+Now, let's see, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the execution trace shown in figure~\ref{callex1}:
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{c|c|c}
+\textbf{k value} & \textbf{k-context} & \textbf{activation counter}\\
+\hline
+0 & $\langle$r$\rangle$* & 1\\
+0 & $\langle$a$\rangle$ & 2\\
+0 & $\langle$b$\rangle$ & 3\\
+0 & $\langle$c$\rangle$ & 2\\
+\hline
+1 & $\langle$r,a$\rangle$* & 1\\
+1 & $\langle$a,b$\rangle$ & 3\\
+1 & $\langle$a,c$\rangle$ & 1\\
+1 & $\langle$r,c$\rangle$* & 1\\
+1 & $\langle$c,a$\rangle$ & 1\\
+\hline
+2 & $\langle$r,a,b$\rangle$* & 1\\
+2 & $\langle$r,a,c$\rangle$* & 1\\
+2 & $\langle$r,c,a$\rangle$* & 1\\
+2 & $\langle$c,a,b$\rangle$ & 2\\
+\hline
+3 & $\langle$r,c,a,b$\rangle$* & 2\\
+
+\end{tabular}
+\end{center}
+\caption{$k$-contexts for various values of $k$}
+\end{figure}
+
+%A simple consideration can be made: some contexts (the ones market with *) are full-contexts, other ones aren't.
+
+Note: contexts marketed with (*) are \emph{full}-contexts.
 
 \chapter{An Intraprocedural Hot Path Profiler}
 

@@ -1,0 +1,15 @@
+
+
+ - data la ex. trace, ecco il CCT, la struttura ben nota
+ - immaginiamo una ex. trace reale con ricorsione, CCT sarebbe immenso
+ - allora conviene non avere tutto il CCT, quindi tutto il contesto, ma solo una parte
+   e vedere quante volte viene attivata: contesto a k-livelli
+ - esempio del caso con k=0, k=1, k=2 e k=3
+
+ - nota: questo significa che se contiamo le attivazioni di un contesto a k livelli, per esempio
+   k=2, (r,a,b) e (r,c,a,b) sono identiche.
+
+ - cosa ne viene fuori? una kCCF: una foresta perche' non possiamo risalire all'unica radice,
+   al contrario perche' partiamo dalle foglie
+
+ - come costruirla? usando la struttura dati kSF e il suo algoritmo
