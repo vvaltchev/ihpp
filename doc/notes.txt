@@ -1,15 +1,13 @@
 
 
- - data la ex. trace, ecco il CCT, la struttura ben nota
- - immaginiamo una ex. trace reale con ricorsione, CCT sarebbe immenso
- - allora conviene non avere tutto il CCT, quindi tutto il contesto, ma solo una parte
-   e vedere quante volte viene attivata: contesto a k-livelli
- - esempio del caso con k=0, k=1, k=2 e k=3
+ - data la ex. trace, ecco i vari k-context possibili.
+ - un valore basso di k non fornisce informazioni sul "contesto" nel quale sono 
+   avvenute le attivazioni: (c,a,b) e (r,a,b) solo uguali.
+ - un valore alto di k e' fuorviante.
 
- - nota: questo significa che se contiamo le attivazioni di un contesto a k livelli, per esempio
-   k=2, (r,a,b) e (r,c,a,b) sono identiche.
+ - ora, ipotizziamo di avere tutti i k-context per k=2 per esempio.
+ - quale struttura dati li conterebbe? di certo non il "calling context tree" (CCT)
+   il quale, come possiamo vedere dalla fig. xx e' un albero e per forza ha come radice "r".
 
- - cosa ne viene fuori? una kCCF: una foresta perche' non possiamo risalire all'unica radice,
-   al contrario perche' partiamo dalle foglie
-
- - come costruirla? usando la struttura dati kSF e il suo algoritmo
+ - siccome ci occupiamo di k-contesti, allora possiamo partire dalle foglie e non dalla radice e 
+   formare un albero per ogni foglia: in questo modo formeremmo una kCCF.

@@ -455,7 +455,7 @@ return & $\langle$$\rangle$ \\
 
 \mbox{}\\ \mbox{}\\
 The figure on the left is an execution trace of a very simple imaginary program; on its right part a very important information is shown: the current \emph{calling context}. 
-Here is finally possible to continue the talk about context-sensitive profiling started before: instead of counting the number of activations of a function (which is called \emph{vertex profiling}), in context-sensitive profiling we count the number of activations of a \emph{path}. A path can have an arbitrary length, let's call it $k$, so a $k$-path will be a path of length $k$. A \emph{\mbox{$k$-(calling)} context} is a path containing the last $k$ elements of a calling context or, more formally, it's the maximal suffix of a calling context of length \emph{at most} $k$.
+Here is finally possible to continue the talk about context-sensitive profiling started in chapter 1: instead of counting the number of activations of a function (which is called \emph{vertex profiling}), in context-sensitive profiling we count the number of activations of a \emph{path}. A path can have an arbitrary length, let's call it $k$, so a $k$-path will be a path of length $k$. A \emph{\mbox{$k$-(calling)} context} is a path containing the last $k$ elements of a calling context or, more formally, it's the maximal suffix of a calling context of length \emph{at most} $k$.
 An important disambiguation note is necessary: in figure~\ref{callex1} it's reported the calling context \emph{after} call/return operations instead, the last definition uses the proper meaning of calling \emph{context}: the last function call doesn't belong to its context so, for example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$ and \emph{not} $\langle\rangle$.
 Now, let's see, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the execution trace shown in figure~\ref{callex1}:
 
@@ -484,12 +484,58 @@ Now, let's see, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the
 
 \end{tabular}
 \end{center}
-\caption{$k$-contexts for various values of $k$}
+\caption{$k$-contexts for various values of $k$.
+Note: contexts marketed with (*) are \emph{full} calling contexts.}
 \end{figure}
 
-%A simple consideration can be made: some contexts (the ones market with *) are full-contexts, other ones aren't.
+As we can see, for various values of the $k$ parameter there are more or less $k$-contexts with different activation counter values: for $k=0$ they are, simply, the number of times each function is called. This example is too simple to show that but, in general, as $k$ grows, more context information is added but counter values decrease and, for relatively big values of $k$, information made become too specific for any sort analysis so, it's a profiler's user task to choose the \emph{right} $k$-value.\\
+Of course, it's simply to understand that having all $k$-contexts of program run in such ``tabular'' form isn't the best that we can obtain: we can see which paths are the \emph{hottest} but something like a \emph{tree} would be much better. 
+A well-known data structure used in program analysis which can help us is CCT, which stands for \emph{Calling Context Tree}.
 
-Note: contexts marketed with (*) are \emph{full}-contexts.
+\begin{figure}[t]
+
+\begin{center}
+\scalebox{0.8}{
+\begin{tikzpicture}
+[node distance=1.8cm,
+%minimum size=7mm, 
+%scale=3,
+main node/.style={circle, draw, font=\itshape\large}]
+
+  \node[main node] (1) {r,1};
+  \node[main node] (2) [below right of = 1] {c,1};
+  \node[main node] (3) [below left of = 1] {a,1};
+  \node[main node] (4) [below left of = 3] {b,1};
+  \node[main node] (5) [below right of = 3] {c,1};
+  \node[main node] (6) [below of = 2] {a,1};
+  \node[main node] (7) [below of = 6] {b,2};
+
+  \path[every node/.style={font=\itshape\small}]
+ 
+	(1) edge node {} (2)
+	(1) edge node {} (3)
+	(3) edge node {} (4)
+	(3) edge node {} (5)
+	(2) edge node {} (6)
+	(6) edge node {} (7)
+   ;
+
+    
+\end{tikzpicture}
+}
+\end{center}
+
+\caption{The CCT of figure~\ref{callex1}}
+\label{cct1}
+
+\end{figure}
+
+dasd a ahdsa ks hsja   lkjahsjad hd ahkdj askjhd akjhdakjh adad
+dhsjaf skjf akjhsd asjdh q kjahd akjh askjh a hakhd kah kahd kahda
+dhf sdhf kjhsf khf kjhsdgsdjgfsdj hs kj  skjfakjhd kasjh kjahd kajh 
+dasd a ahdsa ks hsja   lkjahsjad hd ahkdj askjhd akjhdakjh adad
+dhsjaf skjf akjhsd asjdh q kjahd akjh askjh a hakhd kah kahd kahda
+dhf sdhf kjhsf khf kjhsdgsdjgfsdj hs kj  skjfakjhd kasjh kjahd kajh 
 
 
 \chapter{An Intraprocedural Hot Path Profiler}
