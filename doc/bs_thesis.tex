@@ -16,6 +16,7 @@
 \usepackage{tikz}
 \usepackage{wrapfig}
 
+\usepackage{cite}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usetikzlibrary{arrows}
@@ -198,7 +199,7 @@ For these great and innovative data structures and algorithms, the author warmly
 thanks \emph{Giorgio Ausiello}, \emph{Camil Demetrescu}, \emph{Irene Finocchi}
 and \emph{Donatella Firmani}, professors at the \emph{Sapienza University of
 Rome}\footnote{Officially, \textbf{Universit\`a degli studi di Roma ``La
-Sapienza''}}. Their work, called \emph{\mbox{k-Calling Context Profiling}}, has
+Sapienza''}}. Their work, called \emph{\mbox{k-Calling Context Profiling}~\cite{kCCF}}, has
 been accepted for the \emph{27th \mbox{ACM SIGPLAN} Conference on
 Object-Oriented Programming, Systems, Languages and Applications (OOPSLA 2012)}.
 
@@ -234,8 +235,7 @@ mathematically prove some required properties of the algorithms used. It's
 necessary to say, even if this isn't the right context, that, as the work of
 Turing, G\"{o}del and Church proved, there is no way to prove the absolute
 correctness of an arbitrary program because of the \emph{halting
-problem}\footnote{The halting problem:
-\url{http://en.wikipedia.org/wiki/Halting_problem}}.
+problem}~\cite{Turing01}.
 By the way, there are a lot of methods that give us estimated solutions with a
 good level of reliability. We can mention four ways of doing static program
 analysis\footnote{\url{http://en.wikipedia.org/wiki/Static_program_analysis}}:
@@ -248,7 +248,7 @@ analysis\footnote{\url{http://en.wikipedia.org/wiki/Static_program_analysis}}:
 state of an abstract machine (i.e., it 'executes' the software based on the
 mathematical properties of each statement and declaration)
 \item[Use of assertions] in program code as first suggested by Hoare
-logic\footnote{Hoare logic: \url{http://en.wikipedia.org/wiki/Hoare_logic}}
+logic~\cite{Hoare01}
 \end{description}
 
 A more in deep explanation of these approaches goes too far away from the purpose of this paper.
@@ -419,12 +419,11 @@ which adopted this approach were IBM SIMMON and IBM OLIVER.
 \end{description}
 
 \chapter{Algorithms and data structures in IHPP}
-Since IHPP uses new and not yet published\footnote{The conference \emph{(OOPSLA
-2012)} in which is going to be presented the work \emph{k-Calling Context
-Profiling} will be held in October 2012, as written here:
+Since IHPP uses new and not yet published\footnote{The conference in which will be presented the work \emph{k-Calling Context
+Profiling}~\cite{kCCF} will be held in October 2012, as written here:
 \mbox{\url{http://splashcon.org/2012/}}} data structures like kSF and kCCF, an
 explanation of these ones is \emph{strictly} necessary in this paper.
-Let's start with an example\footnote{This example, like some other ones in this chapter, was taken, for simplicity, from the article \emph{k-Calling Context Profiling}.}: 
+Let's start with an example\footnote{This example, like some other ones in this chapter, was taken, for simplicity, from the article \emph{k-Calling Context Profiling}~\cite{kCCF}.}: 
 
 \begin{wrapfigure}[21]{l}{6cm}
 \begin{center}
@@ -492,6 +491,7 @@ Now, let's see, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the
 
 Note: contexts marketed with (*) are \emph{full}-contexts.
 
+
 \chapter{An Intraprocedural Hot Path Profiler}
 
 \chapter{The implementation}
@@ -500,9 +500,12 @@ IHPP is a profiler written in C++ and \emph{technically} it's a \emph{plug-in}
 for the tool \textbf{Pin} developed by \textbf{Intel}; in the specific slang,
 plug-ins for Pin like this one are called \emph{pintools}.
 
-\chapter{Evaluation: Case studies}
+\chapter{Case studies}
 
 
 \chapter{Conclusions}
+
+\bibliography{bibliography}{}
+\bibliographystyle{plain}
 
 \end{document}
