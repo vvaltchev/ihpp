@@ -120,14 +120,14 @@ In a world like today's one where computers are everywhere and where
 \mbox{Internet} has more than 2.2 billion users, software has become more
 important than ever. Today's operating systems have to handle much more
 processes than in the past and every single process is often much more ``heavy''
-than before due to a lot of reasons including (but not limited to): users'
-demand for much more complicated tasks (for example the multimedia related
+than before due a great deal of reasons including (but not limited to): the demand of users
+ for much more complicated tasks (for example the multimedia related
 ones), the intensive use of software layers by the programmers, the use of
-high-level interpreted languages and many others..
-So, even if hardware's performance is still growing following Moore's law and
-today's computers are thousands times faster than before, they still to be
+high-level interpreted languages and many others.
+Thus, even if performance of hardware is still growing following Moore's law and
+actual computers are thousands times faster than before, they still to be
 ``slow'' sometimes and software still needs to be analyzed and optimized.
-One way of analyzing programs' performance is \textbf{profiling}: it consists
+One way of analyzing performance of programs is \textbf{profiling}: it consists
 substantially in running the target program in a controlled environment and
 collecting data about its behavior in order to discover possible bottlenecks in
 software.
@@ -136,7 +136,7 @@ be found in chapter 2.
 
 \section{Actual profilers}
 
-There are a lot of profiler types today and a discrete number of profilers for
+There are many profiler types today and a discrete number of profilers for
 each category (as readers can see in the next chapter). But, \emph{most of them}
 have two things in common:
 
@@ -175,7 +175,7 @@ procedure-profiling to study the execution flow of basic blocks \emph{inside}
 the functions. This sometimes it is really useful when there's a bottleneck in
 the algorithm used for solving a problem: the programmer already knows which are
 the \emph{slow functions} but he still doesn't understand \emph{where exactly}
-is the problem. Imagine functions with 3 loop levels and lots of conditional
+is the problem. Imagine functions with 3 loop levels and many conditional
 statements: it isn't trivial to understand where the problem is, neither to
 solve it. But, even if a profiler \emph{will not} tell the programmer \emph{how}
 to solve the problem, it will tell \emph{quickly} where is it, which is much
@@ -215,10 +215,8 @@ absolutely has no claim to be a good and an exhaustive coverage about the
 subject since it isn't the purpose of this paper.\\
 
 Program analysis is the process of analyzing the behavior of computer
-programs\footnote{Program analysis:
-\url{http://en.wikipedia.org/wiki/Program_analysis}}. Main applications of
-program analysis are \emph{program correctness checking} and \emph{program
-optimization}.
+programs. Main applications of program analysis are 
+\emph{program correctness checking} and \emph{program optimization}.
 There are two main approaches in program analysis: static and dynamic analysis.
 The main difference between them is that in \emph{static} analysis nothing is
 executed: the analysis is conducted only by observing the program source code or
@@ -236,9 +234,9 @@ necessary to say, even if this isn't the right context, that, as the work of
 Turing, G\"{o}del and Church proved, there is no way to prove the absolute
 correctness of an arbitrary program because of the \emph{halting
 problem}~\cite{Turing01}.
-By the way, there are a lot of methods that give us estimated solutions with a
+By the way, there are many methods that give us estimated solutions with a
 good level of reliability. We can mention four ways of doing static program
-analysis\footnote{\url{http://en.wikipedia.org/wiki/Static_program_analysis}}:
+analysis:
 
 
 \begin{description}
@@ -257,7 +255,7 @@ A more in deep explanation of these approaches goes too far away from the purpos
 
 Dynamic program analysis is substantially done by executing the \emph{target
 program} in a sort of ``controlled environment''.
-This description is so vague because there a lot of very different ways of doing
+This description is so vague because there many different ways of doing
 this type of analysis as there are different objectives that who does the
 analysis wants to achieve. For example, it can be done in order to trace memory
 allocations (and discover memory leaks), to discover race conditions, memory
@@ -374,7 +372,7 @@ statements in certain locations. For example, it's possible to add profiling
 statements at the beginning of a set of procedures and before every their
 \verb|return| statement: this method of collecting data allows building function
 call-graphs, call context trees and much more; also, this method can be very
-reliable but it requires a lot of work.
+reliable but it requires a considerable amount of work.
 
 \item[Automatic source level] This approach is very similar to the last one but
 differs from it in the fact that profiling statements are added automatically by
@@ -455,7 +453,7 @@ return & $\langle$$\rangle$ \\
 
 \mbox{}\\ \mbox{}\\
 The figure on the left is an execution trace of a very simple imaginary program; on its right part a very important information is shown: the current \emph{calling context}. 
-Here is finally possible to continue the talk about context-sensitive profiling started in chapter 1: instead of counting the number of activations of a function (which is called \emph{vertex profiling}), in context-sensitive profiling we count the number of activations of a \emph{path}. A path can have an arbitrary length, let's call it $k$, so a $k$-path will be a path of length $k$. A \emph{\mbox{$k$-(calling)} context} is a path containing the last $k$ elements of a calling context or, more formally, it's the maximal suffix of a calling context of length \emph{at most} $k$.
+Here it's possible to continue the talk about context-sensitive profiling started in chapter 1: instead of counting the number of activations of a function (which is called \emph{vertex profiling}), in context-sensitive profiling we count the number of activations of a \emph{path}. A path can have an arbitrary length, let's call it $k$, so a $k$-path will be a path of length $k$. A \emph{\mbox{$k$-(calling)} context} is a path containing the last $k$ elements of a calling context or, more formally, it's the maximal suffix of a calling context of length \emph{at most} $k$.
 An important disambiguation note is necessary: in figure~\ref{callex1} it's reported the calling context \emph{after} call/return operations instead, the last definition uses the proper meaning of calling \emph{context}: the last function call doesn't belong to its context so, for example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$ and \emph{not} $\langle\rangle$.
 Now, let's see, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the execution trace shown in figure~\ref{callex1}:
 
@@ -488,9 +486,13 @@ Now, let's see, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the
 Note: contexts marketed with (*) are \emph{full} calling contexts.}
 \end{figure}
 
-As we can see, for various values of the $k$ parameter there are more or less $k$-contexts with different activation counter values: for $k=0$ they are, simply, the number of times each function is called. This example is too simple to show that but, in general, as $k$ grows, more context information is added but counter values decrease and, for relatively big values of $k$, information made become too specific for any sort analysis so, it's a profiler's user task to choose the \emph{right} $k$-value.\\
-Of course, it's simply to understand that having all $k$-contexts of program run in such ``tabular'' form isn't the best that we can obtain: we can see which paths are the \emph{hottest} but something like a \emph{tree} would be much better. 
-A well-known data structure used in program analysis which can help us is CCT, which stands for \emph{Calling Context Tree}.
+As we can see, for various values of the $k$ parameter there are more or less $k$-contexts with different activation counter values: for $k=0$ they are, simply, the number of times each function is called. This example is too simple to show that but, in general, as $k$ grows, more context information is added but counter values decrease and, for relatively big values of $k$, information made become too specific for any sort analysis so, it is a profiler's user task to choose the \emph{right} $k$-value.
+
+Now, the problem is how to get (in terms of algorithms and data structures) all $k$-contexts 
+of a program run for a given value of $k$: a well-known solution is to build a CCT
+(\emph{Calling Context Tree}) ``observing'' the execution flow of the program.
+The CCT of the execution trace considered until now is shown in figure~\ref{cct1}.
+
 
 \begin{figure}[t]
 
@@ -525,10 +527,14 @@ main node/.style={circle, draw, font=\itshape\large}]
 }
 \end{center}
 
-\caption{The CCT of figure~\ref{callex1}}
+\caption{The CCT of figure~\ref{callex1}. Nodes are labeled in this way: function name, counter.}
 \label{cct1}
 
 \end{figure}
+
+
+
+
 
 dasd a ahdsa ks hsja   lkjahsjad hd ahkdj askjhd akjhdakjh adad
 dhsjaf skjf akjhsd asjdh q kjahd akjh askjh a hakhd kah kahd kahda
