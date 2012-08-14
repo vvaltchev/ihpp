@@ -15,8 +15,10 @@
 \usepackage{array}
 \usepackage{tikz}
 \usepackage{wrapfig}
-
+\usepackage{listings}
 \usepackage{cite}
+%\usepackage{beramono}
+\usepackage[lighttt]{lmodern}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usetikzlibrary{arrows}
@@ -28,6 +30,15 @@
     linkcolor=black,
     urlcolor=black
 }
+
+\lstset{
+language=java,
+basicstyle=\ttfamily\small, 
+basewidth=0.5em,
+tabsize=4,
+keywordstyle=\bfseries,
+}
+
 
 %in order to make the analytical index
 %\usepackage{makeidx}
@@ -159,8 +170,8 @@ it isn't enough.
 Even if it isn't too difficult to collect data with full context (infinite
 levels) which is called ``building a \textbf{CCT}'' \emph{(calling context
 tree)}, this is practically useless because it grows too much specially due to
-functions recursion: the CCT is often too big to be physically stored and copied
-simply and it's too big to be human understandable.
+functions recursion~\cite{kccf}: the CCT is often too big to be physically stored and copied
+simply and it is too big to be human-analyzable.
 So, in the last years a few researches in theoretical computer science had
 proposed different approaches for collecting \textbf{k-levels context-sensitive}
 data. IHPP, the project described in this paper, uses one of these approaches
@@ -199,7 +210,7 @@ For these great and innovative data structures and algorithms, the author warmly
 thanks \emph{Giorgio Ausiello}, \emph{Camil Demetrescu}, \emph{Irene Finocchi}
 and \emph{Donatella Firmani}, professors at the \emph{Sapienza University of
 Rome}\footnote{Officially, \textbf{Universit\`a degli studi di Roma ``La
-Sapienza''}}. Their work, called \emph{\mbox{k-Calling Context Profiling}~\cite{kCCF}}, has
+Sapienza''}}. Their work, called \emph{\mbox{k-Calling Context Profiling}}, has
 been accepted for the \emph{27th \mbox{ACM SIGPLAN} Conference on
 Object-Oriented Programming, Systems, Languages and Applications (OOPSLA 2012)}.
 
@@ -492,6 +503,10 @@ Now, the problem is how to get (in terms of algorithms and data structures) all 
 of a program run for a given value of $k$: a well-known solution is to build a CCT
 (\emph{Calling Context Tree}) ``observing'' the execution flow of the program.
 The CCT of the execution trace considered until now is shown in figure~\ref{cct1}.
+It is self-evident that the CCT contains all $k$-contexts for all values of $k$ even if 
+it can be not obvious how a CCT is build or how $k$-calling contexts are extracted from it.
+
+A simple algorithm for building a CCT is:
 
 
 \begin{figure}[t]
@@ -531,6 +546,34 @@ main node/.style={circle, draw, font=\itshape\large}]
 \label{cct1}
 
 \end{figure}
+\begin{lstlisting}[language=java, morekeywords={function,then},frame=leftline,framesep=10pt]
+
+node treeRoot=null,currentNode=null;
+
+function func_call_event_handler(funcT func):
+
+	if (currentNode == null) then 	
+		currentNode = new node(func,1) 
+		treeRoot=currentNode
+		return
+
+	node temp = currentNode.findNodeByFuncInChildren(func)
+
+	if (temp == null) then
+		temp = new node(func,1)
+		currentNode.addChildren(temp)
+	else
+		temp.incrementCounter()
+
+	currentNode=temp
+
+function func_ret_event_handler(funcT func):
+
+	assert(currentNode.func == func)
+	if (currentNode.getParent() != null) then
+		currentNode=currentNode.getParent()
+
+\end{lstlisting}
 
 
 
