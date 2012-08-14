@@ -1,4 +1,4 @@
-
+\listfiles
 \documentclass[a4paper,11pt]{report}
 
 \author{Vladislav K. Valtchev} 
@@ -17,11 +17,10 @@
 \usepackage{wrapfig}
 \usepackage{listings}
 \usepackage{cite}
-%\usepackage{beramono}
 \usepackage[lighttt]{lmodern}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usetikzlibrary{arrows}
+\usetikzlibrary{arrows,graphs,trees}
 
 \hypersetup{
     colorlinks,
@@ -32,11 +31,11 @@
 }
 
 \lstset{
-language=java,
-basicstyle=\ttfamily\small, 
-basewidth=0.5em,
-tabsize=4,
-keywordstyle=\bfseries,
+	language=java,
+	basicstyle=\ttfamily\small, 
+	basewidth=0.5em,
+	tabsize=4,
+	keywordstyle=\bfseries
 }
 
 
@@ -175,7 +174,7 @@ simply and it is too big to be human-analyzable.
 So, in the last years a few researches in theoretical computer science had
 proposed different approaches for collecting \textbf{k-levels context-sensitive}
 data. IHPP, the project described in this paper, uses one of these approaches
-called \textbf{kCCF} (after explained).
+called \textbf{$k$-CCF} (after explained).
 
 \section{Motivations}
 
@@ -198,11 +197,11 @@ In order to collect k-level context-sensitive data, IHPP uses some data
 structures and algorithms that \emph{haven't been} ideated by the author:
 
 \begin{itemize*}
-\item kSF \emph{(k-Slab Forest)}
-\item kSF construction algorithm\footnote{This algorithm is used in the \textbf{traceObject()} function}
-\item kCCF \emph{(k-Calling Context Forest)}
+\item k-SF \emph{(k-Slab Forest)}
+\item k-SF construction algorithm\footnote{This algorithm is used in the \textbf{traceObject()} function}
+\item k-CCF \emph{(k-Calling Context Forest)}
 \item Forest join and inversion operations\footnote{These two operations should
-be intended as \emph{theoretical} operations: concrete algorithms have been
+be intended as \emph{theoretical} operations: in IHPP concrete algorithms have been
 developed by the author}
 \end{itemize*}
 
@@ -223,7 +222,7 @@ Instead, the goal of this chapter is to explain a \emph{little more} about
 profiling contextualizing it in the more general concept of program analysis.
 This kind of \emph{scientific background} has an encyclopedic form and
 absolutely has no claim to be a good and an exhaustive coverage about the
-subject since it isn't the purpose of this paper.\\
+subject since it isn't the purpose of this paper.
 
 Program analysis is the process of analyzing the behavior of computer
 programs. Main applications of program analysis are 
@@ -303,7 +302,7 @@ many times the distinct calling sequence $x()\rightarrow f()\rightarrow b()$
 occurred and how many times the other calling sequence $y()\rightarrow
 f()\rightarrow b()$ occurred.
 
-\begin{figure}[!]
+\begin{figure}
 
 \begin{center}
 
@@ -429,10 +428,10 @@ which adopted this approach were IBM SIMMON and IBM OLIVER.
 
 \chapter{Algorithms and data structures in IHPP}
 Since IHPP uses new and not yet published\footnote{The conference in which will be presented the work \emph{k-Calling Context
-Profiling}~\cite{kCCF} will be held in October 2012, as written here:
+Profiling}~\cite{kccf} will be held in October 2012, as written here:
 \mbox{\url{http://splashcon.org/2012/}}} data structures like kSF and kCCF, an
 explanation of these ones is \emph{strictly} necessary in this paper.
-Let's start with an example\footnote{This example, like some other ones in this chapter, was taken, for simplicity, from the article \emph{k-Calling Context Profiling}~\cite{kCCF}.}: 
+Let's start with an example\footnote{This example, like some other ones in this chapter, was taken, for simplicity, from the article \emph{k-Calling Context Profiling}~\cite{kccf}.}: 
 
 \begin{wrapfigure}[21]{l}{6cm}
 \begin{center}
@@ -502,6 +501,9 @@ As we can see, for various values of the $k$ parameter there are more or less $k
 Now, the problem is how to get (in terms of algorithms and data structures) all $k$-contexts 
 of a program run for a given value of $k$: a well-known solution is to build a CCT
 (\emph{Calling Context Tree}) ``observing'' the execution flow of the program.
+
+\section{The Calling Context Tree}
+
 The CCT of the execution trace considered until now is shown in figure~\ref{cct1}.
 It is self-evident that the CCT contains all $k$-contexts for all values of $k$ even if 
 it can be not obvious how a CCT is build or how $k$-calling contexts are extracted from it.
@@ -548,9 +550,9 @@ main node/.style={circle, draw, font=\itshape\large}]
 \end{figure}
 \begin{lstlisting}[language=java, morekeywords={function,then},frame=leftline,framesep=10pt]
 
-node treeRoot=null,currentNode=null;
+node treeRoot=null,currentNode=null
 
-function func_call_event_handler(funcT func):
+function func_call_event_handler(funcType func):
 
 	if (currentNode == null) then 	
 		currentNode = new node(func,1) 
@@ -567,24 +569,85 @@ function func_call_event_handler(funcT func):
 
 	currentNode=temp
 
-function func_ret_event_handler(funcT func):
+function func_ret_event_handler():
 
-	assert(currentNode.func == func)
 	if (currentNode.getParent() != null) then
 		currentNode=currentNode.getParent()
 
 \end{lstlisting}
 
+The above code should be self-explaining due to its Java-like style.
+The algorithm for extracting $k$-contexts from a CCT is a little more articulated 
+and its pseudo-code will not be shown here but the idea is: given a CCT and a node $n$ of it, it is possible to get the $k$-context of $n$ taking the first (or at most) $k$ nodes from the path which joins $n$ with the root node; doing this for every node and summing counters of all identical paths is enough for collecting all $k$-contexts of a CCT.
+
+\section{The k-Calling Context Forest}
+
+As proved in \emph{k-Calling Context Profiling}~\cite{kccf}, building (and handling) a CCT for a relatively long running program is impractical and often useless.
+A much better data structure for handling $k$-contexts is \emph{$k$-CCF}: 
+the idea on which it is based is to have a \emph{forest} formed by 
+a tree (of at most $k$ levels) \emph{for each} function. 
+
+\begin{figure}[h]
+
+\begin{center}
+
+\begin{tikzpicture}[level distance=2.0cm,
+  level 1/.style={sibling distance=1.5cm},
+  level 2/.style={sibling distance=1.5cm},
+  main node/.style={circle,draw,font=\small}]
+  
+
+  \node[main node] at (0, 0) {r,1};
+
+  \node[main node] at (2.5, 0) {a,2} 
+    child {
+	   node[main node] {r,1}
+    }
+	child {
+		node[main node] {c,1}
+		child { node[main node]{r,1} }
+	};
+
+
+  \node[main node] at (5.2, 0) {b,3}
+  child {
+		node[main node] {a,3}
+		child { 
+			node[main node] {r,1}
+		}
+		child {
+			node[main node] {c,2}
+			child { node[main node] {r,2} }
+		}
+  };
+
+  \node[main node] at (7.8, 0) {c,2}
+  child {
+		node[main node] {a,1}
+		child { node[main node]{r,1} }
+  }
+  child { node[main node] {r,1} };
+
+  \draw [rounded corners=15pt] (-2.5,-1) rectangle (9.4,1);
+  \draw [rounded corners=15pt] (-2.5,-3) rectangle (9.4,1);
+  \draw [rounded corners=15pt] (-2.5,-5) rectangle (9.4,1);
+  \draw [rounded corners=15pt] (-2.5,-7) rectangle (9.4,1);
+
+  \node at (-1.5,0) {$0$-CCF};
+  \node at (-1.5,-2) {$1$-CCF};
+  \node at (-1.5,-4) {$2$-CCF};
+  \node at (-0.2,-6) {$3$-CCF = $4$-CCF = ...};
+
+\end{tikzpicture}
 
 
 
+\end{center}
 
-dasd a ahdsa ks hsja   lkjahsjad hd ahkdj askjhd akjhdakjh adad
-dhsjaf skjf akjhsd asjdh q kjahd akjh askjh a hakhd kah kahd kahda
-dhf sdhf kjhsf khf kjhsdgsdjgfsdj hs kj  skjfakjhd kasjh kjahd kajh 
-dasd a ahdsa ks hsja   lkjahsjad hd ahkdj askjhd akjhdakjh adad
-dhsjaf skjf akjhsd asjdh q kjahd akjh askjh a hakhd kah kahd kahda
-dhf sdhf kjhsf khf kjhsdgsdjgfsdj hs kj  skjfakjhd kasjh kjahd kajh 
+\caption{}
+\label{kccf1}
+
+\end{figure}
 
 
 \chapter{An Intraprocedural Hot Path Profiler}
