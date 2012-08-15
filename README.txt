@@ -13,7 +13,8 @@ are based on the theoretical research of:
 
 Giorgio Ausiello, Camil Demetrescu, Irene Finocchi, Donatella Firmani
 	
-Universita' degli studi di Roma "La Sapienza"
+Sapienza University of Rome
+[ Universita' degli studi di Roma "La Sapienza" ]
 
 
 
