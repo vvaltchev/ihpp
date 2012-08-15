@@ -462,8 +462,25 @@ return & $\langle$$\rangle$ \\
 
 \mbox{}\\ \mbox{}\\
 The figure on the left is an execution trace of a very simple imaginary program; on its right part a very important information is shown: the current \emph{calling context}. 
-Here it is possible to continue the talk about context-sensitive profiling started in chapter 1: instead of counting the number of activations of a function (which is called \emph{vertex profiling}), in context-sensitive profiling we count the number of activations of a \emph{path}. A path can have an arbitrary length, let it be $k$, so a $k$-path will be a path of length $k$. A \emph{\mbox{$k$-(calling)} context} is a path containing the last $k$ elements of a calling context or, more formally, it is the maximal suffix of a calling context of length \emph{at most} $k$.
-An important disambiguation note is necessary: in figure~\ref{callex1} it is reported the calling context \emph{after} call/return operations instead, the last definition uses the proper meaning of calling \emph{context}: the last function call doesn't belong to its context so, for example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$ and \emph{not} $\langle\rangle$.
+%
+Here it is possible to continue the talk about context-sensitive profiling started in chapter 1: instead of counting the number of activations of a function (which is called \emph{vertex profiling}), in context-sensitive profiling we count the number of activations of a \emph{path}. In order to clearly explain this concept, some formal definitions are 
+necessary.
+
+\textbf{Definition 1}: \emph{$k$-calling context}~\cite{kccf}. 
+Let $\pi = \langle r,...,v\rangle$ be a calling context of $v$. The k-calling context of $v$
+in $\pi$ is the maximal suffix of $\pi$ of length at most $k+1$.
+
+For example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$ and \emph{not} $\langle\rangle$.
+
+\textbf{Definition 2}: \emph{Path activation}~\cite{kccf}. 
+A path $\pi$ of length $q$ in the call graph of the program is activated by 
+a \texttt{\textbf{call(}}$v$\texttt{\textbf{)}}
+operation if $\pi$ is the $q$-context of $v$ resulting from the \texttt{\textbf{call}} operation.
+
+\textbf{Definition 3}: \emph{$k$-calling context profiling}~\cite{kccf}. Given a trace
+of \texttt{\textbf{call}} and \texttt{\textbf{return}} operations, the $k$-(calling) context
+profiling problem consists of computing, for each activated path $\pi$ of length $q\le k$, the number $c(\pi)$ of times $\pi$ is activated.
+
 Now, let's see, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the execution trace shown in figure~\ref{callex1}:
 
 \begin{figure}[h]
@@ -513,32 +530,24 @@ A simple algorithm for building a CCT is:
 \begin{figure}[t]
 
 \begin{center}
-\scalebox{0.8}{
-\begin{tikzpicture}
-[node distance=1.8cm,
-%minimum size=7mm, 
-%scale=3,
-main node/.style={circle, draw, font=\itshape\large}]
+\scalebox{0.9}{
+\begin{tikzpicture}[level distance=1.4cm,
+  level 1/.style={sibling distance=2.3cm},
+  level 2/.style={sibling distance=1.3cm},
+  main node/.style={circle,draw,font=\small}]
 
-  \node[main node] (1) {r,1};
-  \node[main node] (2) [below right of = 1] {c,1};
-  \node[main node] (3) [below left of = 1] {a,1};
-  \node[main node] (4) [below left of = 3] {b,1};
-  \node[main node] (5) [below right of = 3] {c,1};
-  \node[main node] (6) [below of = 2] {a,1};
-  \node[main node] (7) [below of = 6] {b,2};
+\node[main node] {r,1}
+	child { node[main node] {a,1}
+		child { node[main node] {b,1} }
+		child { node[main node] {c,1} }
+	}
+	child { node[main node] {c,1} 
+		child { node[main node] {a,1}
+			child { node[main node] {b,2} }
+		}
+	};
 
-  \path[every node/.style={font=\itshape\small}]
- 
-	(1) edge node {} (2)
-	(1) edge node {} (3)
-	(3) edge node {} (4)
-	(3) edge node {} (5)
-	(2) edge node {} (6)
-	(6) edge node {} (7)
-   ;
 
-    
 \end{tikzpicture}
 }
 \end{center}
@@ -650,6 +659,131 @@ The interpretation of fig.~\ref{kccf1} is simple: for $k=0$ there is no context
 information and only one node per function is present; its counter shows the number of times that function has been called during the program execution. For $k=1$, every function has as children its callers, for example, $a()$ has been called $2$ times: 1 by $r()$ and 1 by $c()$. This reasoning can be extended for greater values of $k$ with the remark that 
 there is always a maximum $k$-value which produces a full context-sensitive information 
 (in this example, that value of $k$ is $3$): greater values of $k$ have no effect on the output. 
+
+\subsection{The join operation}
+
+\textbf{Definition 4} \emph{Tree join}~\cite{kccf}. 
+The join of two labeled trees $T_1$ and $T_2$, denoted as 
+\texttt{\textbf{join(}}$T_1$\texttt{\textbf{,}}$T_2$\texttt{\textbf{)}}, 
+is the minimal labeled forest $F$ such that $F$ contains a root-label path $\pi$ if and 
+only if $T_1$ or $T_2$ contain $\pi$.
+
+\begin{figure}[h]
+
+\begin{center}
+\scalebox{0.9}{
+
+\begin{tikzpicture}[level distance=1.5cm,
+  level 1/.style={sibling distance=1.5cm},
+  level 2/.style={sibling distance=1.5cm},
+  main node/.style={circle,draw,font=\small}]
+  
+  \node[main node] at (0,0) {a,2}
+  child { 
+		node[main node] {b,1}
+		child {node[main node] {c,5}}
+		child {node[main node] {d,4}}
+  };
+
+  \node[main node] at (3, 0) {a,1}
+  child {
+		node[main node] {b,1}
+		child {node[main node] {d,3}}
+  }
+  child {
+		node[main node] {c,6}
+  };
+
+  \node[main node] at (8, 0) {a,3}
+  child {
+		node[main node] {b,2}
+		child {node[main node] {c,5}}
+		child {node[main node] {d,7}}
+  }
+  child {node[main node] {c,6}};
+
+  \node at (1.5, -4.5) { (a) $T_1$ and $T_2$ };
+  \node at (8, -4.5) { (b) join($T_1$,$T_2$) };
+
+\end{tikzpicture}
+}
+\end{center}
+
+\caption{An example of the tree-join operation}
+\label{join1}
+\end{figure}
+
+\subsection{The formal definition of k-CCF}
+
+asdj askjd lkajd lkadj lkqdj lkad akda hda hakdj hakjhdaskjh akjf
+fsdhjf ksdhf skjhf kjah kahd kahd kahjd kahjd kqhjqkhje kashj 
+adhadk hadkas dkjha skdhja kdhja kdhja dkjhad kjahd kah kahd.
+
+\section{The k-Slab Forest}
+
+\begin{lstlisting}[language=java, 
+			morekeywords={function,then,endif},
+			frame=leftline,framesep=10pt]
+
+set R
+stack S
+forest kSF
+node top=null,bottom=null
+
+function init:
+	S.push( (null,null) )
+
+function func_call_event_handler(funcType func):
+
+	(top,bottom) = S.top()
+	
+	if ( ( (S.size()-1) mod k ) == 0 ) then
+		bottom=top
+		node temp = R.find( func )
+
+		if (temp == null) then:
+			node n2 = new node( func, 0 )
+			kSF.addTree(n2)
+			R.add(n2)
+			top=n2
+		else
+			top = temp
+		endif
+
+	else
+
+		node temp = top.findNodeByFuncInChildren( func )
+
+		if (temp == null) then
+			temp = new node( func, 0 )
+			top.addChildren( temp )
+		endif
+
+		top = temp
+
+	
+	top.incrementCounter()
+
+	if (bottom != null) then
+		
+		node temp = bottom.findNodeByFuncInChildren( func )
+		
+		if (temp == null) then
+			temp = new node( func, 0 )
+			bottom.addChildren( temp )
+		endif
+
+		bottom = temp
+		bottom.incrementCounter()
+
+	endif
+
+	S.push( (top, bottom) )
+
+function func_ret_event_handler():
+	S.pop()
+
+\end{lstlisting}
 
 \chapter{An Intraprocedural Hot Path Profiler}
 
