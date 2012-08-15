@@ -429,8 +429,7 @@ which adopted this approach were IBM SIMMON and IBM OLIVER.
 \chapter{Algorithms and data structures in IHPP}
 Since IHPP uses new and not yet published\footnote{The conference in which will be presented the work \emph{k-Calling Context
 Profiling}~\cite{kccf} will be held in October 2012, as written here:
-\mbox{\url{http://splashcon.org/2012/}}} data structures like kSF and kCCF, an
-explanation of these ones is \emph{strictly} necessary in this paper.
+\mbox{\url{http://splashcon.org/2012/}}} data structures like $k$-SF and $k$-CCF, at least a basilar explanation of these ones is \emph{strictly} necessary in this paper.
 Let's start with an example\footnote{This example, like some other ones in this chapter, was taken, for simplicity, from the article \emph{k-Calling Context Profiling}~\cite{kccf}.}: 
 
 \begin{wrapfigure}[21]{l}{6cm}
@@ -463,8 +462,8 @@ return & $\langle$$\rangle$ \\
 
 \mbox{}\\ \mbox{}\\
 The figure on the left is an execution trace of a very simple imaginary program; on its right part a very important information is shown: the current \emph{calling context}. 
-Here it's possible to continue the talk about context-sensitive profiling started in chapter 1: instead of counting the number of activations of a function (which is called \emph{vertex profiling}), in context-sensitive profiling we count the number of activations of a \emph{path}. A path can have an arbitrary length, let's call it $k$, so a $k$-path will be a path of length $k$. A \emph{\mbox{$k$-(calling)} context} is a path containing the last $k$ elements of a calling context or, more formally, it's the maximal suffix of a calling context of length \emph{at most} $k$.
-An important disambiguation note is necessary: in figure~\ref{callex1} it's reported the calling context \emph{after} call/return operations instead, the last definition uses the proper meaning of calling \emph{context}: the last function call doesn't belong to its context so, for example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$ and \emph{not} $\langle\rangle$.
+Here it is possible to continue the talk about context-sensitive profiling started in chapter 1: instead of counting the number of activations of a function (which is called \emph{vertex profiling}), in context-sensitive profiling we count the number of activations of a \emph{path}. A path can have an arbitrary length, let it be $k$, so a $k$-path will be a path of length $k$. A \emph{\mbox{$k$-(calling)} context} is a path containing the last $k$ elements of a calling context or, more formally, it is the maximal suffix of a calling context of length \emph{at most} $k$.
+An important disambiguation note is necessary: in figure~\ref{callex1} it is reported the calling context \emph{after} call/return operations instead, the last definition uses the proper meaning of calling \emph{context}: the last function call doesn't belong to its context so, for example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$ and \emph{not} $\langle\rangle$.
 Now, let's see, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the execution trace shown in figure~\ref{callex1}:
 
 \begin{figure}[h]
@@ -506,7 +505,7 @@ of a program run for a given value of $k$: a well-known solution is to build a C
 
 The CCT of the execution trace considered until now is shown in figure~\ref{cct1}.
 It is self-evident that the CCT contains all $k$-contexts for all values of $k$ even if 
-it can be not obvious how a CCT is build or how $k$-calling contexts are extracted from it.
+it can be not obvious how a CCT is build or how $k$-calling contexts can be extracted from it.
 
 A simple algorithm for building a CCT is:
 
@@ -648,17 +647,17 @@ a tree (of at most $k$ levels) \emph{for each} function.
 \end{figure}
 
 The interpretation of fig.~\ref{kccf1} is simple: for $k=0$ there is no context
-information and only one node per function is present; its counter shows the number of times that function has been called during the program execution. For $k=1$, every function has as children its callers for example, $a()$ has been called $2$ times: 1 by $r()$ and 1 by $c()$. This reasoning can be extended for greater values of $k$ with the remark that 
-there is always a maximum-$k$ which produces a full context-sensitive information 
-(in this example, that value of $k$ is $3$): greater values of $k$ have no effect on the output.
+information and only one node per function is present; its counter shows the number of times that function has been called during the program execution. For $k=1$, every function has as children its callers, for example, $a()$ has been called $2$ times: 1 by $r()$ and 1 by $c()$. This reasoning can be extended for greater values of $k$ with the remark that 
+there is always a maximum $k$-value which produces a full context-sensitive information 
+(in this example, that value of $k$ is $3$): greater values of $k$ have no effect on the output. 
 
 \chapter{An Intraprocedural Hot Path Profiler}
 
 \chapter{The implementation}
 
 IHPP is a profiler written in C++ and \emph{technically} it's a \emph{plug-in}
-for the tool \textbf{Pin} developed by \textbf{Intel}; in the specific slang,
-plug-ins for Pin like this one are called \emph{pintools}.
+for the tool \textbf{Pin} developed by \textbf{Intel}; in the Pin-specific slang,
+plug-ins like IHPP are called \emph{pintools}.
 
 \chapter{Case studies}
 
