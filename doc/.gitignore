@@ -7,3 +7,6 @@
 
 *.fdb_latexmk
 /tmp
+/*.toc
+/*.bbl
+/*.blg
