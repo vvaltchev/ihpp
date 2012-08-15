@@ -590,7 +590,7 @@ a tree (of at most $k$ levels) \emph{for each} function.
 \begin{figure}[h]
 
 \begin{center}
-
+\scalebox{0.8}{
 \begin{tikzpicture}[level distance=2.0cm,
   level 1/.style={sibling distance=1.5cm},
   level 2/.style={sibling distance=1.5cm},
@@ -639,16 +639,18 @@ a tree (of at most $k$ levels) \emph{for each} function.
   \node at (-0.2,-6) {$3$-CCF = $4$-CCF = ...};
 
 \end{tikzpicture}
-
-
-
+}
 \end{center}
 
-\caption{}
+\caption{$k$-CCF relative to CCT in fig.~\ref{cct1} for various values of $k$.}
 \label{kccf1}
 
 \end{figure}
 
+The interpretation of fig.~\ref{kccf1} is simple: for $k=0$ there is no context
+information and only one node per function is present; its counter shows the number of times that function has been called during the program execution. For $k=1$, every function has as children its callers for example, $a()$ has been called $2$ times: 1 by $r()$ and 1 by $c()$. This reasoning can be extended for greater values of $k$ with the remark that 
+there is always a maximum-$k$ which produces a full context-sensitive information 
+(in this example, that value of $k$ is $3$): greater values of $k$ have no effect on the output.
 
 \chapter{An Intraprocedural Hot Path Profiler}
 
