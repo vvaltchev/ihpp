@@ -130,48 +130,46 @@ In a world like today's one where computers are everywhere and where
 \mbox{Internet} has more than 2.2 billion users, software has become more
 important than ever. Today's operating systems have to handle much more
 processes than in the past and every single process is often much more ``heavy''
-than before due a great deal of reasons including (but not limited to): the demand of users
- for much more complicated tasks (for example the multimedia related
-ones), the intensive use of software layers by the programmers, the use of
-high-level interpreted languages and many others.
-Thus, even if performance of hardware is still growing following Moore's law and
-actual computers are thousands times faster than before, they still to be
-``slow'' sometimes and software still needs to be analyzed and optimized.
-One way of analyzing performance of programs is \textbf{profiling}: it consists
-substantially in running the target program in a controlled environment and
-collecting data about its behavior in order to discover possible bottlenecks in
-software.
-A basilar introduction of program analysis and various profiling techniques can
-be found in chapter 2.
+than before due a great deal of reasons including (but not limited to): the
+demand of users for much more complicated tasks (for example the multimedia
+related ones), the intensive use of software layers by the programmers, the use
+of high-level interpreted languages and many others. Thus, even if performance
+of hardware is still growing following Moore's law and actual computers are
+thousands times faster than before, they still to be ``slow'' sometimes and
+software still needs to be analyzed and optimized. One way of analyzing
+performance of programs is \textbf{profiling}: it consists substantially in
+running the target program in a controlled environment and collecting data about
+its behavior in order to discover possible bottlenecks in software. A basilar
+introduction of program analysis and various profiling techniques can be found
+in chapter 2.
 
 \section{Actual profilers}
 
 There are many profiler types today and a discrete number of profilers for
 each category (as readers can see in the next chapter). But, \emph{most of them}
-have two things in common:
+have two characteristics in common:
 
 \begin{itemize*}
 
 \item They focus only on procedures: data such counters and timers are collected
-only on the procedure basis. This means that there's no way to understand what
+only on the procedure basis. This means that there is no way to understand what
 happened \emph{inside} the procedures which caused, for example, a bottleneck.
 
-\item Data has almost no \emph{calling context}, for example: we know that
-function \verb|a()| is called 10 times in our program, but we don't know who was
-the \emph{caller} of \verb|a()|. Some profilers like \textbf{Valgrind} can
-produce data with 2 levels of context: this means that we know that, for
-example, we know that \verb|a()| was called 10 times, 3 of them by function
+\item Data has almost no \emph{calling context}, for example: it is possible to know that
+a function \verb|a()| was called 10 times in a certain program, but it is not possible to know which were the \emph{callers} of \verb|a()|. Some profilers like \textbf{Valgrind} can
+produce data with 2 levels of context: this means it is possible to know, for
+example, that \verb|a()| was called 10 times, 3 of them by function
 \verb|b()| and 7 of them by function \verb|c()|. This is better, but sometimes
-it isn't enough.
+it is not enough.
 
 \end{itemize*}
 
-Even if it isn't too difficult to collect data with full context (infinite
+Even if it is not too difficult to collect data with full context (infinite
 levels) which is called ``building a \textbf{CCT}'' \emph{(calling context
 tree)}, this is practically useless because it grows too much specially due to
 functions recursion~\cite{kccf}: the CCT is often too big to be physically stored and copied
 simply and it is too big to be human-analyzable.
-So, in the last years a few researches in theoretical computer science had
+Thus, in the last years a few researches in theoretical computer science 
 proposed different approaches for collecting \textbf{k-levels context-sensitive}
 data. IHPP, the project described in this paper, uses one of these approaches
 called \textbf{$k$-CCF} (after explained).
@@ -180,13 +178,13 @@ called \textbf{$k$-CCF} (after explained).
 
 The aim of creation of IHPP was to make something that allows the study of
 function calls with an arbitrary number of calling contexts but also to go
-beyond the concept of procedure-only profiling: IHPP uses the same ideas of
+beyond the concept of procedure-only profiling: IHPP uses same ideas of
 procedure-profiling to study the execution flow of basic blocks \emph{inside}
-the functions. This sometimes it is really useful when there's a bottleneck in
+ functions. This sometimes can be really useful when there is a bottleneck in
 the algorithm used for solving a problem: the programmer already knows which are
-the \emph{slow functions} but he still doesn't understand \emph{where exactly}
-is the problem. Imagine functions with 3 loop levels and many conditional
-statements: it isn't trivial to understand where the problem is, neither to
+the \emph{slow functions} but he is still unaware of \emph{where exactly}
+the problem is. Imagine functions with 3 loop levels and many conditional
+statements: it is not trivial to understand where the problem is, neither to
 solve it. But, even if a profiler \emph{will not} tell the programmer \emph{how}
 to solve the problem, it will tell \emph{quickly} where is it, which is much
 better than nothing because it can save several hours of programmer's work.
@@ -194,7 +192,7 @@ better than nothing because it can save several hours of programmer's work.
 \section{Contributions}
 
 In order to collect k-level context-sensitive data, IHPP uses some data
-structures and algorithms that \emph{haven't been} ideated by the author:
+structures and algorithms that \emph{have not been} ideated by the author:
 
 \begin{itemize*}
 \item k-SF \emph{(k-Slab Forest)}
@@ -222,12 +220,12 @@ Instead, the goal of this chapter is to explain a \emph{little more} about
 profiling contextualizing it in the more general concept of program analysis.
 This kind of \emph{scientific background} has an encyclopedic form and
 absolutely has no claim to be a good and an exhaustive coverage about the
-subject since it isn't the purpose of this paper.
+subject since it is not the purpose of this paper.
 
 Program analysis is the process of analyzing the behavior of computer
 programs. Main applications of program analysis are 
 \emph{program correctness checking} and \emph{program optimization}.
-There are two main approaches in program analysis: static and dynamic analysis.
+There are two main approaches in program analysis: static analysis and dynamic analysis.
 The main difference between them is that in \emph{static} analysis nothing is
 executed: the analysis is conducted only by observing the program source code or
 the compiled program instructions. Instead, the \emph{dynamic} program analysis
@@ -239,9 +237,9 @@ time if possible.
 Static analysis can be done either by hand or by using another program.
 Information obtained by static analysis can be used in many ways, from
 highlighting possible coding errors to application of formal methods that
-mathematically prove some required properties of the algorithms used. It's
-necessary to say, even if this isn't the right context, that, as the work of
-Turing, G\"{o}del and Church proved, there is no way to prove the absolute
+mathematically prove some required properties of the algorithms used. It is
+necessary to say, even if this is not the right context, that, as the work of
+Alan Turing proved, there is no way to prove the absolute
 correctness of an arbitrary program because of the \emph{halting
 problem}~\cite{Turing01}.
 By the way, there are many methods that give us estimated solutions with a
@@ -263,44 +261,44 @@ A more in deep explanation of these approaches goes too far away from the purpos
 
 \section{Dynamic analysis}
 
-Dynamic program analysis is substantially done by executing the \emph{target
-program} in a sort of ``controlled environment''.
-This description is so vague because there many different ways of doing
+Dynamic program analysis is a form of analysis substantially based on the execution of the \emph{target program} in a sort of ``controlled environment''.
+This definition is a quite generic because there many different ways of doing
 this type of analysis as there are different objectives that who does the
 analysis wants to achieve. For example, it can be done in order to trace memory
 allocations (and discover memory leaks), to discover race conditions, memory
-corruption, security vulnerabilities and in general to do a \emph{performance
-analysis}, also known as \textbf{profiling}. We refer as \emph{profiling} when
+corruption, security vulnerabilities and also to do a \emph{performance
+analysis}, which is often called \textbf{profiling}. It is usual to refer as \emph{profiling} when
 the final goal of the work is to improve the program  \emph{performance} and
-not, for example, to improve program \emph{correctness}. So, a memory analysis
-is always a dynamic analysis but isn't always a form of \emph{profiling}.
+not, for example, to improve program \emph{correctness}: a memory analysis
+is always a dynamic analysis but is not always a form of \emph{profiling}.
 
 \subsection{The profiling}
 The profiling is probably the most common form of dynamic program analysis and
-it's goal is, as just said, to analyze the performance of a program: the
+its goal is, to analyze the performance of a program: the
 \emph{performance} can be the amount of memory used, the frequency of certain
 instructions, the frequency and/or the time consumption of some
-\emph{procedures} / \emph{basic blocks} inside certain procedures. Let's focus
-our attention on the last kind of profilers, we can classify them in two ways:
-according to the type of output and according to the method of data acquisition.
-Using the first classification rule, we get:
+\emph{procedures} / \emph{basic blocks} inside certain procedures. 
+It is interesting here to focus the attention on the last kind of profilers; 
+they can classified in two ways: according to the type of output and according to the method of data acquisition. Using the first classification rule, the following distinctions can be done:
 
 \begin{description}
 \item[Flat profilers] \hfill \\
-This profilers count the number of function calls and/or average cpu time used
+These profilers count the number of function calls and/or average cpu time used
 by each function without keeping trace of the calling context of the function.
 \item[Call-graph profilers] \hfill \\
 These profilers do the same things flat profilers do but also produce in output
-the call-chains involved on the callee, which means that we know, at the end of
-the execution of the target program, for every function, say it $f()$, which are
-the functions called by $f()$, which functions are $f()$'s callers and how many
-times each function called each other. With this information, as the category's
-name itself says, it's possible to draw a \emph{call-graph} like the one in
-figure~\ref{callgraph1}. But, this is \emph{not} calling context profiling (which is what \textbf{IHPP} does) because, for example, we know that $f()$ called $b()$ 8 times and $f()$
-was called 20 times, 5 by $x()$ and 15 by $y()$ but we \emph{don't know} how
-many times the distinct calling sequence $x()\rightarrow f()\rightarrow b()$
-occurred and how many times the other calling sequence $y()\rightarrow
-f()\rightarrow b()$ occurred.
+the call-chains involved on the callee, which means that it is possible to know,
+at the end of the execution of the target program, for every function, say it
+$f()$, which functions were called by $f()$, which functions were
+callers of $f()$ and how many times each function called each other. With this
+information, it is possible to draw a
+\emph{call-graph} like the one in figure~\ref{callgraph1}. But, this is
+\emph{not} calling context profiling (which is what \textbf{IHPP} does) because,
+for example, there is information such: $f()$ called $b()$ 8 times and $f()$ was called 20
+times, 5 by $x()$ and 15 by $y()$ but there is \emph{not info} about how many times the
+distinct calling sequence $x()\rightarrow f()\rightarrow b()$ occurred and how
+many times the other calling sequence $y()\rightarrow f()\rightarrow b()$
+occurred.
 
 \begin{figure}
 
@@ -345,7 +343,7 @@ Instead, classifying profilers according to the method of data acquisition:
 \item[Event-based profilers] \hfill \\
 Some high-level languages and frameworks have they ad-hoc profilers based on
 events. For example, \textbf{Java} has \textbf{JVMPI} \textit{(Java Virtual
-Machine Profiling Interface)}, while in \textbf{.NET} it's possible to attach a
+Machine Profiling Interface)}, while in \textbf{.NET} it is possible to attach a
 profiling agent as COM server to a .NET program using the \emph{Profiling APIs}.
 These profilers are called \emph{event-based} because statements (of the
 relative intermediate language) like function calls (or returns), object
@@ -356,7 +354,7 @@ to the high-level user event-handlers objects.
 \item[Statistical profilers] \hfill \\
 This kind of profilers work by \emph{sampling} at regular intervals the
 \emph{instruction pointer} of target program through \emph{software interrupts}.
-This approach, of course, doesn't produce numerically exact data, but allows the
+This approach, of course, produces numerically approximate data, but allows the
 program to run at near full speed. Common profilers of that kind are \textbf{AMD
 CodeAnalyst}, \textbf{Apple Shark}, \textbf{Intel VTune} and \textbf{Intel
 Parallel Amplifier}.
@@ -378,7 +376,7 @@ classified by the way they ``add instructions'' to the target program:
 \begin{description}
 \item[Manual]
 This approach consists in modifying target program source code adding additional
-statements in certain locations. For example, it's possible to add profiling
+statements in certain locations. For example, it is possible to add profiling
 statements at the beginning of a set of procedures and before every their
 \verb|return| statement: this method of collecting data allows building function
 call-graphs, call context trees and much more; also, this method can be very
@@ -390,9 +388,9 @@ a tool according to an instrumentation policy.
 
 \item[Compiler assisted] Using a \emph{complier assisted} instrumentation means
 that the source code remains intact and is the compiler the one who adds
-profiling instructions at compile time. A practical example is \verb|gcc| when
+profiling instructions at compile time. A practical example is the \verb|gcc| compiler when
 used with \verb|-pg| option: it produces an executable with profiling
-instructions but (in the specific case of gcc) they are executed only when the
+instructions but (in the specific case of \verb|gcc|) they are executed only when the
 target program is executed in \emph{profiling mode} by the specific tool
 \verb|gprof|.
 
@@ -411,7 +409,7 @@ project, so it will be explained in detail later.
 \item[Runtime injection] This technique is based on the same idea of the last
 one but it an a more \emph{lightweight} approach: substantially it consists of
 modifying the target program \emph{text} adding unconditional branch
-instructions to helper functions. The tool which does this work doesn't have the
+instructions to helper functions. The tool which does this work does not have the
 \emph{full control} of the target program but only partial. An example of tool
 which belongs to this category is \textbf{DynInst}.
 
@@ -421,7 +419,7 @@ which belongs to this category is \textbf{DynInst}.
 This type of profilers analyze the target program by executing it with no
 changes in a kind of \emph{virtual machine} which can have also some ad-hoc
 hardware support or it can work by literally emulating every single program
-instruction. This approach isn't very common today. Two historical softwares
+instruction. This approach is not unusual today. Two historical softwares
 which adopted this approach were IBM SIMMON and IBM OLIVER.
 
 \end{description}
