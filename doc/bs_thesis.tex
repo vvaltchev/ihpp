@@ -165,14 +165,12 @@ it is not enough.
 \end{itemize*}
 
 Even if it is not too difficult to collect data with full context (infinite
-levels) which is called ``building a \textbf{CCT}'' \emph{(calling context
-tree)}, this is practically useless because it grows too much specially due to
+levels) which is called ``building a CCT'' \emph{(calling context
+tree)}, this often is practically useless because it grows too much specially due to
 functions recursion~\cite{kccf}: the CCT is often too big to be physically stored and copied
 simply and it is too big to be human-analyzable.
 Thus, in the last years a few researches in theoretical computer science 
-proposed different approaches for collecting \textbf{k-levels context-sensitive}
-data. IHPP, the project described in this paper, uses one of these approaches
-called \textbf{$k$-CCF} (after explained).
+proposed different approaches for solving this problem and collecting \textbf{not fully context-sensitive} data. IHPP, the project described in this paper, uses one of these approaches called \textbf{$k$-CCF} (after explained).
 
 \section{Motivations}
 
@@ -427,13 +425,16 @@ which adopted this approach were IBM SIMMON and IBM OLIVER.
 \chapter{Algorithms and data structures in IHPP}
 Since IHPP uses new and not yet published\footnote{The conference in which will be presented the work \emph{k-Calling Context
 Profiling}~\cite{kccf} will be held in October 2012, as written here:
-\mbox{\url{http://splashcon.org/2012/}}} data structures like $k$-SF and $k$-CCF, at least a basilar explanation of these ones is \emph{strictly} necessary in this paper.
-Let's start with an example\footnote{This example, like some other ones in this chapter, was taken, for simplicity, from the article \emph{k-Calling Context Profiling}~\cite{kccf}.}: 
+\mbox{\url{http://splashcon.org/2012/}}} data structures like $k$-SF and $k$-CCF, at least a basilar explanation of these ones is \emph{strictly} necessary in this paper. 
+Note: in order to remove every possible ambiguity about these data structures, 
+formal definitions used in this chapter are literally taken from the original work.
 
-\begin{wrapfigure}[21]{l}{6cm}
+\begin{wrapfigure}[19]{l}{5.4cm}
 \begin{center}
+
+\scalebox{0.9}{
 \begin{tabular}{r|l}
-\textbf{operation} & \textbf{current context} \\
+\textbf{operation} & \textbf{curr. context} \\
 \hline
 start & $\langle$$\rangle$ \\
 call(r) & $\langle$r$\rangle$ \\
@@ -453,22 +454,21 @@ return & $\langle$$\rangle$ \\
 %\hline
 
 \end{tabular}
+}
+
 \caption{an execution trace}
 \label{callex1}
 \end{center}
 \end{wrapfigure}
-
-\mbox{}\\ \mbox{}\\
-The figure on the left is an execution trace of a very simple imaginary program; on its right part a very important information is shown: the current \emph{calling context}. 
-%
-Here it is possible to continue the talk about context-sensitive profiling started in chapter 1: instead of counting the number of activations of a function (which is called \emph{vertex profiling}), in context-sensitive profiling we count the number of activations of a \emph{path}. In order to clearly explain this concept, some formal definitions are 
-necessary.
+The figure~\ref{callex1} is an execution trace of a very simple imaginary program\footnote{This example, like some other ones in this chapter, was taken, for simplicity, from the article \emph{k-Calling Context Profiling}~\cite{kccf}.}; on its right part a very important information is shown: the current \emph{calling context}. 
+As mentioned in chapter 1, \emph{vertex profiling} consists of counting the number of calls of a function; context-sensitive profiling instead, consists of counting the number of activations of a \emph{path}. In order to clearly explain this concept, some formal definitions are necessary.
 
 \textbf{Definition 1}: \emph{$k$-calling context}~\cite{kccf}. 
 Let $\pi = \langle r,...,v\rangle$ be a calling context of $v$. The k-calling context of $v$
-in $\pi$ is the maximal suffix of $\pi$ of length at most $k+1$.
+in $\pi$ is the maximal suffix of $\pi$ of length at most $k+1$.\\
 
-For example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$ and \emph{not} $\langle\rangle$.
+For example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$.\\
+% and \emph{not} $\langle\rangle$.
 
 \textbf{Definition 2}: \emph{Path activation}~\cite{kccf}. 
 A path $\pi$ of length $q$ in the call graph of the program is activated by 
@@ -479,12 +479,12 @@ operation if $\pi$ is the $q$-context of $v$ resulting from the \texttt{\textbf{
 of \texttt{\textbf{call}} and \texttt{\textbf{return}} operations, the $k$-(calling) context
 profiling problem consists of computing, for each activated path $\pi$ of length $q\le k$, the number $c(\pi)$ of times $\pi$ is activated.
 
-Now, let's see, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the execution trace shown in figure~\ref{callex1}:
+The figure~\ref{kctx1} (below) shows, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the execution trace illustrated by figure~\ref{callex1}:
 
 \begin{figure}[h]
 \begin{center}
 \begin{tabular}{c|c|c}
-\textbf{k value} & \textbf{k-context} & \textbf{activation counter}\\
+$k$ value & \textbf{$\pi$} \emph{(k-context)} & $c(\pi)$ \emph{(activation counter)}\\
 \hline
 0 & $\langle$r$\rangle$* & 1\\
 0 & $\langle$a$\rangle$ & 2\\
@@ -508,21 +508,25 @@ Now, let's see, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the
 \end{center}
 \caption{$k$-contexts for various values of $k$.
 Note: contexts marketed with (*) are \emph{full} calling contexts.}
+\label{kctx1}
 \end{figure}
 
-As we can see, for various values of the $k$ parameter there are more or less $k$-contexts with different activation counter values: for $k=0$ they are, simply, the number of times each function is called. This example is too simple to show that but, in general, as $k$ grows, more context information is added but counter values decrease and, for relatively big values of $k$, information made become too specific for any sort analysis so, it is a profiler's user task to choose the \emph{right} $k$-value.
+As it is possible to see, for various values of the $k$ parameter there are more or less $k$-contexts with different values of $c(\pi)$: for $k=0$ $c(\pi)$ is, simply, the number of times each function is called; for $k=2$ instead, $c(\pi)$ is number of times an unique 3-elements-path like $\langle$r,a,b$\rangle$ is activated. This example is too simple to show that but, in general, as $k$ grows, more context information is added but counter values decrease and, for relatively big values of $k$, information made become too specific for any sort analysis so, it is a profiler's user task to choose the \emph{right} $k$-value.
 
-Now, the problem is how to get (in terms of algorithms and data structures) all $k$-contexts 
-of a program run for a given value of $k$: a well-known solution is to build a CCT
-(\emph{Calling Context Tree}) ``observing'' the execution flow of the program.
+At this point, the problem is how to get (in terms of algorithms and data
+structures) all $k$-contexts of a program run for a given value of $k$: a solution is to extract the $k$-contexts from a CCT (\emph{Calling Context Tree}) which is build
+``observing'' the execution trace of the target program.
 
 \section{The Calling Context Tree}
 
+The CCT is the simplest data structure for handling full context-sensitive information: 
+it consists of a tree which has as root-node the \emph{enter point} of the target program.
+Every procedure called is represented in the tree by a children-node of its callee. 
 The CCT of the execution trace considered until now is shown in figure~\ref{cct1}.
 It is self-evident that the CCT contains all $k$-contexts for all values of $k$ even if 
 it can be not obvious how a CCT is build or how $k$-calling contexts can be extracted from it.
 
-A simple algorithm for building a CCT is:
+An algorithm for building a CCT is:
 
 
 \begin{figure}[t]
@@ -554,7 +558,7 @@ A simple algorithm for building a CCT is:
 \label{cct1}
 
 \end{figure}
-\begin{lstlisting}[language=java, morekeywords={function,then},frame=leftline,framesep=10pt]
+\begin{lstlisting}[language=java, morekeywords={function,then,endif},frame=leftline,framesep=10pt]
 
 node treeRoot=null,currentNode=null
 
@@ -564,6 +568,7 @@ function func_call_event_handler(funcType func):
 		currentNode = new node(func,1) 
 		treeRoot=currentNode
 		return
+	endif
 
 	node temp = currentNode.findNodeByFuncInChildren(func)
 
@@ -572,23 +577,22 @@ function func_call_event_handler(funcType func):
 		currentNode.addChildren(temp)
 	else
 		temp.incrementCounter()
+	endif
 
 	currentNode=temp
 
 function func_ret_event_handler():
-
-	if (currentNode.getParent() != null) then
-		currentNode=currentNode.getParent()
+	currentNode=currentNode.getParent()
 
 \end{lstlisting}
 
-The above code should be self-explaining due to its Java-like style.
+The above code should be self-explaining.
 The algorithm for extracting $k$-contexts from a CCT is a little more articulated 
-and its pseudo-code will not be shown here but the idea is: given a CCT and a node $n$ of it, it is possible to get the $k$-context of $n$ taking the first (or at most) $k$ nodes from the path which joins $n$ with the root node; doing this for every node and summing counters of all identical paths is enough for collecting all $k$-contexts of a CCT.
+and its pseudo-code will not be shown here but the idea is: given a CCT and a node $n$ of it, it is possible to get the $k$-context of $n$ taking the first (or at most) $k$ nodes from the path which joins $n$ with the root node; doing this for every node and summing counters of all distinct paths is enough for collecting all $k$-contexts of a CCT.
 
 \section{The k-Calling Context Forest}
 
-As proved in \emph{k-Calling Context Profiling}~\cite{kccf}, building (and handling) a CCT for a relatively long running program is impractical and often useless.
+As told in \emph{k-Calling Context Profiling}~\cite{kccf}, building (and handling) a CCT for a relatively long running program is impractical and often useless.
 A much better data structure for handling $k$-contexts is \emph{$k$-CCF}: 
 the idea on which it is based is to have a \emph{forest} formed by 
 a tree (of at most $k$ levels) \emph{for each} function. 
@@ -654,9 +658,9 @@ a tree (of at most $k$ levels) \emph{for each} function.
 \end{figure}
 
 The interpretation of fig.~\ref{kccf1} is simple: for $k=0$ there is no context
-information and only one node per function is present; its counter shows the number of times that function has been called during the program execution. For $k=1$, every function has as children its callers, for example, $a()$ has been called $2$ times: 1 by $r()$ and 1 by $c()$. This reasoning can be extended for greater values of $k$ with the remark that 
+information and only one node per function is present; its counter shows the number of times that function has been called during the program execution. For $k=1$, every function has as children its callers, for example, $a()$ has been called $2$ times: 1 by $r()$ and 1 by $c()$. This way of proceeding can be extended for greater values of $k$ with the remark that 
 there is always a maximum $k$-value which produces a full context-sensitive information 
-(in this example, that value of $k$ is $3$): greater values of $k$ have no effect on the output. 
+(in this example, that value of $k$ is $3$): greater values of $k$ have no effect on the output. Apart of these considerations, $k$-CCF have not been formally defined yet because its definition uses an operation called \emph{tree join}.
 
 \subsection{The join operation}
 
@@ -665,6 +669,9 @@ The join of two labeled trees $T_1$ and $T_2$, denoted as
 \texttt{\textbf{join(}}$T_1$\texttt{\textbf{,}}$T_2$\texttt{\textbf{)}}, 
 is the minimal labeled forest $F$ such that $F$ contains a root-label path $\pi$ if and 
 only if $T_1$ or $T_2$ contain $\pi$.
+
+Note: if $T_1$ and $T_2$ have different root labels, 
+formally if $l(r_1)\ne l(r_2)$, then $F$ will be simply a forest with two trees: $T_1$ and $T_2$.
 
 \begin{figure}[h]
 
@@ -706,6 +713,7 @@ only if $T_1$ or $T_2$ contain $\pi$.
 \end{tikzpicture}
 }
 \end{center}
+
 
 \caption{An example of the tree-join operation}
 \label{join1}
