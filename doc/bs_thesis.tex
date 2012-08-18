@@ -590,7 +590,7 @@ The above code should be self-explaining.
 The algorithm for extracting $k$-contexts from a CCT is a little more articulated 
 and its pseudo-code will not be shown here but the idea is: given a CCT and a node $n$ of it, it is possible to get the $k$-context of $n$ taking the first (or at most) $k$ nodes from the path which joins $n$ with the root node; doing this for every node and summing counters of all distinct paths is enough for collecting all $k$-contexts of a CCT.
 
-\section{The k-Calling Context Forest}
+\section{The $k$-Calling Context Forest}
 
 As told in \emph{k-Calling Context Profiling}~\cite{kccf}, building (and handling) a CCT for a relatively long running program is impractical and often useless.
 A much better data structure for handling $k$-contexts is \emph{$k$-CCF}: 
@@ -671,7 +671,24 @@ is the minimal labeled forest $F$ such that $F$ contains a root-label path $\pi$
 only if $T_1$ or $T_2$ contain $\pi$.
 
 Note: if $T_1$ and $T_2$ have different root labels, 
-formally if $l(r_1)\ne l(r_2)$, then $F$ will be simply a forest with two trees: $T_1$ and $T_2$.
+formally if $l(r_1)\ne l(r_2)$, then $F$ will be simply a forest with two trees: $T_1$ and $T_2$. In order to deals with weighted trees, the join operation just defined have to be extended in this way: \\
+\textbf{Definition 4*} \emph{Weighted tree join}~\cite{kccf}.
+Let: 
+
+\renewcommand{\labelitemi}{$-$}
+
+\begin{itemize*}
+\item $T_1$ and $T_2$ be two trees
+\item $V_1$ and $V_2$ be all nodes of $T_1$ and $T_2$
+\item $c(v)$ be a counter associated with each node $v$ in $V_1$ and $V_2$
+\item $F$ be the weighted tree join of $T_1$ and $T_2$
+\item $z$ be a node of $F$
+\item $\pi_z$ be the unique root-path that leads to $z$ in $F$
+\end{itemize*}
+\renewcommand{\labelitemi}{$\bullet$}
+$c(z)$ is defined as sum of all counters $c(v)$ of nodes $v$ in $V_1 \cup V_2$ such
+that the root-path $\pi_z$ that leads to $v$ in $T_1$ or $T_2$ has the same sequence of 
+labels as $\pi_z$.
 
 \begin{figure}[h]
 
@@ -714,18 +731,55 @@ formally if $l(r_1)\ne l(r_2)$, then $F$ will be simply a forest with two trees:
 }
 \end{center}
 
-
-\caption{An example of the tree-join operation}
+\caption{An example of the tree join operation}
 \label{join1}
 \end{figure}
 
-\subsection{The formal definition of k-CCF}
+Figure~\ref{join1} shows an example that should clarify the above definition:
+$T_1$ and $T_2$ trees have a common root-node label, $a$, so they can be merged and 
+both counters of $a$ can be summed; also, in both trees is present a path $\langle a,b\rangle$ so the counter of node $a\rightarrow b$ in the resulting tree 
+is the sum of the counters of that path in trees $T_1$ and $T_2$; 
+the same logic can be used for node $a\rightarrow b\rightarrow d$. 
+Instead, paths $\langle a, b, c\rangle$ and $\langle a, c\rangle$ are not common 
+in both trees so they exist in the merged tree, but no counters are summed.
 
-asdj askjd lkajd lkadj lkqdj lkad akda hda hakdj hakjhdaskjh akjf
-fsdhjf ksdhf skjhf kjah kahd kahd kahjd kahjd kqhjqkhje kashj 
-adhadk hadkas dkjha skdhja kdhja kdhja dkjhad kjahd kah kahd.
+The join operation can be extended for working with more than two trees.
+let ($T_1$, ..., $T_h$), with $h > 2$, be a set of trees, then:
+if all them have distinct root labels, the output forest $F$ will be the same
+set of trees, otherwise, if for example $T_1$ and $T_2$ have the same root label,
+the following expression could be written:
+\begin{center}
+\texttt{join($T_1$, \dots, $T_h$) $=$ join(join($T_1$,$T_2$),$T_3$, \ldots, $T_h$)}
+\end{center}
 
-\section{The k-Slab Forest}
+\subsection{The formal definition of $k$-CCF}
+
+At this point, $k$-CCF can be formally defined using its original definition.\\
+
+\textbf{Definition 5} \emph{k-Calling Context Forest}~\cite{kccf}. The $k$-calling context
+forest of the execution of a program is a labeled forest defined as 
+\texttt{join}($\pi_1^R$, \ldots, $\pi_s^R$), where ($\pi_1$, \ldots, $\pi_s$) is the set of
+all distinct paths of length a most k+1 activated by the execution\footnote{The notation $\pi^R$ is used for \emph{reverse}-paths}.
+
+\subsection{How to build a $k$-CCF}
+
+Until now, only an basilar explanation of \emph{what} is $k$-CCF was provided; 
+now, a first simply way of building it is going to be shown.\\
+As previously stated, the CCT of a program execution contains all $k$-contexts for
+all possible values of $k$ so, should exist a way to build a $k$-CCF from a CCT: in fact, this is true and can be obtained using a particular operation called $k$-inverse forest, formally defined below.\\
+
+\textbf{Definition 6} \emph{$k$-inverse forest}~\cite{kccf}. Let $F$ be a labeled forest with $n$ nodes
+$v_1$, \ldots ,$v_n$. For all $i \in [1,n]$, let $\pi_i$ be the maximal suffix of length at most $k+1$ of the unique root path that leads to $v_i$ in $F$. The $k$-inverse forest of $F$, denoted as $inv_k(F)$, is the labeled forest obtained as \texttt{join}($\pi_1^R$, \ldots ,$\pi_n^R$).\\[20pt]
+Now, a $k$-CCF can be build from a CCT using the following property:
+\begin{center}
+$k$-CCF $=$ $inv_k$(CCT)
+\end{center}
+
+The problem of this approach, as already stated before, is that building a CCT 
+is \emph{not} space-efficient: it contains all $k$-contexts for every value of $k$ when,
+$k$-CCF needs only information about a specific value of $k$.
+
+\section{The $k$-Slab Forest}
 
 \begin{lstlisting}[language=java, 
 			morekeywords={function,then,endif},
