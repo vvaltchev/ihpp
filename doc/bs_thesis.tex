@@ -20,7 +20,7 @@
 \usepackage[lighttt]{lmodern}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usetikzlibrary{arrows,graphs,trees,fit,shapes}
+\usetikzlibrary{arrows,graphs,trees,fit,shapes,backgrounds}
 
 \hypersetup{
     colorlinks,
@@ -805,6 +805,7 @@ In a simpler terminology, considering only nodes of a CCT at levels multiple of 
   level 2/.style={sibling distance=1.5cm},
   every node/.style={circle,draw,font=\small},
   knode/.style={fill=black!10},
+  tnode/.style={above, draw=none, rectangle},
   every fit/.style = {draw, black, inner sep = 5pt, rectangle, rounded corners, thin}]
   
   \node (n0) [knode] at (0,0) {r,1}
@@ -829,19 +830,92 @@ In a simpler terminology, considering only nodes of a CCT at levels multiple of 
 \node[fit=(n3), inner sep=2pt ] {};
 \node[fit=(n0) (n2) (n6) (n4), inner sep=10pt, thick] {};
 
-\draw [dashed] (-6,0) -- (-0.8,0) node [at start, above, draw=none, rectangle] {level 0};
-\draw [dashed] (-6,-3) -- (-3,-3) node [at start, above, draw=none, rectangle] {level k};
-\draw [dashed] (-6,-6) -- (-1.3,-6) node [at start, above, draw=none, rectangle] {level 2k};
+\draw [dashed] (-6,0) -- (-0.8,0) node [tnode, at start] {level 0};
+\draw [dashed] (-6,-3) -- (-3,-3) node [tnode, at start]  {level k};
+\draw [dashed] (-6,-6) -- (-1.3,-6) node [tnode, at start] {level 2k};
 
+\draw [<-] (1.8,0) -- (4,0) node[tnode] {$T_1$ with root (r,1)};
+\draw [->] (-4,-1.5) -- (-2.4,-2.6) node[tnode] at (-5, -1.5) {$T_2$ with root (f,3)};
+\draw [->] (-5, -4.5) -- (-0.9, -4.5) node[tnode, at start] {$T_3$ with root (h,6)};
+\draw [<-] (1.7, -3) -- (4, -3) node[tnode] {$T_4$ with root(h,3)};
+\draw [<-] (0.1, -6) -- (3, -6) node[tnode] {$T_5$ with root(b,7)};
+\end{tikzpicture}
+}
+\end{center}
 
+\caption{A CCT with its $k$-level subtrees in evidence}
+\label{cct2}
+\end{figure}
+
+ahsd lkadh ash dkahd kahd ka adlaj alkdj lk ajjdaoiq io oiwe owq ioqe oqhd ashd 
+adhak kad akd kadkajhda khja kdhdqw wq hjd hkja hd ioq e h wio eqih lhdjadkja a ashjda.
+
+\begin{figure}[h]
+
+\begin{center}
+\scalebox{0.8}{
+
+\begin{tikzpicture}[level distance=1.5cm,
+  level 1/.style={sibling distance=2.0cm},
+  level 2/.style={sibling distance=1.3cm},
+  every node/.style={circle,draw,font=\small, radius=1, fill=white},
+  knode/.style={fill=black!10},
+  tnode/.style={above, draw=none, rectangle},
+  every fit/.style = {draw, black, inner sep = 5pt, 
+						rectangle, rounded corners=10pt, thin, fill=none}]
+ 
+%\pgfdeclarelayer{back}
+%\pgfsetlayers{back,main}
+
+%\begin{pgfonlayer}{back}
+
+\begin{scope}[on background layer]
+
+\draw [loosely dotted] (-3.7,0) -- (9,0) node [tnode, at start] {level 0};
+\draw [loosely dotted] (-3.7,-3) -- (9,-3) node [tnode, at start]  {level k};
+\draw [loosely dotted] (-3.5,-4.5) -- (9,-4.5) node [tnode, at start] {level 2k-1};
+
+\end{scope}
+%\end{pgfonlayer}
+ 
+  \node (n0) [knode] at (0,0) {r,1}
+  child { 
+		node (g2) {g,2}
+		child {node (n4) [knode] {f,3}}
+		child {node (n1) [knode]  {h,6}
+			child { node (n2) {f,5} }
+		}
+  }
+  child { node (a4) {a,4}
+		child { node (n5) [knode] {h,3} 
+			child { node (n6) {x,8} }
+		}
+  };
+
+  \node [knode] at (4,0) {h,9}
+  child { node {f, 5} child { node [knode] {b,7} }}
+  child { node {x, 8} };
+
+  \node [knode] at (6.5, 0) {f,3};
+  \node [knode] at (8, 0) {b,7};
+
+\node [fit = (n4) (n1) (n5) (n2) (n6)] {};
+\node [fit = (n0) (g2) (a4)] {};
 
 \end{tikzpicture}
 }
 \end{center}
 
-\caption{...}
+\caption{The $2$-SF relative to fig.~\ref{cct2}}
 \label{ksf1}
 \end{figure}
+
+ahsd lkadh ash dkahd kahd ka adlaj alkdj lk ajjdaoiq io oiwe owq ioqe oqhd ashd 
+adhak kad akd kadkajhda khja kdhdqw wq hjd hkja hd ioq e h wio eqih lhdjadkja a ashjda.
+ahsd lkadh ash dkahd kahd ka adlaj alkdj lk ajjdaoiq io oiwe owq ioqe oqhd ashd 
+adhak kad akd kadkajhda khja kdhdqw wq hjd hkja hd ioq e h wio eqih lhdjadkja a ashjda.
+ahsd lkadh ash dkahd kahd ka adlaj alkdj lk ajjdaoiq io oiwe owq ioqe oqhd ashd 
+adhak kad akd kadkajhda khja kdhdqw wq hjd hkja hd ioq e h wio eqih lhdjadkja a ashjda.
 
 \subsection{An algorithm for building the $k$-SF}
 
