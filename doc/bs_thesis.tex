@@ -20,7 +20,7 @@
 \usepackage[lighttt]{lmodern}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usetikzlibrary{arrows,graphs,trees}
+\usetikzlibrary{arrows,graphs,trees,fit,shapes}
 
 \hypersetup{
     colorlinks,
@@ -781,6 +781,67 @@ Here comes another novel data structure called \emph{$k$-Slab Forest}:
 instead of building a CCT from a program's execution trace, a $k$-SF can be build saving a great amount of space.\\
 
 \section{The $k$-Slab Forest}
+
+A good way to introduce the $k$-SF is by showing its original definition:\\
+
+\textbf{Definition 7} \emph{$k$-Slab Forest}~\cite{kccf}. 
+Let $v_1,\ldots,v_t$ be the t nodes at levels multiple of $k$ in the CCT 
+(including the root, which has level 0). For any $k > 0$ and each $i \in [1,t]$, let 
+$T_{v_i}$ be the maximal subtree of the CCT of depth at most $2k-1$ rooted at $v_i$.
+The $k$-slab forest, denoted as $k$-SF, is the labeled forest defined by 
+\texttt{join}($T_{v_1}$,\ldots,$T_{v_t}$).\\
+
+The above definition expresses $k$-SF in terms of how it can be build from a CCT.
+In a simpler terminology, considering only nodes of a CCT at levels multiple of $k$ (like 0, k, 2k, ...) and their subtrees (of depth at most $2k-1$), it is possible to obtain a $k$-SF by joining all them.
+
+
+\begin{figure}[h]
+
+\begin{center}
+\scalebox{1.0}{
+
+\begin{tikzpicture}[level distance=1.5cm,
+  level 1/.style={sibling distance=2.3cm},
+  level 2/.style={sibling distance=1.5cm},
+  every node/.style={circle,draw,font=\small},
+  knode/.style={fill=black!10},
+  every fit/.style = {draw, black, inner sep = 5pt, rectangle, rounded corners, thin}]
+  
+  \node (n0) [knode] at (0,0) {r,1}
+  child { 
+		node {g,2}
+		child {node (n4) [knode] {f,3}}
+		child {node (n1) [knode]  {h,6}
+			child { node (n2) {f,5}
+				child { node [knode] (n3) {b,7} }
+			}
+		}
+  }
+  child { node {a,4}
+		child { node (n5) [knode] {h,3} 
+			child { node (n6) {x,8} }
+		}
+  };
+
+\node[fit=(n1) (n2) (n3)] {};
+\node[fit=(n4)] {};
+\node[fit=(n5) (n6)] {};
+\node[fit=(n3), inner sep=2pt ] {};
+\node[fit=(n0) (n2) (n6) (n4), inner sep=10pt, thick] {};
+
+\draw [dashed] (-6,0) -- (-0.8,0) node [at start, above, draw=none, rectangle] {level 0};
+\draw [dashed] (-6,-3) -- (-3,-3) node [at start, above, draw=none, rectangle] {level k};
+\draw [dashed] (-6,-6) -- (-1.3,-6) node [at start, above, draw=none, rectangle] {level 2k};
+
+
+
+\end{tikzpicture}
+}
+\end{center}
+
+\caption{...}
+\label{ksf1}
+\end{figure}
 
 \subsection{An algorithm for building the $k$-SF}
 

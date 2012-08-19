@@ -7,24 +7,74 @@ inline void BM_inc_empty_nodes_created() { }
 inline void BM_inc_nodes_copied() { }
 inline void BM_inc_forests_copied() { }
 
-#include "../forest.h"
-#include "../util.h"
+#include "test_data_structs.h"
 
-class simpleVal : public ihppObjectWithKey<const char*> {
 
-	const char *key;
 
-public:
-	simpleVal(const char *k) { key=k; }
-	const char *getKey() { return key; }
-};
+template <typename T>
+void traceObject_generic(TracingObject<T> *to, testCtx<T> *ctx, node<T>* &top, node<T>* &bottom, bool acc, unsigned int k) 
+{
+
+	node<T> *n;
+	map<T, node<T>* >::iterator it;
+	T key = to->getKey();
+	
+	if (!top && !bottom)	
+		ctx->rootKey=key;
+
+	if (acc) {
+		if (top && to == top->getValue()) {
+	
+			top->incCounter();
+			return;
+		}
+	}
+
+	if (!( (ctx->counter) % k )) {
+
+		bottom=top;
+		it = ctx->R.find(key);
+
+		if (it == ctx->R.end())
+			ctx->R[key] = ( top = ctx->kSlabForest.addTreeByVal(node<T>(key, to, 0))  );
+		else
+			top = it->second;
+	
+	} else {
+		
+		n = top->getChildRef(key);
+
+		if (!n)
+			n = top->addChildByVal(node<T>(key, to, 0));
+		
+		top=n;
+	}
+	
+	top->incCounter();
+
+	if (bottom) {
+	
+		n = bottom->getChildRef(key);
+
+		if (!n)
+			n = bottom->addChildByVal(node<T>(key, to, 0));
+		
+		bottom=n;
+		bottom->incCounter();
+	}
+
+	ctx->counter++;
+}
+
 
 typedef node<const char*> nn;
 
 #define N(f,c) (nn(#f,new simpleVal(#f), c))
 #define add(n1,n2) ((n1)->addChildByVal(n2))
+#define t(x) traceObject_generic((x), &ctx, ctx.top, ctx.bottom, false, 1000000)
+#define tk(x) traceObject_generic((x), &ctx, ctx.top, ctx.bottom, false, k)
 
-int main(int argc, char ** argv) {
+void join_op() {
 
 	nn tree1 = N(a,2);
 
@@ -47,6 +97,22 @@ int main(int argc, char ** argv) {
 	forest<const char*> f = forest<const char*>::join(tree1, tree2);
 
 	dump(f);
+
+}
+
+int main(int argc, char ** argv) {
+
+	testCtx<const char*> ctx;
+
+	testFuncObj *a = new testFuncObj("a");
+	testFuncObj *b = new testFuncObj("b");
+	testFuncObj *c = new testFuncObj("c");
+
+	t(a); t(b); t(c); t(a);
+
+	cout << "dump of ksf\n";
+
+	dump(ctx.kSlabForest);
 
 	getchar();
 	return 0;
