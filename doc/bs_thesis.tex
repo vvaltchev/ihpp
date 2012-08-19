@@ -524,8 +524,7 @@ it consists of a tree which has as root-node the \emph{enter point} of the targe
 Every procedure called is represented in the tree by a children-node of its callee. 
 The CCT of the execution trace considered until now is shown in figure~\ref{cct1}.
 It is self-evident that the CCT contains all $k$-contexts for all values of $k$ even if 
-it can be not obvious how a CCT is build or how $k$-calling contexts can be extracted from it.
-
+it can be not obvious how a CCT is build or how $k$-calling contexts can be extracted from it.\\
 An algorithm for building a CCT is:
 
 
@@ -777,9 +776,13 @@ $k$-CCF $=$ $inv_k$(CCT)
 
 The problem of this approach, as already stated before, is that building a CCT 
 is \emph{not} space-efficient: it contains all $k$-contexts for every value of $k$ when,
-$k$-CCF needs only information about a specific value of $k$.
+$k$-CCF needs only information about a specific value of $k$. 
+Here comes another novel data structure called \emph{$k$-Slab Forest}: 
+instead of building a CCT from a program's execution trace, a $k$-SF can be build saving a great amount of space.\\
 
 \section{The $k$-Slab Forest}
+
+\subsection{An algorithm for building the $k$-SF}
 
 \begin{lstlisting}[language=java, 
 			morekeywords={function,then,endif},
@@ -844,6 +847,16 @@ function func_ret_event_handler():
 	S.pop()
 
 \end{lstlisting}
+
+
+\subsection{Building a $k$-CCF from a $k$-SF}
+bla bla bla djasld jsal djls adjlq q lqj qje lwqje lqje:
+\begin{center}
+$k$-CCF $=$ $inv_k$($k$-SF)
+\end{center}
+This means that a $k$-CCF can be obtained from a $k$-SF using the \emph{same} operation
+used on a CCT, as if $k$-SF were a generalization of CCT: this is true and in fact, for $k\rightarrow \infty$, $k$-SF = CCT~\cite{kccf}.
+
 
 \chapter{An Intraprocedural Hot Path Profiler}
 
