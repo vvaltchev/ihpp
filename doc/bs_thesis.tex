@@ -17,7 +17,8 @@
 \usepackage{wrapfig}
 \usepackage{listings}
 \usepackage{cite}
-\usepackage[lighttt]{lmodern}
+%\usepackage[lighttt]{lmodern}
+\usepackage{bold-extra}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usetikzlibrary{arrows,graphs,trees,fit,shapes,backgrounds}
@@ -794,6 +795,7 @@ The $k$-slab forest, denoted as $k$-SF, is the labeled forest defined by
 The above definition expresses $k$-SF in terms of how it can be build from a CCT.
 In a simpler terminology, considering only nodes of a CCT at levels multiple of $k$ (like 0, k, 2k, ...) and their subtrees (of depth at most $2k-1$), it is possible to obtain a $k$-SF by joining all them.
 
+\subsection{Building a $k$-SF from a CCT}
 
 \begin{figure}[h]
 
@@ -847,8 +849,9 @@ In a simpler terminology, considering only nodes of a CCT at levels multiple of 
 \label{cct2}
 \end{figure}
 
-ahsd lkadh ash dkahd kahd ka adlaj alkdj lk ajjdaoiq io oiwe owq ioqe oqhd ashd 
-adhak kad akd kadkajhda khja kdhdqw wq hjd hkja hd ioq e h wio eqih lhdjadkja a ashjda.
+Figure~\ref{cct2} illustrates a CCT and all its 5 subtrees at levels multiple of $k=2$.
+Now, the $2$-SF of this CCT can be obtained by computing \texttt{join}($T_1$,\dots,$T_5$).
+As fig.~\ref{ksf1} shows, the result is a forest with 4 trees: the first one is exactly $T_1$ because no other subtree has $r$ as root-label; the second one is that obtained by \texttt{join}($T_3$,$T_4$) and then last two ones are the one-node trees $T_2$ and $T_5$ which have not been joined because of their unique root-labels.
 
 \begin{figure}[h]
 
@@ -893,14 +896,17 @@ adhak kad akd kadkajhda khja kdhdqw wq hjd hkja hd ioq e h wio eqih lhdjadkja a 
   };
 
   \node [knode] at (4,0) {h,9}
-  child { node {f, 5} child { node [knode] {b,7} }}
-  child { node {x, 8} };
+  child { node {f,5} child { node [knode] {b,7} }}
+  child { node {x,8} };
 
   \node [knode] at (6.5, 0) {f,3};
   \node [knode] at (8, 0) {b,7};
 
 \node [fit = (n4) (n1) (n5) (n2) (n6)] {};
 \node [fit = (n0) (g2) (a4)] {};
+
+\draw [<-] (0.8,0.4) -- (1.8,1) node[tnode] {top region};
+\draw [<-] (1.3,-3.9) -- (3, -4.4) node[tnode] at (3.5,-5) {bottom region};
 
 \end{tikzpicture}
 }
@@ -910,21 +916,32 @@ adhak kad akd kadkajhda khja kdhdqw wq hjd hkja hd ioq e h wio eqih lhdjadkja a 
 \label{ksf1}
 \end{figure}
 
-ahsd lkadh ash dkahd kahd ka adlaj alkdj lk ajjdaoiq io oiwe owq ioqe oqhd ashd 
-adhak kad akd kadkajhda khja kdhdqw wq hjd hkja hd ioq e h wio eqih lhdjadkja a ashjda.
-ahsd lkadh ash dkahd kahd ka adlaj alkdj lk ajjdaoiq io oiwe owq ioqe oqhd ashd 
-adhak kad akd kadkajhda khja kdhdqw wq hjd hkja hd ioq e h wio eqih lhdjadkja a ashjda.
-ahsd lkadh ash dkahd kahd ka adlaj alkdj lk ajjdaoiq io oiwe owq ioqe oqhd ashd 
-adhak kad akd kadkajhda khja kdhdqw wq hjd hkja hd ioq e h wio eqih lhdjadkja a ashjda.
+Now, $k$-SF has been defined and a way for building it from a CCT is shown but,
+should be clear at this point that this method for building the $k$-SF is useless because
+the $k$-CCF itself can be build directly from the CCT: the goal is to build $k$-SF \emph{without} a CCT and then to build the $k$-CCF from the $k$-SF. 
 
-\subsection{An algorithm for building the $k$-SF}
+\subsection{Building a $k$-SF without a CCT}
+
+The algorithm for building \emph{online} the $k$-SF is similar to the one purposed for building CCT but, instead of having 
+one single \verb|currentNode| pointer (and, of course, only one tree), there two are pointers (\verb|top| and \verb|bottom|) that work at the same time on two different regions: \emph{top} region and \emph{bottom} region as shown in fig.~\ref{ksf1}.
+Besides the two pointers and the $k$-SF, the algorithm uses:
+
+\begin{itemize}
+\item \verb|R|, a hashset which contains root pointers of all $k$-SF trees indexed by node label in a way that, given a label, it is possible to access its node-pointer in $O(1)$.
+
+\item A shadow stack \verb|S| used for storing $\langle$top,bottom$\rangle$ pairs relative to each routine activation. 
+\end{itemize}
+
+At the algorithm start, \verb|S| contains a special pair of \verb|null| pointers; 
+at the first procedure call, the \verb|if| condition on line 15 is verified:
+the algorithm creates the root-node, makes \verb|top| pointing on it and adds also that pointer in \verb|R|. In the following procedure calls, the \verb|top| pointer is updated exactly as the \verb|currentNode| pointer in the CCT building algorithm (lines 36-46) except when \verb|S.size()-1| is a multiple of $k$: in that case (lines 16-34), \verb|bottom| is moved to \verb|top| and \verb|top| is moved to a (possibly) new tree of the forest; when the ``new'' tree already exists (this information is provided by \verb|R|), \verb|top| is simply moved to its root (line 25). After the first time \verb|top| is moved, the pointer \verb|bottom| is not more \verb|null| and is updated as the \verb|currentNode| pointer in CCT (lines 54-66). 
 
 \begin{lstlisting}[language=java, 
 			morekeywords={function,then,endif},
-			frame=leftline,framesep=10pt]
+			frame=leftline,framesep=10pt,numbers=left, numbersep=15pt]
 
-set R
 stack S
+hashset R
 forest kSF
 node top=null,bottom=null
 
@@ -935,20 +952,30 @@ function func_call_event_handler(funcType func):
 
 	(top,bottom) = S.top()
 	
+	/* update top region */
 	if ( ( (S.size()-1) mod k ) == 0 ) then
+
+		/* bottom is moved to top and top to a "new" tree */
+
 		bottom=top
 		node temp = R.find( func )
 
-		if (temp == null) then:
+		if (temp == null) then
+
+			/* a tree with label "func" does not exist */
 			node n2 = new node( func, 0 )
 			kSF.addTree(n2)
 			R.add(n2)
 			top=n2
 		else
+
+			/* a tree with label "func" already exists */
 			top = temp
 		endif
 
 	else
+
+		/* regular top pointer update */
 
 		node temp = top.findNodeByFuncInChildren( func )
 
@@ -959,11 +986,15 @@ function func_call_event_handler(funcType func):
 
 		top = temp
 
-	
+	endif
+
 	top.incrementCounter()
 
+	/* update bottom region */
 	if (bottom != null) then
 		
+		/* regular bottom pointer update */
+
 		node temp = bottom.findNodeByFuncInChildren( func )
 		
 		if (temp == null) then
@@ -976,21 +1007,102 @@ function func_call_event_handler(funcType func):
 
 	endif
 
+	/* top and bottom pointers are saved on the stack */
 	S.push( (top, bottom) )
 
 function func_ret_event_handler():
+
+	/* 
+		the last procedure returned, so its record 
+		on the shadow stack is removed 
+	*/
+	
 	S.pop()
 
 \end{lstlisting}
 
 
 \subsection{Building a $k$-CCF from a $k$-SF}
-bla bla bla djasld jsal djls adjlq q lqj qje lwqje lqje:
+
+A $k$-CCF can be build from a $k$-SF using the following fundamental property of $k$-SF:
 \begin{center}
 $k$-CCF $=$ $inv_k$($k$-SF)
 \end{center}
 This means that a $k$-CCF can be obtained from a $k$-SF using the \emph{same} operation
 used on a CCT, as if $k$-SF were a generalization of CCT: this is true and in fact, for $k\rightarrow \infty$, $k$-SF = CCT~\cite{kccf}.
+There is only a problem in using the above property: the $k$-CCF build in that way has \emph{wrong} counters. The cause of that is the intrinsic data duplication in $k$-SF when a new tree is added by moving the \verb|top| pointer: \verb|top| and \verb|bottom| pointers build the same subtree in different places and both increment their counters. Of course, there is a solution: before applying $inv_k$ to $k$-SF, all counters of top regions of $k$-SF, except for the first tree, must be cleared to zero. The figure below shows that operation applied to the $k$-SF on fig.~\ref{ksf1}.
+
+
+\begin{figure}[h]
+
+\begin{center}
+\scalebox{0.8}{
+
+\begin{tikzpicture}[level distance=1.5cm,
+  level 1/.style={sibling distance=2.0cm},
+  level 2/.style={sibling distance=1.3cm},
+  every node/.style={circle,draw,font=\small, radius=1, fill=white},
+  knode/.style={fill=black!10},
+  tnode/.style={above, draw=none, rectangle},
+  every fit/.style = {draw, black, inner sep = 5pt, 
+						rectangle, rounded corners=10pt, thin, fill=none}]
+ 
+%\pgfdeclarelayer{back}
+%\pgfsetlayers{back,main}
+
+%\begin{pgfonlayer}{back}
+
+\begin{scope}[on background layer]
+
+\draw [loosely dotted] (-3.7,0) -- (9,0) node [tnode, at start] {level 0};
+\draw [loosely dotted] (-3.7,-3) -- (9,-3) node [tnode, at start]  {level k};
+\draw [loosely dotted] (-3.5,-4.5) -- (9,-4.5) node [tnode, at start] {level 2k-1};
+
+\end{scope}
+%\end{pgfonlayer}
+ 
+  \node (n0) [knode] at (0,0) {r,1}
+  child { 
+		node (g2) {g,2}
+		child {node (n4) [knode] {f,3}}
+		child {node (n1) [knode]  {h,6}
+			child { node (n2) {f,5} }
+		}
+  }
+  child { node (a4) {a,4}
+		child { node (n5) [knode] {h,3} 
+			child { node (n6) {x,8} }
+		}
+  };
+
+  \node [knode] at (4,0) {\textbf{h,0}}
+  child { node {\textbf{f,0}} child { node [knode] {b,7} }}
+  child { node {\textbf{x,0}} };
+
+  \node [knode] at (6.5, 0) {\textbf{f,0}};
+  \node [knode] at (8, 0) {\textbf{b,0}};
+
+%\node [fit = (n4) (n1) (n5) (n2) (n6)] {};
+%\node [fit = (n0) (g2) (a4)] {};
+
+%\draw [<-] (0.8,0.4) -- (1.8,1) node[tnode] {top region};
+%\draw [<-] (1.3,-3.9) -- (3, -4.4) node[tnode] at (3.5,-5) {bottom region};
+
+\end{tikzpicture}
+}
+\end{center}
+
+\caption{The $k$-SF of fig.~\ref{ksf1} with cleared counters in top regions}
+\label{ksf2}
+\end{figure}
+
+\section{Final remarks}
+
+In this chapter, $k$-CCF and $k$-SF data structures have been only \emph{basically} explained: many of their properties and theorems about them have been voluntarily omitted; 
+also, no proofs neither any kind of space\slash time analysis have been shown.
+This is because the goal of this chapter was only to explain what \emph{practically} $k$-CCF and $k$-SF are and how they can be \emph{technically} used in profilers such as IHPP. 
+
+The author invites readers who really want to understand these data structures and their theoretical implications to read the original work \emph{k-Calling Context Profiling}~\cite{kccf}.
 
 
 \chapter{An Intraprocedural Hot Path Profiler}
