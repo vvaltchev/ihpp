@@ -30,7 +30,7 @@ void traceObject_generic(TracingObject<T> *to, testCtx<T> *ctx, node<T>* &top, n
 		}
 	}
 
-	if (!( (ctx->counter) % k )) {
+	if (!( (ctx->shadowstack.size()-1) % k )) {
 
 		bottom=top;
 		it = ctx->R.find(key);
@@ -68,11 +68,37 @@ void traceObject_generic(TracingObject<T> *to, testCtx<T> *ctx, node<T>* &top, n
 
 
 typedef node<const char*> nn;
+typedef const char *keyT;
+
+///////////////////////////////////////////////////
+
+testCtx<const char*> ctx;
+unsigned int k_value=2;
+
+void call_handler(testFuncObj *f, int n=1) {
+
+	ShadowStackType<keyT> s;
+
+	for (int i=0; i < n; i++) {
+		
+		s = ctx.shadowstack.top();
+		traceObject_generic(f, &ctx, s.treeTop, s.treeBottom, false, k_value);
+	}
+
+	ctx.shadowstack.push(ShadowStackType<keyT>(s.treeTop, s.treeBottom));
+}
+
+void ret_handler() {
+
+	ctx.shadowstack.pop();
+}
+
 
 #define N(f,c) (nn(#f,new simpleVal(#f), c))
 #define add(n1,n2) ((n1)->addChildByVal(n2))
-#define t(x) traceObject_generic((x), &ctx, ctx.top, ctx.bottom, false, 1000000)
-#define tk(x) traceObject_generic((x), &ctx, ctx.top, ctx.bottom, false, k)
+#define call(x) call_handler((x))
+#define call2(x,n) call_handler((x),(n))
+#define ret() ret_handler()
 
 void join_op() {
 
@@ -100,19 +126,41 @@ void join_op() {
 
 }
 
-int main(int argc, char ** argv) {
+void ksf_test() {
 
-	testCtx<const char*> ctx;
-
-	testFuncObj *a = new testFuncObj("a");
+	testFuncObj *r = new testFuncObj("r");
+	testFuncObj *g = new testFuncObj("g");
+	testFuncObj *f = new testFuncObj("f");
+	testFuncObj *h = new testFuncObj("h");
 	testFuncObj *b = new testFuncObj("b");
-	testFuncObj *c = new testFuncObj("c");
+	testFuncObj *x = new testFuncObj("x");
+	testFuncObj *a = new testFuncObj("a");
 
-	t(a); t(b); t(c); t(a);
+	k_value = 2;
+
+	call2(r,1);
+	call2(g,2);
+	call2(f,3);
+	ret();
+	call2(h,6);
+	call2(f,5);
+	call2(b,7);
+	ret();
+	ret();
+	ret();
+	ret();
+	call2(a,4);
+	call2(h,3);
+	call2(x,8);
 
 	cout << "dump of ksf\n";
 
 	dump(ctx.kSlabForest);
+}
+
+int main(int argc, char ** argv) {
+
+	ctx.shadowstack.push(ShadowStackType<keyT>(0,0));
 
 	getchar();
 	return 0;

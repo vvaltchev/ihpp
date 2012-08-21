@@ -19,7 +19,7 @@ using namespace std;
 
 #define TOP_STACKPTR()								(intraCtx->shadowStack.size()?intraCtx->shadowStack.top().stackPtr:(ADDRINT)-1)
 
-#define INTRAMODE_SET_TOP_BOTTOM_TO_ROOT()			intraCtx->counter=1; treeTop=intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey); treeBottom=0;
+#define INTRAMODE_SET_TOP_BOTTOM_TO_ROOT()			treeTop=intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey); treeBottom=0;
 #define INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()	(treeTop==intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey) && !treeBottom)
 
 
@@ -104,7 +104,10 @@ VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 					treeTop=parent;
 					treeBottom=0;
-					intraCtx->counter=1;
+					
+					//in rollLoops mode, k=inf is automatic
+					//intraCtx->counter=1;
+
 					found=true;
 					treeTop->incCounter();
 					break;

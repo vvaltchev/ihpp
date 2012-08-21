@@ -99,6 +99,11 @@ void optionsClass::initFromGlobalOptions()
 	funcsDisasm = ::funcsDisasm.Value();
 	kinf = ::kinf.Value();
 	xmloutput = ::xmloutput.Value();
+
+	//automatic option implications
+	if (rollLoops && ::opt_intraMode.Value()) {
+		kinf = true;
+	}
 }
 
 
@@ -128,13 +133,14 @@ void optionsClass::showHelp()
 	cout << "\nOther options:\n";
 	cout << "\t-xml option produces the output file in xml format" << endl;
 	cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
-	cout << "\t-rollLoops: when building the kSF in IntraMode, loops will be rolled" << endl;
+	cout << "\t-rollLoops: when building the kSF in IntraMode, loops will be rolled (-kinf is implied)" << endl;
 
 	cout << endl << endl;
 }
 
 bool optionsClass::checkOptions() 
 {
+
 	if ((  opt_funcMode.Value() && (opt_interProcMode.Value() || opt_intraMode.Value())  ) ||
 		(  opt_interProcMode.Value() && (opt_funcMode.Value() || opt_intraMode.Value())  ) ||
 		(  opt_intraMode.Value() && (opt_interProcMode.Value() || opt_funcMode.Value())  )) 

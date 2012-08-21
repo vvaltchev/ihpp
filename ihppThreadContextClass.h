@@ -41,11 +41,11 @@ public:
 	ihppForest kSlabForest;
 	ihppNodeMap R;
 	
-	unsigned int counter;
+	//unsigned int counter;
 
 	ihppStack<ShadowStackType> shadowStack;
 
-	ihppAbstractContext() : rootKey(0), counter(0) 
+	ihppAbstractContext() : rootKey(0)//, counter(0) 
 	{ 
 		BENCHMARK_INIT_VARS
 	}

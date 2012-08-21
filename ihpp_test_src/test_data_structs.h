@@ -29,6 +29,18 @@ public:
 	const char *getKey() { return key; }
 };
 
+template <typename T>
+class ShadowStackType {
+
+public:
+
+	node<T> *treeTop;
+	node<T> *treeBottom;
+	
+	ShadowStackType() : treeTop(0), treeBottom(0) { }
+	ShadowStackType(node<T> *t, node<T> *b) : treeTop(t), treeBottom(b) { 	}
+};
+
 template<typename T>
 class testCtx {
 
@@ -40,10 +52,9 @@ public:
 
 	unsigned int counter;
 
-	node<T> *top;
-	node<T> *bottom;
+	stack< ShadowStackType<T> > shadowstack;
 
-	testCtx() { counter=0; top=0; bottom=0; }
+	testCtx() { counter=0; }
 };
 
 class testFuncObj : public TracingObject<const char*> {

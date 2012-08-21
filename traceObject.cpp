@@ -115,7 +115,9 @@ void traceObject_generic(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx,
 	}
 
 	// For k -> inf, this code runs only first time, when counter=0
-	if (!( (ctx->counter) % k )) {
+	//if (!( (ctx->counter) % k )) {
+
+	if ( ! (ctx->shadowStack.size() % k) ) {
 
 		treeBottom=treeTop;
 		it = ctx->R.find(key);
@@ -152,6 +154,7 @@ void traceObject_generic(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx,
 		treeBottom->incCounter();
 	}
 
-	ctx->counter++;
+	//the counter was removed
+	//ctx->counter++;
 }
 
