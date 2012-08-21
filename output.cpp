@@ -322,8 +322,10 @@ void blockFuncMode_joinThreads(ihppContextClass *globalCtx) {
 	for (unsigned i=1; i < globalCtx->threadContexts.size(); i++) {
 		
 		thCtx2 = globalCtx->threadContexts[i];
-			
-		*forest=forest->join(thCtx2->kSlabForest);
+		
+		//using join2
+		//*forest=forest->join(thCtx2->kSlabForest);
+		forest->local_join(thCtx2->kSlabForest);
 
 #if IHPP_BENCHMARK
 		thCtx->_BM_sumBenchmarkInfo(thCtx2);
@@ -360,7 +362,12 @@ void intraMode_joinThreads(ihppContextClass *globalCtx) {
 
 			if (it != thCtx2->intraModeContexts.end()) 
 			{
-				*forest = forest->join(it->second->kSlabForest);
+				
+				//using join2
+				//*forest = forest->join(it->second->kSlabForest);
+
+				forest->local_join(it->second->kSlabForest);
+
 #if IHPP_BENCHMARK
 				intraCtx->_BM_sumBenchmarkInfo(it->second);
 #endif

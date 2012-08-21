@@ -9,14 +9,14 @@ template <typename keyT>
 class forest {
 
 	ihppNodeChildrenContainer< keyT, node<keyT> > trees;
-	static void _joinChildren(forest<keyT> &res, node<keyT>  &t1, node<keyT>  &t2);
+	static void joinSubtrees(node<keyT> &t1, node<keyT> &t2);
 
 public:
-	
-	static forest<keyT> join(node<keyT>  &t1, node<keyT>  &t2);
-	static forest<keyT> join(forest<keyT> &f1, forest<keyT> &f2);
-	static forest<keyT> join(forest<keyT> &f1, node<keyT>  &t2);
 
+	static forest<keyT> join(node<keyT> &t1, node<keyT> &t2);
+	static forest<keyT> join(forest<keyT> &f1, node<keyT> &t2);
+	static forest<keyT> join(forest<keyT> &f1, forest<keyT> &f2);
+	
 	typedef typename ihppNodeChildrenContainer< keyT, node<keyT>  >::iterator treesIterator;
 
 	forest();
@@ -38,11 +38,13 @@ public:
 	void autoSetParents();
 
 	forest<keyT> inverseK(unsigned int k);
-	forest<keyT> join(forest<keyT> &f2) { return join(*this, f2); }
-	forest<keyT> joinByVal(forest<keyT> f2) { return join(*this, f2); }
-	forest<keyT> join(node<keyT> &t2) { return join(*this, t2); }
-	forest<keyT> joinByVal(node<keyT> t2) { return join(*this, t2); }
 
+	void local_join(node<keyT> &t2);
+	void local_join(forest<keyT> &f2);
+
+	void local_joinByVal(node<keyT> t2) { local_join(t2); }
+	void local_joinByVal(forest<keyT> f2) { local_join(f2); }
+	
 	inline forest<keyT> &operator=(forest<keyT> f);
 };
 
@@ -128,37 +130,30 @@ void forest<keyT>::autoSetParents() {
 }
 
 
-
 template <typename keyT>
-void forest<keyT>::
-	_joinChildren(forest<keyT> &res, node<keyT>  &t1, node<keyT>  &t2) {
+void forest<keyT>::joinSubtrees(node<keyT> &t1, node<keyT> &t2) {
 
-	node<keyT>  *root;
-	node<keyT>  *t2Node;
+	node<keyT> *t;
+	typename node<keyT>::nodesIterator it;
 
-	typename node<keyT> ::nodesIterator it;
+	t1.setCounter(t1.getCounter() + t2.getCounter());
 
-	root = res.getTreeRef(t1.getKey());
+	for (it = t2.getNodesIteratorBegin(); it != t2.getNodesIteratorEnd(); it++) {
+	
+		t = t1.getChildRef(it->getKey());
 
-	for (it = t1.getNodesIteratorBegin(); it != t1.getNodesIteratorEnd(); it++) {
-
-		t2Node = t2.getChildRef(it->getKey());
-
-		if (t2Node)
-			root->replaceChild(*join(*it, *t2Node).toTree());
+		if (!t)
+			t1.addChild(*it);
+		else
+			joinSubtrees(*t, *it); 
 	}
-
-	for (it = t2.getNodesIteratorBegin(); it != t2.getNodesIteratorEnd(); it++)
-		if (!root->getChildRef(it->getKey()))
-			root->addChild(*it);
 }
-
 
 template <typename keyT>
 forest<keyT> forest<keyT>::join(node<keyT> &t1, node<keyT> &t2) {
 
-	forest<keyT> res;
-	node<keyT>  *n;
+	forest<T> res;
+	node<T> *n1;
 
 	if (t1.getKey() != t2.getKey()) {
 	
@@ -167,76 +162,54 @@ forest<keyT> forest<keyT>::join(node<keyT> &t1, node<keyT> &t2) {
 		return res;
 	}
 
-	n=res.addTree(t1);
-	
-	n->setCounter(t1.getCounter()+t2.getCounter());
+	n1 = res.addTree(t1);
 
-	if (!t1.childrenCount() && !t2.childrenCount())
-		return res;
-
-	_joinChildren(res, *n, t2);
+	joinSubtrees(*n1, t2);
 
 	return res;
 }
 
 template <typename keyT>
-forest<keyT> forest<keyT>::join(forest<keyT> &f1, forest<keyT> &f2) {
+void forest<keyT>::local_join(node<keyT> &t2) {
 
-	forest<keyT> res;
-	typename forest<keyT>::treesIterator it;
-	node<keyT>  *n2;
+	node<keyT> *t;
 
+	t = getTreeRef(t2.getKey());
 
-	for (it=f1.getTreesIteratorBegin(); it != f1.getTreesIteratorEnd(); it++) {
-	
-		n2 = f2.getTreeRef(it->getKey());
+	if (t)
+		joinSubtrees(*t, t2);
+	else
+		addTree(t2);
 
-		if (!n2) {
-		
-			res.addTree(*it);
-			continue;
-		}
-
-		res.addTree(*join(*it, *n2).toTree());
-	}
-
-
-	for (it=f2.trees.begin(); it != f2.trees.end(); it++) {
-	
-		if (it->getParentRef())
-			continue;
-
-		if (res.getTreeRef(it->getKey()))
-			continue;
-
-		res.addTree(*it);
-	}
-
-	return res;
 }
+
+template <typename keyT>
+void forest<keyT>::local_join(forest<keyT> &f2) {
+
+	typename forest<keyT>::treesIterator it;
+
+	for (it=f2.getTreesIteratorBegin(); it != f2.getTreesIteratorEnd(); it++)
+		local_join(*it);
+}
+
 
 template <typename keyT>
 forest<keyT> forest<keyT>::join(forest<keyT> &f1, node<keyT>  &t2) {
 
-	forest<keyT> res;
-	typename forest<keyT>::treesIterator it;
-
-	for (it=f1.getTreesIteratorBegin(); it != f1.getTreesIteratorEnd(); it++) {
-	
-		if (it->getKey() == t2.getKey()) {
-	
-			res.addTree(*join(*it, t2).toTree());
-			continue;
-		} 
-		
-		res.addTree(*it);
-	}
-
-	if (!res.getTreeRef(t2.getKey()))
-		res.addTree(t2);
-
+	forest<keyT> res=f1;
+	res.local_join(t2);
 	return res;
 }
+
+
+template <typename keyT>
+forest<keyT> forest<keyT>::join(forest<keyT> &f1, forest<keyT> &f2) {
+
+	forest<keyT> res = f1;
+	res.local_join(f2);
+	return res;
+}
+
 
 template <typename keyT>
 forest<keyT> forest<keyT>::inverseK(unsigned int k) {
@@ -248,25 +221,16 @@ forest<keyT> forest<keyT>::inverseK(unsigned int k) {
 	
 	size_t i=1;
 	size_t count = recursiveAllNodesCount();
-	bool showInfo=false;
-
-	if (count > 100)
-		showInfo=true;
-
-	if (showInfo)
-		cerr << "Warning: computing inverseK of forest with " << count << " nodes: it could take a while..." << endl;
 
 	for (it = getTreesIteratorBegin(); it != getTreesIteratorEnd(); it++) {
 	
-		if (showInfo && treesCount() > 1)
-			cerr << "join path " << i++ << " of " << treesCount() << endl;
-
 		it->autoSetParents();
 		
 		tmp = it->getAllTreeNodesRef();
 
 		for (it2 = tmp.begin(); it2 != tmp.end(); it2++)
-			res = res.joinByVal((*it2)->kpathR(k));
+			res.local_joinByVal((*it2)->kpathR(k));
+			//res = res.joinByVal((*it2)->kpathR(k));
 	}
 
 	return res;

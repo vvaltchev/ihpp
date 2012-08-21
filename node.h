@@ -30,7 +30,6 @@ protected:
 
 public:
 
-
 	typedef typename ihppNodeChildrenContainer< keyT, node<keyT> >::iterator nodesIterator;
 
 	node(); 
@@ -67,6 +66,7 @@ public:
 	node<keyT> kpath(unsigned int k);
 	node<keyT> kpathR(unsigned int k);
 
+	void resetVisitedRecursive();
 	inline void clearLevelKCounters(unsigned int k);
 
 	operator bool() { return isValid(); }

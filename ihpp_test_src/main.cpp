@@ -8,63 +8,7 @@ inline void BM_inc_nodes_copied() { }
 inline void BM_inc_forests_copied() { }
 
 #include "test_data_structs.h"
-
-
-
-template <typename T>
-void traceObject_generic(TracingObject<T> *to, testCtx<T> *ctx, node<T>* &top, node<T>* &bottom, bool acc, unsigned int k) 
-{
-
-	node<T> *n;
-	map<T, node<T>* >::iterator it;
-	T key = to->getKey();
-	
-	if (!top && !bottom)	
-		ctx->rootKey=key;
-
-	if (acc) {
-		if (top && to == top->getValue()) {
-	
-			top->incCounter();
-			return;
-		}
-	}
-
-	if (!( (ctx->shadowstack.size()-1) % k )) {
-
-		bottom=top;
-		it = ctx->R.find(key);
-
-		if (it == ctx->R.end())
-			ctx->R[key] = ( top = ctx->kSlabForest.addTreeByVal(node<T>(key, to, 0))  );
-		else
-			top = it->second;
-	
-	} else {
-		
-		n = top->getChildRef(key);
-
-		if (!n)
-			n = top->addChildByVal(node<T>(key, to, 0));
-		
-		top=n;
-	}
-	
-	top->incCounter();
-
-	if (bottom) {
-	
-		n = bottom->getChildRef(key);
-
-		if (!n)
-			n = bottom->addChildByVal(node<T>(key, to, 0));
-		
-		bottom=n;
-		bottom->incCounter();
-	}
-
-	ctx->counter++;
-}
+#include "test_traceobj.h"
 
 
 typedef node<const char*> nn;
@@ -100,7 +44,46 @@ void ret_handler() {
 #define call2(x,n) call_handler((x),(n))
 #define ret() ret_handler()
 
-void join_op() {
+template <typename keyT>
+void joinchildren2(node<keyT> &t1, node<keyT> &t2) {
+
+	node<keyT> *t;
+	typename node<keyT>::nodesIterator it;
+
+	t1.setCounter(t1.getCounter() + t2.getCounter());
+
+	for (it = t2.getNodesIteratorBegin(); it != t2.getNodesIteratorEnd(); it++) {
+	
+		t = t1.getChildRef(it->getKey());
+
+		if (!t)
+			t1.addChild(*it);
+		else
+			joinchildren2(*t, *it); 
+	}
+}
+
+template<typename T>
+forest<T> join2(node<T> &t1, node<T> &t2) {
+
+	forest<T> res;
+	node<T> *n1;
+
+	if (t1.getKey() != t2.getKey()) {
+	
+		res.addTree(t1);
+		res.addTree(t2);
+		return res;
+	}
+
+	n1 = res.addTree(t1);
+
+	joinchildren2(*n1, t2);
+
+	return res;
+}
+
+void join_test() {
 
 	nn tree1 = N(a,2);
 
@@ -120,10 +103,17 @@ void join_op() {
 
 	cout << endl << endl;
 
-	forest<const char*> f = forest<const char*>::join(tree1, tree2);
+	forest<const char*> f;
+	//forest<const char*> f = forest<const char*>::join(tree1, tree2);
+
+	//printf("classic join...\n");
+	//dump(f);
+
+	f = join2(tree1,tree2);
+	printf("new join..\n");
 
 	dump(f);
-
+	
 }
 
 void ksf_test() {
@@ -161,6 +151,8 @@ void ksf_test() {
 int main(int argc, char ** argv) {
 
 	ctx.shadowstack.push(ShadowStackType<keyT>(0,0));
+
+	join_test();
 
 	getchar();
 	return 0;

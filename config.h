@@ -6,7 +6,7 @@
 #error This tool builds only on Win32 and Unix-like systems
 #endif
 
-#define IHPP_BENCHMARK		0
+#define IHPP_BENCHMARK		1
 
 #define DEBUG				0
 #define CHECK_ASSERTS		1
