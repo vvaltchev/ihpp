@@ -152,8 +152,8 @@ void forest<keyT>::joinSubtrees(node<keyT> &t1, node<keyT> &t2) {
 template <typename keyT>
 forest<keyT> forest<keyT>::join(node<keyT> &t1, node<keyT> &t2) {
 
-	forest<T> res;
-	node<T> *n1;
+	forest<keyT> res;
+	node<keyT> *n1;
 
 	if (t1.getKey() != t2.getKey()) {
 	
@@ -219,9 +219,6 @@ forest<keyT> forest<keyT>::inverseK(unsigned int k) {
 	vector< node<keyT> * > tmp;
 	typename vector< node<keyT> * >::iterator it2;
 	
-	size_t i=1;
-	size_t count = recursiveAllNodesCount();
-
 	for (it = getTreesIteratorBegin(); it != getTreesIteratorEnd(); it++) {
 	
 		it->autoSetParents();
