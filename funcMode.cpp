@@ -13,7 +13,7 @@ using namespace std;
 #define FUNCMODE_TOP_STACKPTR()				(ctx->shadowStack.size()?ctx->shadowStack.top().stackPtr:(ADDRINT)-1)
 #define FUNCMODE_LOAD_TOP_BOTTOM()			treeTop = ctx->shadowStack.top().treeTop; treeBottom = ctx->shadowStack.top().treeBottom;
 #define FUNCMODE_STORE_TOP_BOTTOM(sp)		ctx->shadowStack.push(ShadowStackType(treeTop,treeBottom,(sp)));
-#define FUNCMODE_SET_TOP_BOTTOM_TO_ROOT()	/*ctx->counter=0;*/ treeTop=ctx->kSlabForest.getTreeRef(ctx->rootKey); treeBottom=0;
+#define FUNCMODE_SET_TOP_BOTTOM_TO_ROOT()	ctx->counter=0; treeTop=ctx->kSlabForest.getTreeRef(ctx->rootKey); treeBottom=0;
 
 inline void funcMode_sp_check(ihppThreadContextClass *ctx, ADDRINT reg_sp)
 {
@@ -83,18 +83,21 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 	} 
 
-	//assert(ctx->shadowStack.size() || !ctx->rootKey);
+	assert(ctx->shadowStack.size() || !ctx->rootKey);
 
 	//stackSize == 0 && rootKey != null
 	//This should never happen for functions in full trace mode
 	//because stack size is FORCED to be > 0 after the first function call
 	//but it can happen in funcMode or intraMode when tracing only a few functions,
 	//or very often when tracing only one function.
-
+	/*
 	else if (ctx->rootKey) {
 
+		
 		//Reset top,bottom pointers to root of the function's tree
 		FUNCMODE_SET_TOP_BOTTOM_TO_ROOT();
+		
+		cerr << "else if rootKey condition!\n";
 
 		if (globalCtx->options.showCalls)
 			funcTraceDebugDump(globalCtx, fc, ctx, reg_sp, treeTop, treeBottom);
@@ -105,6 +108,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 		goto before_ret;
 	}
+	*/
 
 	/////////////////////////////////////////////
 
@@ -116,7 +120,7 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 	FUNCMODE_STORE_TOP_BOTTOM(reg_sp);
 
 
-before_ret:
+//before_ret:
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
 
@@ -145,7 +149,7 @@ void funcMode_ret()
 
 	dbg_funcret_name();
 
-	assert( ctx->shadowStack.size() || globalCtx->exitPassed );
+	assert( globalCtx->funcsToTrace.size() || (ctx->shadowStack.size() || globalCtx->exitPassed) );
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
 
@@ -156,10 +160,12 @@ void funcMode_ret()
 		if (ctx->shadowStack.size() <= 1)
 			break;
 
-		if (ctx->canPopStack())
+		if (ctx->canPopStack()) {
 			ctx->shadowStack.pop();
-		else
+			ctx->counter = ctx->counter ? ctx->counter-1 : 0;
+		} else {
 			break;
+		}
 
 		if (globalCtx->WorkingMode() == WM_IntraMode)
 			intraMode_ret();
@@ -167,7 +173,7 @@ void funcMode_ret()
 
 #endif
 
-	if (ctx->shadowStack.size() == 1) {
+	if (ctx->shadowStack.size() == 1) {// && !globalCtx->funcsToTrace.size()) {
 
 		dbg_funcret_pop_err();
 		goto function_end;
@@ -175,12 +181,14 @@ void funcMode_ret()
 
 	dbg_funcret_pop();
 
-	if (ctx->canPopStack())
+	if (ctx->canPopStack()) {
 		ctx->shadowStack.pop();
+		ctx->counter = ctx->counter ? ctx->counter-1 : 0;
+	}
 
 	dbg_funcret_stack_after_pop();
 
-	dbg_funcret_new_call();
+	//dbg_funcret_new_call();
 
 
 function_end:
@@ -188,5 +196,6 @@ function_end:
 	if (globalCtx->WorkingMode() == WM_IntraMode)
 		intraMode_ret();
 
-	ctx->setCurrentFunction(ctx->shadowStack.top().treeTop->getValue()->getKey());
+	if (ctx->shadowStack.size())
+		ctx->setCurrentFunction(ctx->shadowStack.top().treeTop->getValue()->getKey());
 }

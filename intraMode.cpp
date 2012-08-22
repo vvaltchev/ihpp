@@ -19,7 +19,7 @@ using namespace std;
 
 #define TOP_STACKPTR()								(intraCtx->shadowStack.size()?intraCtx->shadowStack.top().stackPtr:(ADDRINT)-1)
 
-#define INTRAMODE_SET_TOP_BOTTOM_TO_ROOT()			treeTop=intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey); treeBottom=0;
+#define INTRAMODE_SET_TOP_BOTTOM_TO_ROOT()			intraCtx->counter=1; treeTop=intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey); treeBottom=0;
 #define INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()	(treeTop==intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey) && !treeBottom)
 
 

@@ -52,8 +52,8 @@ void traceObject_generic(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx,
 	ADDRINT key = to->getKey();
 	unsigned int k = globalSharedContext->kval();
 
-	bool accumulate = !globalSharedContext->options.unrollRec && 
-						globalSharedContext->WorkingMode() != WM_InterProcMode;
+	bool accumulate = !globalSharedContext->options.unrollRec; //&& 
+						//globalSharedContext->WorkingMode() != WM_InterProcMode;
 
 	if (!treeTop && !treeBottom) {
 	
@@ -117,9 +117,9 @@ void traceObject_generic(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx,
 	}
 
 	// For k -> inf, this code runs only first time, when counter=0
-	//if (!( (ctx->counter) % k )) {
+	if (!( (ctx->counter) % k )) {
 
-	if ( ! (ctx->shadowStack.size() % k) ) {
+	//if ( ! (ctx->shadowStack.size() % k) ) {
 
 		treeBottom=treeTop;
 		it = ctx->R.find(key);
@@ -157,6 +157,6 @@ void traceObject_generic(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx,
 	}
 
 	//the counter was removed
-	//ctx->counter++;
+	ctx->counter++;
 }
 

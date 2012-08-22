@@ -42,7 +42,7 @@ static KNOB<bool> funcsDisasm(KNOB_MODE_WRITEONCE, "pintool", "funcsDisasm", "0"
 static KNOB<bool> kinf(KNOB_MODE_WRITEONCE, "pintool", "kinf", "0", "");
 static KNOB<bool> xmloutput(KNOB_MODE_WRITEONCE, "pintool", "xml", "0", "");
 
-static KNOB<bool> opt_unrollRec(KNOB_MODE_WRITEONCE, "pintool", "-unrollRec", "0", "");
+static KNOB<bool> opt_unrollRec(KNOB_MODE_WRITEONCE, "pintool", "unrollRec", "0", "");
 
 static KNOB<string> startFunc(KNOB_MODE_WRITEONCE, "pintool", "startFunc", "--", "");
 static KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "--", "");
@@ -104,7 +104,7 @@ void optionsClass::initFromGlobalOptions()
 	unrollRec = ::opt_unrollRec.Value();
 
 	//automatic option implications
-	if (rollLoops && ::opt_intraMode.Value()) {
+	if (rollLoops) {
 		kinf = true;
 	}
 }
@@ -137,7 +137,7 @@ void optionsClass::showHelp()
 	cout << "\nOther options:\n";
 	cout << "\t-xml option produces the output file in xml format" << endl;
 	cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
-	cout << "\t-rollLoops: when building the kSF in intraMode, \n\t\tloops will be rolled (-kinf is implied)\n" << endl;
+	cout << "\t-rollLoops: when building the kSF in intraMode or interMode, \n\t\tloops will be rolled (-kinf is implied)\n" << endl;
 	cout << "\t-unrollRec: disables the rolling (by default) of \n\t\tsingle-function recursion in funcMode" << endl;
 
 	cout << endl << endl;
@@ -188,17 +188,12 @@ bool optionsClass::checkOptions()
 		return false;	
 	}
 
-	if (::kinf.Value() && !::rollLoops.Value() && ::opt_intraMode.Value()) {
+	if (::kinf.Value() && !::rollLoops.Value() && !::opt_funcMode.Value()) {
 	
-		cerr << "It's an error to use k = infinite (-kinf) without -rollLoops option in intraMode.\n";
+		cerr << "It's an error to use k = infinite (-kinf) without -rollLoops option in intraMode/interMode.\n";
 		return false;
 	}
 
-	if (::kinf.Value() && ::opt_interProcMode.Value()) {
-	
-		cerr << "-kinf option can't be used with -interMode.\n";
-		return false;
-	}
 
 #ifdef _WIN32
 	
@@ -222,9 +217,9 @@ bool optionsClass::checkOptions()
 	}
 */
 
-	if (::rollLoops.Value() && !::opt_intraMode.Value()) {
+	if (::rollLoops.Value() && ::opt_funcMode.Value()) {
 	
-		cerr << "Roll loops option can be applied only with -intraMode option.\n";
+		cerr << "-rollLoops option can't be used in funcMode.\n";
 		return false;
 	}
 

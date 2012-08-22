@@ -31,6 +31,7 @@
 
 #define MAIN_IHPP_MODULE
 
+#include <iostream>
 using namespace std;
 
 #include "config.h"
@@ -61,7 +62,34 @@ VOID interModeBlockTrace(TracingObject<ADDRINT> *to) {
 
 	bb->incSimpleCounter();
 
-	traceObject_generic(bb, ctx, ctx->treeTop, ctx->treeBottom);
+	if (!globalSharedContext->options.rollLoops) {
+	
+		traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
+		return;
+
+	}
+
+	//rollLoops ON
+		
+	ihppNode *parent = ctx->treeTop->getParentRef();
+
+	while (parent) {
+
+
+		if (parent->getKey() == bb->getKey()) {
+
+			ctx->treeTop=parent;
+			ctx->treeBottom=0;
+			ctx->treeTop->incCounter();
+			return;
+		}
+
+		parent = parent->getParentRef();
+	}
+
+	//parent NOT found
+	
+	traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
 }
 
 
@@ -483,13 +511,28 @@ int main(int argc, char ** argv) {
 
     PIN_AddFiniFunction(Fini, 0);
 
-	if (options.kinf) {
+	if (options.kinf && !options.unrollRec) {
 	
 		traceObject = traceObject_acc_kinf;
 	
 	} else {
 		
 		traceObject = traceObject_generic;
+	}
+
+	//add a fake __root__ function
+	if (globalSharedContext->funcsToTrace.size()) {
+	
+		FunctionObj *f = new FunctionObj((ADDRINT)-1, "__root__", "");
+		globalSharedContext->allFuncs[f->getKey()] = f;
+		globalSharedContext->funcAddrsToTrace.insert(f->functionAddress());
+
+		if (globalSharedContext->WorkingMode() == WM_InterProcMode) {
+		
+			BasicBlock *bb = new BasicBlock(f->functionAddress(), f, f->functionAddress(), 0, 0);
+			globalSharedContext->allBlocks[bb->blockAddress()] = bb;
+		}
+
 	}
 
     PIN_StartProgram();

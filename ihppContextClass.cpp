@@ -38,6 +38,21 @@ ihppThreadContextClass *ihppContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 	ret = threadContexts.back();
 	ReleaseLock(&lock);
 
+	if (globalSharedContext->funcsToTrace.size()) {
+	
+		ihppNode *t=0,*b=0;
+		
+		if (globalSharedContext->WorkingMode() != WM_InterProcMode) {
+
+			traceObject(globalSharedContext->allFuncs[(ADDRINT)-1], ret, t, b);
+			ret->shadowStack.push(ShadowStackType(t,b,(ADDRINT)-1));
+		} else {
+
+			traceObject(globalSharedContext->allBlocks[(ADDRINT)-1], ret, ret->treeTop, ret->treeBottom);
+		}
+		
+	}
+
 	return ret;
 }
 
