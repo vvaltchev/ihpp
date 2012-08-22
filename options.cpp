@@ -42,6 +42,8 @@ static KNOB<bool> funcsDisasm(KNOB_MODE_WRITEONCE, "pintool", "funcsDisasm", "0"
 static KNOB<bool> kinf(KNOB_MODE_WRITEONCE, "pintool", "kinf", "0", "");
 static KNOB<bool> xmloutput(KNOB_MODE_WRITEONCE, "pintool", "xml", "0", "");
 
+static KNOB<bool> opt_unrollRec(KNOB_MODE_WRITEONCE, "pintool", "-unrollRec", "0", "");
+
 static KNOB<string> startFunc(KNOB_MODE_WRITEONCE, "pintool", "startFunc", "--", "");
 static KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "--", "");
 
@@ -99,6 +101,7 @@ void optionsClass::initFromGlobalOptions()
 	funcsDisasm = ::funcsDisasm.Value();
 	kinf = ::kinf.Value();
 	xmloutput = ::xmloutput.Value();
+	unrollRec = ::opt_unrollRec.Value();
 
 	//automatic option implications
 	if (rollLoops && ::opt_intraMode.Value()) {
@@ -115,7 +118,8 @@ void optionsClass::showHelp()
 	cout << "IHPP: An Intraprocedural Hot Path Profiler\n" << endl;
 	cout << "-------------------------------------------\n" << endl;
 	cout << "Syntax: <PIN> -t " << KCCF_LIB_FILE << " <WORKING MODE> [ -f <func1> [-f <func2> [...]] ]\n"; 
-	cout << "\t\t\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] [ -xml ] <SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
+	cout << "\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] [ -xml ]" << endl;
+	cout << "\t<SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
 	
 	cout << "\nWorking modes: " << endl;
 	cout << "\t -funcMode : procedure-level profiling [ default mode ]" << endl;
@@ -133,7 +137,8 @@ void optionsClass::showHelp()
 	cout << "\nOther options:\n";
 	cout << "\t-xml option produces the output file in xml format" << endl;
 	cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
-	cout << "\t-rollLoops: when building the kSF in IntraMode, loops will be rolled (-kinf is implied)" << endl;
+	cout << "\t-rollLoops: when building the kSF in intraMode, \n\t\tloops will be rolled (-kinf is implied)\n" << endl;
+	cout << "\t-unrollRec: disables the rolling (by default) of \n\t\tsingle-function recursion in funcMode" << endl;
 
 	cout << endl << endl;
 }
@@ -160,6 +165,12 @@ bool optionsClass::checkOptions()
 	if (::showBlocks.Value() && opt_funcMode.Value()) {
 	
 		cerr << "-showBlocks can't be used in funcMode." << endl;
+		return false;
+	}
+
+	if (::opt_unrollRec.Value() && !::opt_funcMode.Value()) {
+	
+		cerr << "-unrollRec option can be used only in funcMode." << endl;
 		return false;
 	}
 

@@ -33,6 +33,7 @@ public:
 	bool funcsDisasm;
 	bool kinf;
 	bool xmloutput;
+	bool unrollRec;
 
 	string startFuncName;
 	string stopFuncName;
@@ -52,6 +53,7 @@ public:
 		funcsDisasm=false;
 		kinf=false;
 		xmloutput=false;
+		unrollRec=false;
 	}
 
 	void initFromGlobalOptions();

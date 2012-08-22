@@ -51,7 +51,9 @@ void traceObject_generic(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx,
 	ihppNodeMap::iterator it;
 	ADDRINT key = to->getKey();
 	unsigned int k = globalSharedContext->kval();
-	bool accumulate = globalSharedContext->WorkingMode() != WM_InterProcMode;
+
+	bool accumulate = !globalSharedContext->options.unrollRec && 
+						globalSharedContext->WorkingMode() != WM_InterProcMode;
 
 	if (!treeTop && !treeBottom) {
 	
