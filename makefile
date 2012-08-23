@@ -19,7 +19,7 @@ CXXFLAGS ?= -Wall -Werror -Wno-unknown-pragmas $(DBG) $(OPT)
 ##############################################################
 
 
-TOOL_NAME = kCCF
+TOOL_NAME = ihpp
 
 TOOL = $(TOOL_NAME:%=$(OBJDIR)%$(PINTOOL_SUFFIX))
 
