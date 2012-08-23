@@ -38,6 +38,8 @@ public:
 	string startFuncName;
 	string stopFuncName;
 	
+	string tracingFuncList;
+
 	optionsClass() 
 	{
 		joinThreads=false;
@@ -62,8 +64,8 @@ public:
 	static bool checkOptions();
 	static unsigned int getGlobalKVal();
 	static WorkingModeType getGlobalWM();
-	static KNOB<string> &tracingFunctions();
 	static const char *getOutfileName();
+	static vector<string> *splitString(string s, char sep);
 };
 
 

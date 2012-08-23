@@ -1110,7 +1110,7 @@ The author invites readers who really want to understand these data structures a
 IHPP is a profiler written in C++. Technically it is not a program but
  a \emph{plug-in}\footnote{In the pin-specific slang,
 plug-ins like IHPP are called \emph{pintools}.} for the tool 
-Intel{\textsuperscript{\textregistered}} \textbf{Pin}\footnote{Official page: \url{http://www.pintool.org}}.
+Intel \textbf{Pin}\footnote{Official page: \url{http://www.pintool.org}}.
 This last one, is a dynamic binary instrumentation framework for the IA-32 and x86-64 instruction-set architectures that allows the creation of dynamic program analysis tools. 
 Pintools have, through pin, the full control of a target program: 
 when this one is loaded in memory, all its routines and instructions are visible
@@ -1140,6 +1140,16 @@ Another important feature in \emph{intra}-procedural mode is the \verb|rollLoops
 \begin{paragraph}{The inter-procedural mode}
 Despite of its name (\emph{intra}procedural profiler), IHPP has also a particular and unique working mode that deals with BBLs but in which the concept of \emph{procedure} is totally removed. In this working mode, a program is composed only by BBLs: there are no functions, so no calls and no returns. IHPP builds a couple of $k$-SF-$k$-CCF for each thread as other modes, but it is like the program has only one big procedure. This mode can be useful, for example, when one wants to analyze an algorithm implemented with two or more functions without considering the caller-callee relations but focusing the attention on execution flow of the hole algorithm. In the case when only one function is instrumented, there is no difference between \emph{inter-} and \emph{intra-} procedural modes.
 \end{paragraph}
+
+\subsection{Technical considerations}
+
+Like Pin itself, IHPP works both on Microsoft \textbf{Windows} and \textbf{Linux}-based systems but, output data sometimes is different and the reason is the compiler: 
+under Linux systems the compiler \verb|gcc| is supported instead, under Windows only the compiler \verb|cl| included in the software \textbf{Visual Studio} is supported. 
+This means that both the IHPP and the target program have to be compiled with the same compiler under a specific platform. Under Windows systems, target programs built with \verb|gcc| portings or other compilers are not supported due to problems with debug information: 
+practically, IHPP fetches the debug information of a program through Pin which accepts only \verb|pdb| debug info format under Windows and only \verb|dwarf| format under Linux-based systems. But, the problematic difference between the two compilers is another: 
+they compile C/C++ code in a different way and often they do not respect the \emph{standard calling conventions}, specially in auxiliary routines inserted into the target program. 
+Because of this, a huge amount of work has been done in IHPP to overcome these problems, 
+specially under Windows systems.
 
 \section{The \emph{function} mode}
 

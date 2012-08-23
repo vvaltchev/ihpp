@@ -12,7 +12,9 @@ using namespace std;
 //Static symbols... 
 
 static KNOB<unsigned int> kparameter(KNOB_MODE_WRITEONCE, "pintool", "k", "3", "");
-static KNOB<string> singleFunctions(KNOB_MODE_APPEND, "pintool", "f", "", "");
+//static KNOB<string> singleFunctions(KNOB_MODE_APPEND, "pintool", "f", "", "");
+static KNOB<string> funcList(KNOB_MODE_WRITEONCE, "pintool", "funcs", "", "");
+
 static KNOB<string> outFileName(KNOB_MODE_WRITEONCE, "pintool", "outfile", "out.txt", "");
 
 static KNOB<bool> showkSF(KNOB_MODE_WRITEONCE, "pintool", "ksf", "0", "");
@@ -49,11 +51,50 @@ static KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "--", "
 
 //----------------------------------------------------------------------------------------
 
+vector<string> *optionsClass::splitString(string s, char sep) {
 
+	vector<string> *res = new vector<string>();
+	size_t len = s.length();
+	size_t j;
 
-KNOB<string> &optionsClass::tracingFunctions() { 
+	char *buf; 
 
-	return singleFunctions; 
+	if (!len)
+		return res;
+
+	buf = new char[len+1];
+	memset(buf, 0, len+1);
+
+	j=0;
+
+	for (size_t i=0; i < len; i++) {
+
+		if (s[i] == sep) {
+		
+			if (!j) {
+			
+				delete [] buf;
+				delete res;
+				return 0;
+			}
+				
+			buf[j]=0;
+			res->push_back(string(buf));
+			j=0;
+			continue;
+		}
+
+		buf[j++]=s[i];
+	}
+
+	if (j) {
+	
+		buf[j]=0;
+		res->push_back(string(buf));
+	}
+
+	delete [] buf;
+	return res;
 }
 
 const char *optionsClass::getOutfileName() { 
@@ -102,6 +143,7 @@ void optionsClass::initFromGlobalOptions()
 	kinf = ::kinf.Value();
 	xmloutput = ::xmloutput.Value();
 	unrollRec = ::opt_unrollRec.Value();
+	tracingFuncList = ::funcList.Value();
 
 	//automatic option implications
 	if (rollLoops) {
@@ -117,7 +159,7 @@ void optionsClass::showHelp()
 	cout << endl << endl;
 	cout << "IHPP: An Intraprocedural Hot Path Profiler\n" << endl;
 	cout << "-------------------------------------------\n" << endl;
-	cout << "Syntax: <PIN> -t " << KCCF_LIB_FILE << " <WORKING MODE> [ -f <func1> [-f <func2> [...]] ]\n"; 
+	cout << "Syntax: <PIN> -t " << KCCF_LIB_FILE << " <WORKING MODE> [ -funcs <func1>,<func2>,... ]\n"; 
 	cout << "\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] [ -xml ]" << endl;
 	cout << "\t<SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
 	
@@ -197,11 +239,11 @@ bool optionsClass::checkOptions()
 
 #ifdef _WIN32
 	
-	if ( !singleFunctions.NumberOfValues() && !experimental.Value() ) {
+	if ( !funcList.Value().length() && !experimental.Value() ) {
 	
 		cerr << "Under Windows systems full tracing is an experimental feature:" << endl;
 		cerr << "results MAY BE WRONG. To try it, use -experimental option." << endl;
-		cerr << "Use -f <func> [ -f <func> ... ] to do a SELECTIVE tracing (much more reliable).\n" << endl;
+		cerr << "Use -funcs <func1>,<func2>,... to do a SELECTIVE tracing (much more reliable).\n" << endl;
 		cerr << "Tip: full tracing combined with -startFunc <func> (es. main)" << endl;
 		cerr << "and -stopFunc <func> (es. exit) may produce better results.\n" << endl;
 
