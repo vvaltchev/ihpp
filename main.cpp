@@ -527,7 +527,7 @@ int main(int argc, char ** argv) {
 		globalSharedContext->allFuncs[f->getKey()] = f;
 		globalSharedContext->funcAddrsToTrace.insert(f->functionAddress());
 
-		if (globalSharedContext->WorkingMode() == WM_InterProcMode) {
+		if (globalSharedContext->WorkingMode() != WM_FuncMode) {
 		
 			BasicBlock *bb = new BasicBlock(f->functionAddress(), f, f->functionAddress(), 0, 0);
 			globalSharedContext->allBlocks[bb->blockAddress()] = bb;

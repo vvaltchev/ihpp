@@ -46,6 +46,18 @@ ihppThreadContextClass *ihppContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 
 			traceObject(globalSharedContext->allFuncs[(ADDRINT)-1], ret, t, b);
 			ret->shadowStack.push(ShadowStackType(t,b,(ADDRINT)-1));
+
+			if (globalSharedContext->WorkingMode() == WM_IntraMode) {
+				
+				ihppIntraModeContext *intraCtx;
+				ret->setCurrentFunction((ADDRINT)-1);
+				intraCtx = ret->getCurrentFunctionCtx();
+
+				t=b=0;
+				traceObject(globalSharedContext->allBlocks[(ADDRINT)-1], intraCtx, t, b);
+				intraCtx->shadowStack.push(ShadowStackType(t,b,(ADDRINT)-1));
+			}
+
 		} else {
 
 			traceObject(globalSharedContext->allBlocks[(ADDRINT)-1], ret, ret->treeTop, ret->treeBottom);
