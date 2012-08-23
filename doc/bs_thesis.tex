@@ -1119,7 +1119,7 @@ Instrumenting a routine means adding a \verb|call| instruction to a pintool anal
 routine at its beginning; also, it is possible to instrument \verb|ret| instructions 
 in order to catch \verb|return| statements of the target program: 
 in this way a tool can build, for example, the program's CCT.
-
+In this chapter, basics of IHPP such as its working modes and how can be used will be explained with a few technical considerations.
 
 \section{An overview of IHPP}
 
@@ -1139,8 +1139,15 @@ Another important feature in \emph{intra}-procedural mode is the \verb|rollLoops
 
 \begin{paragraph}{The inter-procedural mode}
 Despite of its name (\emph{intra}procedural profiler), IHPP has also a particular and unique working mode that deals with BBLs but in which the concept of \emph{procedure} is totally removed. In this working mode, a program is composed only by BBLs: there are no functions, so no calls and no returns. IHPP builds a couple of $k$-SF-$k$-CCF for each thread as other modes, but it is like the program has only one big procedure. This mode can be useful, for example, when one wants to analyze an algorithm implemented with two or more functions without considering the caller-callee relations but focusing the attention on execution flow of the hole algorithm. In the case when only one function is instrumented, there is no difference between \emph{inter-} and \emph{intra-} procedural modes.
-
 \end{paragraph}
+
+\section{The \emph{function} mode}
+
+
+
+\section{The \emph{intra}-procedural mode}
+
+\section{The \emph{inter}-procedural mode}
 
 \chapter{The implementation}
 
