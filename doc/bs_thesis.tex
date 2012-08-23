@@ -1198,23 +1198,22 @@ Compiling the example program in \cref{prog1} under a Linux system with:
 \end{center}
 and starting IHPP with\footnote{Due to permission problems under Linux pin have to be run with the \texttt{-injection child} option before the \texttt{-t} option. See its official user manual for an explanation.}:
 \begin{center}
-\verb|pin -t ihpp.so -ksf -kinf -funcMode -- ./prog1|
+\begin{verbatim}
+pin -t ihpp.so -ksf -kinf -funcMode -outfile out1.txt -- ./prog1
+\end{verbatim}
 \end{center}
 
-will produce as output a file called \verb|out.txt|\footnote{Some lines have been removed for compactness.}:
+will produce as output a file called \verb|out1.txt|\footnote{Some lines have been removed for compactness.}:\\[20pt]
 
-
-\begin{center}
-\begin{tabular}{c}
-\begin{lstlisting}[label=out1]
+\begin{lstlisting}[label=out1, caption=File out1.txt]
 
 K value: INFINITE
-==============================================================
+====================================================================
 Thread ID: 4294967296
-==============================================================
---------------------------------------------------------------
+====================================================================
+--------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------
+--------------------------------------------------------------------
 
 | _start(),1
    | __libc_csu_init(),1
@@ -1235,30 +1234,87 @@ DUMP of K-SF
             | c(),2
    | _fini(),1
       | __do_global_dtors_aux(),1
-==============================================================
+====================================================================
 Thread ID: 8589934593
-==============================================================
---------------------------------------------------------------
+====================================================================
+--------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------
+--------------------------------------------------------------------
 
 | thread2_func(),1
    | a(),1
       | b(),1
       | c(),1
 \end{lstlisting}
-\end{tabular}
-\end{center}
 
 
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+A few considerations. 
+\renewcommand{\labelitemi}{$-$}
+
+\begin{itemize*}
+\item The program is multi-threaded and IHPP correctly shows this 
+producing two different $k$-SFs. 
+\item Only $k$-SFs are present in output because IHPP has been called without the \verb|-kccf| option.
+\item $k$-SFs shown are in fact CCTs because \verb|-kinf| option is used.
+\item The are some compiler routines that almost always will not be an object of interest for an user of IHPP. Note: programs compiled with \verb|cl| under Windows have \emph{hundreds} of compiler\slash library routines even if, of course, the program \emph{is not} compiled with \emph{static} linking of standard libraries. 
+\end{itemize*}
+
+\renewcommand{\labelitemi}{$\bullet$}
+
+Instead, executing IHPP on the same program specifying this time the list 
+of functions to instrument with \verb|-funcs a,b,c,d,e| the output written to \verb|out2.txt| will be:
+
+\begin{lstlisting}[label=out2, caption=File out2.txt]
+K value: INFINITE
+====================================================================
+Thread ID: 4294967296
+====================================================================
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+
+| __root__(),1
+   | a(),1
+      | b(),1
+      | c(),1
+   | e(),2
+      | d(),2
+         | c(),4
+      | c(),2
+      | a(),2
+         | b(),2
+         | c(),2
+====================================================================
+Thread ID: 8589934593
+====================================================================
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+
+| __root__(),1
+   | a(),1
+      | b(),1
+      | c(),1
+\end{lstlisting}
+
+It is clear that reading this output is easier than reading output in \cref{out1} but,
+another thing comes out: there is \verb|__root__|, a ``new'' function not shown before.
+It is not a really function but only a \emph{fake} symbol that IHPP automatically adds
+as root of the first tree for each thread. The reason is simple: when an user specifies 
+a list of functions, there is absolutely no guarantee that among these one is a relative root function.
+One criticism towards this solution can be to say that $k$-SF is a \emph{forest}, not a tree, so the fake root node can be avoided: the answer is that criticism is wrong because of two reasons:
+\begin{enumerate}
+\item $\infty$-SF is a CCT \emph{by definition}: without the fake root $\infty$-SF will still be a forest and not a \emph{calling context tree}. 
+\item Since $k$-SF will be wrong without a fake root (for all values of $k$ greater than a certain $\bar{k}$), a correct $k$-CCF could not be generated: as explained in chapter 3, before the $inv_k$ operation, counters of all nodes
+in top regions must be cleared with the exception of the first three, which has as root node, the root of the CCT relative to the program execution trace. In the example above,
+neither \verb|a()| nor \verb|b()| is eligible as CCT's root.
+\end{enumerate}
+
+
 
 \section{The \emph{intra}-procedural mode}
 
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+adh ak dj ak jhd a k h a kd h ak d  hk q hd k aj h d  i q h  i k h  ka h dk a h dj s k aj ka j h d  k aj h d akj h da 
 adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
 adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
 adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
