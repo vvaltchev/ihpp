@@ -573,8 +573,10 @@ void print_outputInit() {
 
 		ctx->OutFile << endl << endl << endl;
 
+#if DEBUG
 		ctx->OutFile << "Size of a node: " << sizeof(ihppNode) << endl;
-	
+#endif
+
 		if (!ctx->options.kinf) {
 			ctx->OutFile << "K value: " << ctx->kval() << endl;
 		} else {
