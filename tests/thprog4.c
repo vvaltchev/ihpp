@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-void p(int n) {
-
-	printf("%d\n", n);
+void p(int n) { 
+	
+	printf("%d\n", n); 
 }
 
 void foo(int n) {
@@ -12,11 +12,14 @@ void foo(int n) {
 	if (n) {
 
 		p(0);
-		for (i=0; i < 3; i++) p(1);
+
+		for (i=0; i < 3; i++) {
+			p(1);
+		}
+
 		foo(0);
 
 	} else {
-
 		p(2);
 	}
 }
