@@ -44,7 +44,7 @@ static KNOB<bool> funcsDisasm(KNOB_MODE_WRITEONCE, "pintool", "funcsDisasm", "0"
 static KNOB<bool> kinf(KNOB_MODE_WRITEONCE, "pintool", "kinf", "0", "");
 static KNOB<bool> xmloutput(KNOB_MODE_WRITEONCE, "pintool", "xml", "0", "");
 
-static KNOB<bool> opt_unrollRec(KNOB_MODE_WRITEONCE, "pintool", "unrollRec", "0", "");
+static KNOB<bool> opt_unrollRec(KNOB_MODE_WRITEONCE, "pintool", "unrollSimpleRec", "0", "");
 
 static KNOB<string> startFunc(KNOB_MODE_WRITEONCE, "pintool", "startFunc", "--", "");
 static KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "--", "");
@@ -180,7 +180,7 @@ void optionsClass::showHelp()
 	cout << "\t-xml option produces the output file in xml format" << endl;
 	cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
 	cout << "\t-rollLoops: when building the kSF in intraMode or interMode, \n\t\tloops will be rolled (-kinf is implied)\n" << endl;
-	cout << "\t-unrollRec: disables the rolling (by default) of \n\t\tsingle-function recursion in funcMode" << endl;
+	cout << "\t-unrollSimpleRec: disables the rolling (by default) of \n\t\tsingle-function recursion in funcMode" << endl;
 
 	cout << endl << endl;
 }

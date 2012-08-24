@@ -1161,40 +1161,49 @@ is a way of profiling very similar to the one theoretically explained in chapter
 A concrete example will be helpful to show this.
 
 \begin{lstlisting}[language=C, 
-	caption=A simple multi-threaded program, label=prog1, frame=leftline]
+	caption={prog1.c, a simple multi-threaded program}, label=prog1, frame=leftline]
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 
-void a(); void b(); void c();
-void d(); void e();
+void a(int x); void b(); void c();
+void d(); void e(); void f();
 
-void a() { b(); c(); }
+void a(int x) { 
+
+	if (!x) { 
+		b(); c(); 
+	} else { 
+		b(); f();
+	} 
+}
+
 void b() { }
 void c() { }
+void f() { }
 void d() { c(); c(); }
-void e() { d(); c(); a(); }
+void e() { d(); c(); a(0); }
 
-void *thread2_func(void *arg) { a(); return 0; }
+void *thread2(void *arg) { a(1); return 0; }
 
 int main(int argc, char ** argv) {
 
+	int r;
 	pthread_t th;
 
-	a(); e(); e();
-
-	pthread_create(&th, NULL, thread2_func, NULL);
+	a(0); e(); e();
+	r = pthread_create(&th, NULL, thread2, NULL);
 	pthread_join(th, NULL);
 	return 0;
 }
 
 \end{lstlisting}
 
-\flushleft
+\noindent
 Compiling the example program in \cref{prog1} under a Linux system with:
 \begin{center}
-\verb|gcc -g prog1.c -o prog1 -lpthread|
+\verb|gcc -g prog1.c -o prog1 -g -lpthread|
 \end{center}
 and starting IHPP with\footnote{Due to permission problems under Linux pin have to be run with the \texttt{-injection child} option before the \texttt{-t} option. See its official user manual for an explanation.}:
 \begin{center}
@@ -1203,9 +1212,9 @@ pin -t ihpp.so -ksf -kinf -funcMode -outfile out1.txt -- ./prog1
 \end{verbatim}
 \end{center}
 
-will produce as output a file called \verb|out1.txt|\footnote{Some lines have been removed for compactness.}:\\[20pt]
+will produce as output a file called \verb|out1.txt|\footnote{Some lines have been removed for compactness.}:
 
-\begin{lstlisting}[label=out1, caption=File out1.txt]
+\begin{lstlisting}[label=out1, caption=file out1.txt]
 
 K value: INFINITE
 ====================================================================
@@ -1244,7 +1253,7 @@ DUMP of K-SF
 | thread2_func(),1
    | a(),1
       | b(),1
-      | c(),1
+      | f(),1
 \end{lstlisting}
 
 
@@ -1260,11 +1269,11 @@ producing two different $k$-SFs.
 \end{itemize*}
 
 \renewcommand{\labelitemi}{$\bullet$}
+\noindent
+Instead, executing IHPP on the same program but specifying this time the list 
+of functions to instrument with \verb|-funcs a,b,c,d,e,f| the output written by IHPP is:
 
-Instead, executing IHPP on the same program specifying this time the list 
-of functions to instrument with \verb|-funcs a,b,c,d,e| the output written to \verb|out2.txt| will be:
-
-\begin{lstlisting}[label=out2, caption=File out2.txt]
+\begin{lstlisting}[label=out2, caption={The output of IHPP run with selective tracing}]
 K value: INFINITE
 ====================================================================
 Thread ID: 4294967296
@@ -1294,9 +1303,9 @@ DUMP of K-SF
 | __root__(),1
    | a(),1
       | b(),1
-      | c(),1
+      | f(),1
 \end{lstlisting}
-
+\noindent
 It is clear that reading this output is easier than reading output in \cref{out1} but,
 another thing comes out: there is \verb|__root__|, a ``new'' function not shown before.
 It is not a really function but only a \emph{fake} symbol that IHPP automatically adds
@@ -1307,21 +1316,248 @@ One criticism towards this solution can be to say that $k$-SF is a \emph{forest}
 \item $\infty$-SF is a CCT \emph{by definition}: without the fake root $\infty$-SF will still be a forest and not a \emph{calling context tree}. 
 \item Since $k$-SF will be wrong without a fake root (for all values of $k$ greater than a certain $\bar{k}$), a correct $k$-CCF could not be generated: as explained in chapter 3, before the $inv_k$ operation, counters of all nodes
 in top regions must be cleared with the exception of the first three, which has as root node, the root of the CCT relative to the program execution trace. In the example above,
-neither \verb|a()| nor \verb|b()| is eligible as CCT's root.
+neither \verb|a()| nor \verb|e()| is eligible as CCT's root.
 \end{enumerate}
 
+\subsection{The \emph{joinThreads} option}
+
+When invoking IHPP with the \verb|-joinThreads| option, after the target program ended
+IHPP will join all $k$-SFs together before (eventually) building the $k$-CCF.
+The output of IHPP after profiling the program in \cref{prog1} with this options is:
+
+\begin{lstlisting}[label=out3, caption={the output of IHPP with the joinThreads option}]
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+
+| __root__(),2
+   | a(),2
+      | b(),2
+      | c(),1
+      | f(),1
+   | e(),2
+      | d(),2
+         | c(),4
+      | c(),2
+      | a(),2
+         | b(),2
+         | c(),2
+\end{lstlisting}
+\noindent
+Observing \cref{out3} should be clear that the $k$-SF of the second thread has been joined:
+\verb|a()| and \verb|b()| counters of the first tree has been incremented and the \verb|f()| node has been added to the cumulative $k$-SF.
+
+\subsection{The \emph{kccf} option}
+
+Using the \verb|-kccf| option simply makes IHPP to produce also a $k$-CCF relative 
+to each $k$-SF. It can be used with every value of $k$ specified by the option 
+\verb|-k <value>| as it can used combined with the \verb|-kinf| even if this is often
+useless. Below is shown the \emph{full} output of IHPP running on the program of \cref{prog1} with \verb|-joinThreads -ksf -kccf -k 2 -funcs a,b,c,d,e,f| options.
+\begin{lstlisting}[label=out4, caption={a full IHPP output}]
+K value: 2
+Functions count: 18
+Maximum number of different threads: 2
+Nodes count of k slab forest: 20
+Nodes count of kCCF: 25
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+
+| __root__(),2
+   | a(),2
+      | b(),2
+      | c(),1
+      | f(),1
+   | e(),2
+      | d(),2
+         | c(),4
+      | c(),2
+      | a(),2
+         | b(),2
+         | c(),2
+| b(),2
+| c(),3
+| d(),2
+   | c(),4
+| a(),2
+   | b(),2
+   | c(),2
+| f(),1
+--------------------------------------------------------------------
+DUMP of K-CCF
+--------------------------------------------------------------------
+
+| __root__(),2
+| a(),4
+   | __root__(),2
+   | e(),2
+      | __root__(),2
+| b(),4
+   | a(),4
+      | __root__(),2
+      | e(),2
+| c(),9
+   | a(),3
+      | __root__(),1
+      | e(),2
+   | d(),4
+      | e(),4
+   | e(),2
+      | __root__(),2
+| f(),1
+   | a(),1
+      | __root__(),1
+| e(),2
+   | __root__(),2
+| d(),2
+   | e(),2
+      | __root__(),2
+\end{lstlisting}
+
+\noindent
+Note: it is obvious that for finite values of $k$, IHPP produces as $k$-SF 
+a \emph{real} forest and the fake node \verb|__root__| is the root \emph{only} of the first tree.
+
+\subsection{The \emph{unrollSingleRec} option}
+
+Actually, with the options explained since now, IHPP does not produce an exactly standard
+CCT or $k$-SF as a profiler which uses the algorithm for building a $k$-SF shown in chapter 3 will do. IHPP, by default, compresses (rolls) subtrees generated by recursions of single functions. \Cref{prog2} shows an appropriate example:
+
+\begin{lstlisting}[language=C, 
+	caption={prog2.c, a simple program that uses recursion}, label=prog2, frame=leftline]
+
+void foo(); void bar();
+
+void recFunc(int n) {
+
+	if (!n) { bar(); return; }
+	recFunc(n-1);
+}
+
+void foo() { recFunc(5); }
+void bar() { }
+
+int main(int argc, char ** argv) { 
+	
+	foo(); 
+	return 0; 
+}
+
+\end{lstlisting}
+
+\noindent
+The $\infty$-SF of program in \cref{prog2} produced by IHPP is:
+
+\begin{lstlisting}[label=out5, caption={an example of $k$-SF \emph{without} the \texttt{unrollSingleRec} option}]
+| __root__(),1
+   | main(),1
+      | foo(),1
+         | recFunc(),6
+            | bar(),1
+\end{lstlisting}
+
+\noindent
+It is clearly evident that recursion of \verb|recFunc()| is not explicitly shown.
+Using the \verb|-unrollSingleRec| option instead:
+\begin{lstlisting}[label=out6, caption={an example of $k$-SF \emph{with} the \texttt{unrollSingleRec} option}]
+| __root__(),1
+   | main(),1
+      | foo(),1
+         | recFunc(),1
+            | recFunc(),1
+               | recFunc(),1
+                  | recFunc(),1
+                     | recFunc(),1
+                        | recFunc(),1
+                           | bar(),1
+\end{lstlisting}
+
+\noindent
+The output shown in \cref{out6} is the \emph{real} CCT of the program in \cref{prog2} 
+but it is not more useful than the one in \cref{out5} even if it is longer: readers
+would imagine what will happen if \verb|foo()| called \verb|recFunc()| with $n=10000$. 
+Of course, using a finite value of $k$ will solve the problem but some information will be lost. An important consideration: when \verb|-unrollSingleRec| is not used, \emph{only} 
+recursions like the one just shown will be rolled, not the more complex recursions like 
+those generated by the program in \cref{prog3}:
+
+\begin{lstlisting}[language=C, 
+	caption={prog3.c, a program that uses complex recursions}, label=prog3, frame=leftline]
+
+void bar(int n);
+
+void foo(int n) {
+	
+	if (!n) return;
+	bar(n-1);
+}
+
+void bar(int n) {
+
+	if (!n) return;
+	foo(n-1);
+}
+
+int main(int argc, char ** argv) { foo(5);	return 0; }
+
+\end{lstlisting}
+
+\noindent
+Indeed, independently of the option \verb|-unrollSingleRec|, 
+IHPP produces this output for \verb|prog3|:
+\begin{lstlisting}[label=out7, caption={IHPP partial output for \texttt{prog3}}]
+| __root__(),1
+   | main(),1
+      | foo(),1
+         | bar(),1
+            | foo(),1
+               | bar(),1
+                  | foo(),1
+                     | bar(),1
+
+\end{lstlisting}
 
 
 \section{The \emph{intra}-procedural mode}
 
-adh ak dj ak jhd a k h a kd h ak d  hk q hd k aj h d  i q h  i k h  ka h dk a h dj s k aj ka j h d  k aj h d akj h da 
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+In the \emph{intra}-procedural mode (internally called \verb|intraMode|), 
+IHPP traces BBLs (basic blocks) activations inside procedures building a couple $k$-SF-$k$-CCF for each procedure but, before proceeding, a BBL definition is necessary 
+because the concept of BBL used in IHPP is a quite different from the classical one.
 
+\subsection{The basic blocks}
+The classical definition of BBL that can be found in textbooks is: \emph{a BBL is a single entrance, single exit sequence of instructions}. 
+This definition can be perfectly applied to the concept of BBL used in IHPP, 
+even if IHPP's BBLs are different from the classical ones. 
+The following example will explain why.
+
+\begin{lstlisting}[language=C, 
+	caption={a switch statement}, label=switch, frame=leftline]
+
+    switch(condition_var)
+    {
+        case 3: other_var++;
+        case 2: other_var++;
+        case 1: other_var++;
+        case 0:
+        default: break;
+    }
+
+\end{lstlisting}
+
+The \verb|switch| statement with fall-through cases in \cref{switch} 
+will be usually compiled (for the IA-32 architecture) as something like this:
+
+\begin{lstlisting}[language={[x86masm]Assembler}, 
+	frame=leftline, label=asm1, caption={assembly code relative to \cref{switch}}]
+.L10:
+	add [ebp-4], 1
+.L9:
+	add [ebp-4], 1
+.L8:
+	add [ebp-4], 1
+\end{lstlisting}
+
+\noindent
+According to the classical definition of BBL, \cref{asm1} contains three distinct BBLs, one for each instruction.
 
 \section{The \emph{inter}-procedural mode}
 
@@ -1334,10 +1570,7 @@ adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
 
 \chapter{The implementation}
 
-
-
 \chapter{Case studies}
-
 
 \chapter{Conclusions}
 
