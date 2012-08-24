@@ -1161,7 +1161,7 @@ is a way of profiling very similar to the one theoretically explained in chapter
 A concrete example will be helpful to show this.
 
 \begin{lstlisting}[language=C, 
-	caption=A simple multi-threaded program, label=prog1, frame=leftline]
+	caption={prog1.c, a simple multi-threaded program}, label=prog1, frame=leftline]
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1307,10 +1307,32 @@ One criticism towards this solution can be to say that $k$-SF is a \emph{forest}
 \item $\infty$-SF is a CCT \emph{by definition}: without the fake root $\infty$-SF will still be a forest and not a \emph{calling context tree}. 
 \item Since $k$-SF will be wrong without a fake root (for all values of $k$ greater than a certain $\bar{k}$), a correct $k$-CCF could not be generated: as explained in chapter 3, before the $inv_k$ operation, counters of all nodes
 in top regions must be cleared with the exception of the first three, which has as root node, the root of the CCT relative to the program execution trace. In the example above,
-neither \verb|a()| nor \verb|b()| is eligible as CCT's root.
+neither \verb|a()| nor \verb|e()| is eligible as CCT's root.
 \end{enumerate}
 
+\subsection{The \emph{joinThreads} option}
 
+When invoking IHPP with the \verb|-joinThreads| option, after the target program ended
+IHPP will join all $k$-SFs together before (eventually) building the $k$-CCF.
+The output of IHPP after profiling the program in \cref{prog1} will be:
+
+\begin{lstlisting}[label=out3, caption=File out3.txt]
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+
+| __root__(),2
+   | a(),2
+      | b(),2
+      | c(),2
+   | e(),2
+      | d(),2
+         | c(),4
+      | c(),2
+      | a(),2
+         | b(),2
+         | c(),2
+\end{lstlisting}
 
 \section{The \emph{intra}-procedural mode}
 
