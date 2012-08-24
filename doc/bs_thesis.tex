@@ -1543,22 +1543,123 @@ The following example will explain why.
 
 \end{lstlisting}
 
+\noindent
 The \verb|switch| statement with fall-through cases in \cref{switch} 
 will be usually compiled (for the IA-32 architecture) as something like this:
 
 \begin{lstlisting}[language={[x86masm]Assembler}, 
 	frame=leftline, label=asm1, caption={assembly code relative to \cref{switch}}]
 .L10:
-	add [ebp-4], 1
+	add dword [ebp-4], 1
 .L9:
-	add [ebp-4], 1
+	add dword [ebp-4], 1
 .L8:
-	add [ebp-4], 1
+	add dword [ebp-4], 1
 \end{lstlisting}
 
 \noindent
-According to the classical definition of BBL, \cref{asm1} contains three distinct BBLs, one for each instruction.
+According to the classical definition of BBL, \cref{asm1} contains three distinct BBLs, one for each instruction. Instead, in IHPP BBLs are still three but the first one, starting at \verb|.L10|, contains all the three instructions; the second one, starting at \verb|.L9|, contains the last two \verb|add| instructions and the last one is formed only by the 
+last \verb|add| instruction. The reason of this different BBL concept is that 
+IHPP is based on \textbf{Pin} and uses BBLs as provided by it. 
+Pin, instead, has no way to ``extract'' classic BBLs from a compiled program because 
+they can be only discovered at runtime: for example, when a branch (that could be indirect) sets the \emph{instruction pointer} to the second \verb|add| at \verb|.L9|, 
+Pin has no way to know in advance that in the future (and this is not certain) some 
+other branch will set the instruction pointer to \verb|.L8| so, the BBL starting at \verb|.L9| contains both \verb|add| instructions.
 
+\subsection{\emph{Intra}Mode basics}
+
+When run with the \verb|-intraMode| option, IHPP traces BBLs inside all functions or inside the chosen ones, like in the \emph{function} mode. Every BBL is identified in output by three elements: the function which belongs to, the line and the column of the first 
+statement in program source code that belongs to the BBL\footnote{In order all this data to be obtained from the executable, it \emph{must} be build 
+with debug info as told in the chapter's beginning: programs without debug info 
+cannot be analyzed by IHPP, independently from the working mode.}.
+\Cref{prog4} shows a program that is going to be analyzed.
+
+\begin{lstlisting}[language=C, 
+	caption={prog4.c, another simple program}, label=prog4, frame=leftline, numbers=left]
+#include <stdio.h>
+
+void p(int n) { 
+	
+	printf("%d\n", n); 
+}
+
+void foo(int n) {
+
+	int i;
+
+	if (n) {
+
+		p(0);
+
+		for (i=0; i < 3; i++) {
+			p(1);
+		}
+
+		foo(0);
+
+	} else {
+		p(2);
+	}
+}
+
+int main(int argc, char ** argv) { foo(1); return 0; }
+\end{lstlisting}
+
+\noindent
+Running IHPP with \verb|-intraMode -ksf -k 100 -funcs foo,p| will produce in output:
+
+\begin{lstlisting}[label=out8, caption={IHPP partial output for \texttt{prog4}}]
+
+====================================================================
+Function: p()
+====================================================================
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+| {p,3,0},5
+   | {p,6,0},5
+
+====================================================================
+Function: foo()
+====================================================================
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+| {foo,8,0},2
+   | {foo,14,0},1
+      | {foo,16,0},1
+         | {foo,16,0},1
+            | {foo,17,0},1
+               | {foo,16,0},1
+                  | {foo,17,0},1
+                     | {foo,16,0},1
+                        | {foo,17,0},1
+                           | {foo,16,0},1
+                              | {foo,20,0},1
+                                 | {foo,20,0},1
+                                    | {foo,25,0},1
+   | {foo,23,0},1
+      | {foo,25,0},1
+
+\end{lstlisting}
+
+\noindent
+A few considerations about \cref{out8}:
+\renewcommand{\labelitemi}{$-$}
+\begin{itemize}
+\item All column values are zero: this happens when 
+column information is not available but it is not necessary a whole program 
+problem: some BBLs could have this info and others could not, depending from the compiler.
+\item In this example, as in many others, only $k$-SFs with big values of $k$
+are shown because they provide full information analysis. This approach is the best for 
+simple programs which practically allows it. 
+But, in this particular example these is a specific reason to use $k=100$ instead of $k=\infty$: IHPP does not allow \verb|-kinf| option alone in \emph{intra}Mode because
+output size is unbounded. The only way for using \verb|-kinf| option is combined with \verb|-rollLoops| which is later explained.
+
+
+
+\end{itemize}
+\renewcommand{\labelitemi}{$\bullet$}
 \section{The \emph{inter}-procedural mode}
 
 adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
