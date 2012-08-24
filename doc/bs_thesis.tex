@@ -19,6 +19,7 @@
 \usepackage{cite}
 %\usepackage[lighttt]{lmodern}
 \usepackage{bold-extra}
+\usepackage{cleveref}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usetikzlibrary{arrows,graphs,trees,fit,shapes,backgrounds}
@@ -32,11 +33,13 @@
 }
 
 \lstset{
-	language=java,
 	basicstyle=\ttfamily\small, 
 	basewidth=0.5em,
 	tabsize=4,
-	keywordstyle=\bfseries
+	keywordstyle=\bfseries,
+	captionpos=b,
+	framesep=10pt,
+	numbersep=15pt
 }
 
 
@@ -558,7 +561,7 @@ An algorithm for building a CCT is:
 \label{cct1}
 
 \end{figure}
-\begin{lstlisting}[language=java, morekeywords={function,then,endif},frame=leftline,framesep=10pt]
+\begin{lstlisting}[language=java, caption=An algorithm for building a CCT, morekeywords={function,then,endif},frame=leftline,framesep=10pt]
 
 node treeRoot=null,currentNode=null
 
@@ -936,7 +939,7 @@ At the algorithm start, \verb|S| contains a special pair of \verb|null| pointers
 at the first procedure call, the \verb|if| condition on line 15 is verified:
 the algorithm creates the root-node, makes \verb|top| pointing on it and adds also that pointer in \verb|R|. In the following procedure calls, the \verb|top| pointer is updated exactly as the \verb|currentNode| pointer in the CCT building algorithm (lines 36-46) except when \verb|S.size()-1| is a multiple of $k$: in that case (lines 16-34), \verb|bottom| is moved to \verb|top| and \verb|top| is moved to a (possibly) new tree of the forest; when the ``new'' tree already exists (this information is provided by \verb|R|), \verb|top| is simply moved to its root (line 25). After the first time \verb|top| is moved, the pointer \verb|bottom| is not more \verb|null| and is updated as the \verb|currentNode| pointer in CCT (lines 54-66). 
 
-\begin{lstlisting}[language=java, 
+\begin{lstlisting}[language=java, caption=An algorithm for building a $k$-SF,
 			morekeywords={function,then,endif},
 			frame=leftline,framesep=10pt,numbers=left, numbersep=15pt]
 
@@ -1146,18 +1149,188 @@ Despite of its name (\emph{intra}procedural profiler), IHPP has also a particula
 Like Pin itself, IHPP works both on Microsoft \textbf{Windows} and \textbf{Linux}-based systems but, output data sometimes is different and the reason is the compiler: 
 under Linux systems the compiler \verb|gcc| is supported instead, under Windows only the compiler \verb|cl| included in the software \textbf{Visual Studio} is supported. 
 This means that both the IHPP and the target program have to be compiled with the same compiler under a specific platform. Under Windows systems, target programs built with \verb|gcc| portings or other compilers are not supported due to problems with debug information: 
-practically, IHPP fetches the debug information of a program through Pin which accepts only \verb|pdb| debug info format under Windows and only \verb|dwarf| format under Linux-based systems. But, the problematic difference between the two compilers is another: 
+practically, IHPP fetches the debug information of a program through Pin which accepts only \verb|pdb| debug info format under Windows and only \verb|dwarf| format under Linux-based systems; but, the problematic difference between the two compilers is another: 
 they compile C/C++ code in a different way and often they do not respect the \emph{standard calling conventions}, specially in auxiliary routines inserted into the target program. 
 Because of this, a huge amount of work has been done in IHPP to overcome these problems, 
 specially under Windows systems.
 
 \section{The \emph{function} mode}
 
+As said before, \emph{function} mode (internally called \verb|funcMode|) 
+is a way of profiling very similar to the one theoretically explained in chapter 3.
+A concrete example will be helpful to show this.
+
+\begin{lstlisting}[language=C, 
+	caption=A simple multi-threaded program, label=prog1, frame=leftline]
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+void a(); void b(); void c();
+void d(); void e();
+
+void a() { b(); c(); }
+void b() { }
+void c() { }
+void d() { c(); c(); }
+void e() { d(); c(); a(); }
+
+void *thread2_func(void *arg) { a(); return 0; }
+
+int main(int argc, char ** argv) {
+
+	pthread_t th;
+
+	a(); e(); e();
+
+	pthread_create(&th, NULL, thread2_func, NULL);
+	pthread_join(th, NULL);
+	return 0;
+}
+
+\end{lstlisting}
+
+\flushleft
+Compiling the example program in \cref{prog1} under a Linux system with:
+\begin{center}
+\verb|gcc -g prog1.c -o prog1 -lpthread|
+\end{center}
+and starting IHPP with\footnote{Due to permission problems under Linux pin have to be run with the \texttt{-injection child} option before the \texttt{-t} option. See its official user manual for an explanation.}:
+\begin{center}
+\begin{verbatim}
+pin -t ihpp.so -ksf -kinf -funcMode -outfile out1.txt -- ./prog1
+\end{verbatim}
+\end{center}
+
+will produce as output a file called \verb|out1.txt|\footnote{Some lines have been removed for compactness.}:\\[20pt]
+
+\begin{lstlisting}[label=out1, caption=File out1.txt]
+
+K value: INFINITE
+====================================================================
+Thread ID: 4294967296
+====================================================================
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+
+| _start(),1
+   | __libc_csu_init(),1
+      | __i686.get_pc_thunk.bx(),1
+      | _init(),1
+         | frame_dummy(),1
+         | __do_global_ctors_aux(),1
+   | main(),1
+      | a(),1
+         | b(),1
+         | c(),1
+      | e(),2
+         | d(),2
+            | c(),4
+         | c(),2
+         | a(),2
+            | b(),2
+            | c(),2
+   | _fini(),1
+      | __do_global_dtors_aux(),1
+====================================================================
+Thread ID: 8589934593
+====================================================================
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+
+| thread2_func(),1
+   | a(),1
+      | b(),1
+      | c(),1
+\end{lstlisting}
+
+
+A few considerations. 
+\renewcommand{\labelitemi}{$-$}
+
+\begin{itemize*}
+\item The program is multi-threaded and IHPP correctly shows this 
+producing two different $k$-SFs. 
+\item Only $k$-SFs are present in output because IHPP has been called without the \verb|-kccf| option.
+\item $k$-SFs shown are in fact CCTs because \verb|-kinf| option is used.
+\item The are some compiler routines that almost always will not be an object of interest for an user of IHPP. Note: programs compiled with \verb|cl| under Windows have \emph{hundreds} of compiler\slash library routines even if, of course, the program \emph{is not} compiled with \emph{static} linking of standard libraries. 
+\end{itemize*}
+
+\renewcommand{\labelitemi}{$\bullet$}
+
+Instead, executing IHPP on the same program specifying this time the list 
+of functions to instrument with \verb|-funcs a,b,c,d,e| the output written to \verb|out2.txt| will be:
+
+\begin{lstlisting}[label=out2, caption=File out2.txt]
+K value: INFINITE
+====================================================================
+Thread ID: 4294967296
+====================================================================
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+
+| __root__(),1
+   | a(),1
+      | b(),1
+      | c(),1
+   | e(),2
+      | d(),2
+         | c(),4
+      | c(),2
+      | a(),2
+         | b(),2
+         | c(),2
+====================================================================
+Thread ID: 8589934593
+====================================================================
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+
+| __root__(),1
+   | a(),1
+      | b(),1
+      | c(),1
+\end{lstlisting}
+
+It is clear that reading this output is easier than reading output in \cref{out1} but,
+another thing comes out: there is \verb|__root__|, a ``new'' function not shown before.
+It is not a really function but only a \emph{fake} symbol that IHPP automatically adds
+as root of the first tree for each thread. The reason is simple: when an user specifies 
+a list of functions, there is absolutely no guarantee that among these one is a relative root function.
+One criticism towards this solution can be to say that $k$-SF is a \emph{forest}, not a tree, so the fake root node can be avoided: the answer is that criticism is wrong because of two reasons:
+\begin{enumerate}
+\item $\infty$-SF is a CCT \emph{by definition}: without the fake root $\infty$-SF will still be a forest and not a \emph{calling context tree}. 
+\item Since $k$-SF will be wrong without a fake root (for all values of $k$ greater than a certain $\bar{k}$), a correct $k$-CCF could not be generated: as explained in chapter 3, before the $inv_k$ operation, counters of all nodes
+in top regions must be cleared with the exception of the first three, which has as root node, the root of the CCT relative to the program execution trace. In the example above,
+neither \verb|a()| nor \verb|b()| is eligible as CCT's root.
+\end{enumerate}
+
 
 
 \section{The \emph{intra}-procedural mode}
 
+adh ak dj ak jhd a k h a kd h ak d  hk q hd k aj h d  i q h  i k h  ka h dk a h dj s k aj ka j h d  k aj h d akj h da 
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+
+
 \section{The \emph{inter}-procedural mode}
+
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+
 
 \chapter{The implementation}
 
