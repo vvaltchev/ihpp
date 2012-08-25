@@ -116,7 +116,22 @@ public:
 
 	bool isFirstBlock() const { return blockAddress() == functionPtr->functionAddress(); }
 
-	operator string() const { return "{"+functionName()+","+_firstLine+","+_firstCh+"}"; }
+	operator string() const { 
+		
+		stringstream ss;
+
+		ss << "{";
+		ss << functionName();
+		ss << "+";
+		ss << (blockAddress()-functionAddr());
+		ss << " at ";
+		ss << _firstLine;
+		ss << ",";
+		ss << _firstCh;
+		ss << "}";
+
+		return ss.str();
+	}
 };
 
 

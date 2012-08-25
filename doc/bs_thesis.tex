@@ -1644,7 +1644,7 @@ DUMP of K-SF
 \end{lstlisting}
 
 \noindent
-A few considerations about \cref{out8}:
+A few preliminary considerations about \cref{out8}:
 \renewcommand{\labelitemi}{$-$}
 
 \begin{itemize}
@@ -1661,13 +1661,17 @@ output size is potentially unbounded. The only way for using \verb|-kinf| option
 
 \begin{paragraph}{An interpretation}
 Comparing the output in \cref{out8} with the program in \cref{prog4} it is possible to 
-observe a good match between them, for example, the loop in lines 16-17 
+observe a good matching between them, for example, the loop in lines 16-17 
 is clearly visible; also, the behavior of the \verb|if-then-else| statement in \verb|foo()| is evident. In particular, recognizing this last one is not trivial: 
 IHPP has to understand that a recursion has occurred and lines 23-25
 are not executed after line 20 but instead, in a new function activation. 
-From a theoretically point of view, this is \emph{like as} IHPP builds a different $k$-SF
-for \emph{each} function activation and then joins all them. 
-Practically, this is achieved in a better way.
+From a theoretically point of view, 
+this is \emph{equivalent} to building a different $k$-SF
+for \emph{each} function activation and then joining all them. 
+Practically, IHPP achieves it in a better way: 
+it substantially uses a \emph{shadow stack} to trace function activations in which
+a couple of pointers (\verb|top|,\verb|bottom|) [see chapter 3] is stored for each 
+function activation. Details of this approach will be explained in the next chapter.
 
 \end{paragraph}
 
