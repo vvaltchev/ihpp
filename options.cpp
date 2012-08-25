@@ -172,7 +172,7 @@ void optionsClass::showHelp()
 	cout << "\t-ksf: shows the k-Slab Forest" << endl;
 	cout << "\t-kccf: shows the k-Calling Context Forest" << endl;
 	cout << "\t-showFuncs: shows function's list" << endl;
-	cout << "\t-showBlocks: shows block's list" << endl;
+	cout << "\t-showBlocks: shows basic block's list" << endl;
 	cout << "\t-blocksDisasm: shows disassembly in the section 'All basic blocks'" << endl;
 	cout << "\t-funcsDisasm: shows disassembly in the section 'All functions'" << endl;
 

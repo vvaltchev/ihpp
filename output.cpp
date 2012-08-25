@@ -147,7 +147,7 @@ void dumpXmlNode(ihppNode &n, int ident=0) {
 
 
 	openTag("objAddr");
-	o << "0x" << hex << (void*)n.getKey() << dec;
+	o << "0x" << hex << (size_t)n.getKey() << dec;
 	closeTag("objAddr");
 
 	openTag("counter");
@@ -298,7 +298,7 @@ void printThreadContextInfo(ihppContextClass *globalCtx, ihppThreadContextClass 
 			openTag("func_ctx",true);
 
 			openTag("funcAddr");
-			globalCtx->OutFile << "0x" << hex << (void*)fc->functionAddress() << dec;
+			globalCtx->OutFile << "0x" << hex << (size_t)fc->functionAddress() << dec;
 			closeTag("funcAddr");
 		}
 
@@ -630,7 +630,7 @@ void print_ins(ADDRINT addr, insInfo &info) {
 	ihppContextClass *ctx = globalSharedContext;
 
 	openAttr("address");
-	ctx->OutFile << "0x" << hex << (void*)addr << dec;
+	ctx->OutFile << "0x" << hex << (size_t)addr << dec;
 	closeAttr("address");
 
 	openAttr("isDirectBranch");
@@ -643,13 +643,13 @@ void print_ins(ADDRINT addr, insInfo &info) {
 
 	if (info.targetAddr) {
 		openAttr("targetAddr");
-		ctx->OutFile << "0x" << hex << (void*)info.targetAddr << dec;
+		ctx->OutFile << "0x" << hex << (size_t)info.targetAddr << dec;
 		closeAttr("targetAddr");
 	}
 
 	if (info.targetFuncAddr) {
 		openAttr("targetAddrFunc");
-		ctx->OutFile << "0x" << hex << (void*)info.targetFuncAddr << dec;
+		ctx->OutFile << "0x" << hex << (size_t)info.targetFuncAddr << dec;
 		closeAttr("targetAddrFunc");
 	}
 
@@ -732,7 +732,7 @@ void print_showBlocks(size_t maxFuncLen) {
 			ctx->OutFile.width(maxLen+12);
 			ctx->OutFile << left << bb;
 			ctx->OutFile << " addr: 0x";
-			ctx->OutFile << hex << (void*)bb.getKey() << dec; 
+			ctx->OutFile << hex << (size_t)bb.getKey() << dec; 
 			ctx->OutFile << " simpleCounter: " << bb.getSimpleCounter();
 
 		} else {
@@ -740,16 +740,20 @@ void print_showBlocks(size_t maxFuncLen) {
 			ctx->OutFile << "<bb ";
 
 			openAttr("firstInsAddr");
-			ctx->OutFile << "0x" << hex << (void*)bb.blockAddress() << dec;
+			ctx->OutFile << "0x" << hex << (size_t)bb.blockAddress() << dec;
 			closeAttr("firstInsAddr");
 
 			openAttr("lastInsAddr");
-			ctx->OutFile << "0x" << hex << (void*)bb.blockEndAddress() << dec;
+			ctx->OutFile << "0x" << hex << (size_t)bb.blockEndAddress() << dec;
 			closeAttr("lastInsAddr");
 
 			openAttr("funcAddr");
-			ctx->OutFile << "0x" << hex << (void*)bb.functionAddr() << dec;
+			ctx->OutFile << "0x" << hex << (size_t)bb.functionAddr() << dec;
 			closeAttr("funcAddr");
+
+			openAttr("simpleCounter");
+			ctx->OutFile << bb.getSimpleCounter();
+			closeAttr("simpleCounter");
 
 			openAttr("line");
 			ctx->OutFile << bb.firstLine();
@@ -842,7 +846,7 @@ void print_showFuncs(size_t maxFuncLen) {
 			ctx->OutFile << "function: ";
 			ctx->OutFile.width(maxFuncLen+4);
 			ctx->OutFile << left << fc;
-			ctx->OutFile << " addr: 0x" << hex << (void*)fc.getKey() << dec; 
+			ctx->OutFile << " addr: 0x" << hex << (size_t)fc.getKey() << dec; 
 			ctx->OutFile << " simpleCounter: " << fc.getSimpleCounter() << endl;
 
 			if (ctx->options.funcsDisasm) {
@@ -854,7 +858,7 @@ void print_showFuncs(size_t maxFuncLen) {
 				for (insIt = fc.instructions.begin(); insIt != fc.instructions.end(); insIt++) {
 			
 					ctx->OutFile << "\t\t";
-					ctx->OutFile << hex << (void*)insIt->first << dec << "    "; 
+					ctx->OutFile << hex << (size_t)insIt->first << dec << "    "; 
 					ctx->OutFile << insIt->second.ins_text << endl;
 				}
 
@@ -871,11 +875,11 @@ void print_showFuncs(size_t maxFuncLen) {
 			closeTag("name");
 
 			openTag("address");
-			ctx->OutFile << "0x" << hex << (void*)fc.functionAddress() << dec;
+			ctx->OutFile << "0x" << hex << (size_t)fc.functionAddress() << dec;
 			closeTag("address");
 
 			openTag("simpleCounter");
-			ctx->OutFile << "0x" << fc.getSimpleCounter();
+			ctx->OutFile << fc.getSimpleCounter();
 			closeTag("simpleCounter");
 
 

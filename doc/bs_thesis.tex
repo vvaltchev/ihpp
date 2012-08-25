@@ -1568,10 +1568,16 @@ other branch will set the instruction pointer to \verb|.L8| so, the BBL starting
 
 \subsection{\emph{Intra}Mode basics}
 
-When run with the \verb|-intraMode| option, IHPP traces BBLs inside all functions or inside the chosen ones, like in the \emph{function} mode. Every BBL is identified in output by three elements: the function which belongs to, the line and the column of the first 
+When run with the \verb|-intraMode| option, IHPP traces BBLs inside all functions or inside the chosen ones, like in the \emph{function} mode. Every BBL is identified in output by: 
+\begin{itemize*}
+\item the function's name which the BBL belongs to
+\item the offset BBL address - function address in bytes
+\item the line and the column of the first 
 statement in program source code that belongs to the BBL\footnote{In order all this data to be obtained from the executable, it \emph{must} be build 
 with debug info as told in the chapter's beginning: programs without debug info 
 cannot be analyzed by IHPP, independently from the working mode.}.
+\end{itemize*}
+
 \Cref{prog4} shows a program that is going to be analyzed.
 
 \begin{lstlisting}[language=C, 
@@ -1616,8 +1622,8 @@ Function: p()
 --------------------------------------------------------------------
 DUMP of K-SF
 --------------------------------------------------------------------
-| {p,3,0},5
-   | {p,6,0},5
+| {p+0 at 3,0},5
+   | {p+26 at 6,0},5
 
 ====================================================================
 Function: foo()
@@ -1625,21 +1631,21 @@ Function: foo()
 --------------------------------------------------------------------
 DUMP of K-SF
 --------------------------------------------------------------------
-| {foo,8,0},2
-   | {foo,14,0},1
-      | {foo,16,0},1
-         | {foo,16,0},1
-            | {foo,17,0},1
-               | {foo,16,0},1
-                  | {foo,17,0},1
-                     | {foo,16,0},1
-                        | {foo,17,0},1
-                           | {foo,16,0},1
-                              | {foo,20,0},1
-                                 | {foo,20,0},1
-                                    | {foo,25,0},1
-   | {foo,23,0},1
-      | {foo,25,0},1
+| {foo+0 at 8,0},2
+   | {foo+12 at 14,0},1
+      | {foo+24 at 16,0},1
+         | {foo+49 at 16,0},1
+            | {foo+33 at 17,0},1
+               | {foo+45 at 16,0},1
+                  | {foo+33 at 17,0},1
+                     | {foo+45 at 16,0},1
+                        | {foo+33 at 17,0},1
+                           | {foo+45 at 16,0},1
+                              | {foo+55 at 20,0},1
+                                 | {foo+67 at 20,0},1
+                                    | {foo+81 at 25,0},1
+   | {foo+69 at 23,0},1
+      | {foo+81 at 25,0},1
 
 \end{lstlisting}
 
@@ -1672,8 +1678,63 @@ Practically, IHPP achieves it in a better way:
 it substantially uses a \emph{shadow stack} to trace function activations in which
 a couple of pointers (\verb|top|,\verb|bottom|) [see chapter 3] is stored for each 
 function activation. Details of this approach will be explained in the next chapter.
-
 \end{paragraph}
+
+Attentive readers will have probably noticed that there are two BBLs on line 16 
+and other two ones on line 20: even if it is clear that they are distinct 
+BBLs due to their function offset, it is not obvious what they exactly do.
+Since there is no other way than looking machine instructions to understand 
+what a BBL do, IHPP provides an option to do this.
+
+\subsection{Inside a BBL: the disassembly utility in IHPP}
+
+Using the option \verb|-blocksDisasm| together with the option \verb|-showBlocks| 
+when calling IHPP, makes it to write at the of the output file a table 
+that contains for each BBL, four columns: its string name (used in $k$-SFs), its memory address, the absolute number of times it has been called (vertex profiling) and
+a kind of ``special'' disassembly. This last column is a post-elaborated form 
+of the Intel-style disassembly that Pin provides to IHPP: usually in disassembly 
+no labels are used in call and branch instructions and they appear something like this: 
+\verb|jle 0x8048400|. IHPP, in order to help the analyst who uses it, replaces 
+all addresses with human readable strings. The \cref{out9} shows that.
+
+\begin{lstlisting}[language={[x86masm]Assembler}, 
+	label=out9, caption={a part of ``all basic blocks'' table}]
+
+--------------------------------------------------------------------
+All basic blocks
+--------------------------------------------------------------------
+
+block: {foo+24 at 16,0} addr: 0x0x8048418 simpleCounter: 1	
+Disassembly: 
+								       mov dword ptr [ebp-0xc], 0x0
+								       jmp {foo+49 at 16,0}
+
+block: {foo+33 at 17,0} addr: 0x0x8048421 simpleCounter: 3	
+Disassembly: 
+								       mov dword ptr [esp], 0x1
+								       call p
+
+block: {foo+45 at 16,0} addr: 0x0x804842d simpleCounter: 3	
+Disassembly: 
+								       add dword ptr [ebp-0xc], 0x1
+								       cmp dword ptr [ebp-0xc], 0x2
+								       jle {foo+33 at 17,0}
+
+block: {foo+49 at 16,0} addr: 0x0x8048431 simpleCounter: 1	
+Disassembly: 
+								       cmp dword ptr [ebp-0xc], 0x2
+								       jle {foo+33 at 17,0}
+
+block: {foo+55 at 20,0} addr: 0x0x8048437 simpleCounter: 1	
+Disassembly: 
+								       mov dword ptr [esp], 0x0
+								       call foo
+
+block: {foo+67 at 20,0} addr: 0x0x8048443 simpleCounter: 1	
+Disassembly: 
+								       jmp {foo+81 at 25,0}
+
+\end{lstlisting}
 
 
 \section{The \emph{inter}-procedural mode}
