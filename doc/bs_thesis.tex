@@ -200,7 +200,7 @@ structures and algorithms that \emph{have not been} ideated by the author:
 \item k-SF \emph{(k-Slab Forest)}
 \item k-SF construction algorithm\footnote{This algorithm is used in the \textbf{traceObject()} function}
 \item k-CCF \emph{(k-Calling Context Forest)}
-\item Forest join and inversion operations\footnote{These two operations should
+\item Forest \emph{join} and $inv_k$ operations\footnote{These two operations should
 be intended as \emph{theoretical} operations: in IHPP concrete algorithms have been
 developed by the author}
 \end{itemize*}
@@ -1204,11 +1204,11 @@ int main(int argc, char ** argv) {
 \end{lstlisting}
 
 \noindent
-Compiling the example program in \cref{prog1} under a Linux system with:
+Compiling the program in \cref{prog1} under a 32-bit Linux system with:
 \begin{center}
 \verb|gcc -g prog1.c -o prog1 -g -lpthread|
 \end{center}
-and starting IHPP with\footnote{Due to permission problems under Linux pin have to be run with the \texttt{-injection child} option before the \texttt{-t} option. See its official user manual for an explanation.}:
+and starting IHPP analysis with\footnote{Due to permission problems under Linux pin have to be run with the \texttt{-injection child} option before the \texttt{-t} option. See its official user manual for an explanation.}:
 \begin{center}
 \begin{verbatim}
 pin -t ihpp.so -ksf -kinf -funcMode -outfile out1.txt -- ./prog1
@@ -1960,12 +1960,94 @@ or better, in this particular case, the \emph{tree} join of the two CCTs.
 
 \section{The \emph{inter}-procedural mode}
 
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
-adh akdjakjhda khakdhakd hkqhdkajhd iqh ikh kahdkahdjskaj kajhd kajhdakjhda
+When launched with the \verb|-intraMode| option\footnote{The inter-procedural mode is often called internally in IHPP \texttt{interProcMode} instead of \texttt{interMode} to 
+avoid misunderstanding problems correlated with \texttt{intraMode}.}
+, IHPP instruments only BBLs 
+and builds \emph{inter}-procedural $k$-SFs, one for each thread. 
+Each $k$-SF, contains BBLs which belong to chosen functions or, eventually, to all 
+functions of the main image of the target program. The below listings show 
+an example program and its relative IHPP analysis output for $k=100$.
 
+\begin{lstlisting}[language=C, 
+	caption={prog6.c, an example program}, label=prog6, frame=leftline, numbers=left]
+void bar(int n); void f3() { }
+
+void foo() { 
+
+	bar(0); 
+	f3(); 
+	bar(1); 
+}
+
+void bar(int n) { 
+
+	if (n) 
+		f3(); 
+}
+int main(int argc, char ** argv) { foo(); return 0; }
+\end{lstlisting}
+
+\begin{lstlisting}[label=out13, 
+caption={partial output of IHPP analysis in \texttt{interProcMode} of \texttt{prog6}}]
+
+| {__root__+0 at 0,0},1
+   | {foo+0 at 3,0},1
+      | {bar+0 at 10,0},1
+         | {bar+14 at 14,0},1
+            | {foo+18 at 6,0},1
+               | {f3+0 at 1,0},1
+                  | {foo+23 at 7,0},1
+                     | {bar+0 at 10,0},1
+                        | {bar+9 at 13,0},1
+                           | {f3+0 at 1,0},1
+                              | {bar+14 at 14,0},1
+                                 | {foo+35 at 8,0},1
+
+\end{lstlisting}
+
+Observing output in \cref{out13} should be enough to understand what the 
+\emph{inter}-procedural mode does: a $k$-SF is build as if there were no routines at all.
+An important consideration about this IHPP working mode is that even if
+only one produce is instrumented, the output will be different to the one made by 
+\verb|intraMode|; a proof for this is given by \cref{out14} which shows
+the IHPP analysis output of program in \cref{prog4}, 
+already analyzed in \verb|intraMode| in the \cref{out8}.
+
+\begin{lstlisting}[label=out14, 
+caption={partial output of IHPP analysis in \texttt{interProcMode} of \texttt{prog4}}]
+--------------------------------------------------------------------
+DUMP of K-SF
+--------------------------------------------------------------------
+
+| {__root__+0 at 0,0},1
+   | {foo+0 at 8,0},1
+      | {foo+12 at 14,0},1
+         | {foo+24 at 16,0},1
+            | {foo+49 at 16,0},1
+               | {foo+33 at 17,0},1
+                  | {foo+45 at 16,0},1
+                     | {foo+33 at 17,0},1
+                        | {foo+45 at 16,0},1
+                           | {foo+33 at 17,0},1
+                              | {foo+45 at 16,0},1
+                                 | {foo+55 at 20,0},1
+                                    | {foo+0 at 8,0},1
+                                       | {foo+69 at 23,0},1
+                                          | {foo+81 at 25,0},1
+                                             | {foo+67 at 20,0},1
+                                                | {foo+81 at 25,0},1
+
+\end{lstlisting}
+
+\noindent
+It is evident that the recursion of \verb|foo()| has absolutely no effect:
+the BBL \verb|{foo+0 at 8,0}| follows the BBL \verb|{foo+55 at 20,0}| as if 
+it was a simply loop iteration.
+
+A last note: IHPP supports also \emph{rollLoops} and \emph{joinThreads} options
+in \verb|interProcMode|, even if no examples are provided here.
+
+\section{The \emph{XML} output feature}
 
 \chapter{The implementation}
 
