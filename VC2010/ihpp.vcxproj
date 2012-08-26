@@ -62,7 +62,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>TARGET_WINDOWS;BIGARRAY_MULTIPLIER=1;USING_XED;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0;TARGET_IA32;HOST_IA32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;TARGET_WINDOWS;BIGARRAY_MULTIPLIER=1;USING_XED;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0;TARGET_IA32;HOST_IA32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/EHs- /EHa- /wd4530 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>

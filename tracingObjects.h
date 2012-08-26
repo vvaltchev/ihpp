@@ -33,14 +33,14 @@ class TracingObject : public ihppObjectWithKey<keyT> {
 
 protected:
 
-	unsigned int simpleCounter;
+	obj_counter_t simpleCounter;
 	keyT key;
 
 public:
 
 	TracingObject(keyT k) : simpleCounter(0), key(k) {}
 	virtual keyT getKey() { return key; }
-	virtual unsigned int getSimpleCounter() { return simpleCounter; }
+	virtual obj_counter_t getSimpleCounter() { return simpleCounter; }
 	virtual void incSimpleCounter() { simpleCounter++; }
 
 	virtual operator string() const = 0;

@@ -21,7 +21,7 @@ private:
 protected:
 
 	ihppObjectWithKey<keyT> *val;
-	size_t counter;
+	obj_counter_t counter;
 
 	ihppNodeChildrenContainer< keyT, node<keyT> > children;
 	
@@ -34,7 +34,7 @@ public:
 
 	node(); 
 	node(const node& n);
-	node(keyT key, ihppObjectWithKey<keyT>* val, size_t counter=0);
+	node(keyT key, ihppObjectWithKey<keyT>* val, obj_counter_t counter=0);
 	~node();
 	
 	node<keyT>* getChildRef(keyT k);
@@ -60,8 +60,8 @@ public:
 	nodesIterator getNodesIteratorEnd() { return nodesIterator(children.end()); }	
 
 	void incCounter() { counter++; }
-	size_t getCounter() { return counter; }
-	void setCounter(size_t c) { counter=c; }
+	obj_counter_t getCounter() { return counter; }
+	void setCounter(obj_counter_t c) { counter=c; }
 
 	node<keyT> kpath(unsigned int k);
 	node<keyT> kpathR(unsigned int k);
@@ -114,7 +114,7 @@ inline node<keyT>::node() {
 }
 
 template <typename keyT>
-inline node<keyT>::node(keyT key, ihppObjectWithKey<keyT>* val, size_t counter) {
+inline node<keyT>::node(keyT key, ihppObjectWithKey<keyT>* val, obj_counter_t counter) {
 
 	this->val=val;
 	this->counter=counter;

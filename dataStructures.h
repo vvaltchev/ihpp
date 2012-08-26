@@ -8,6 +8,14 @@
 #include <list>
 #include <assert.h>
 
+#include "config.h"
+
+#if USE_ALWAYS_64BIT_COUNTER
+typedef unsigned long long int obj_counter_t;
+#else
+typedef size_t obj_counter_t;
+#endif
+
 /* 
 	Abstract class (also called 'interface'): 
 	node<keyT> and TracingObject<keyT> implement this interface

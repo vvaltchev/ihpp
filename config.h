@@ -20,6 +20,8 @@
 #define DEBUG_INTRA_TRACE	1
 #define DEBUG_INTRA_RET		1
 
+#define USE_ALWAYS_64BIT_COUNTER 1
+
 #if defined(_WIN32) 
 	#define ENABLE_INS_TRACING									1
 	#define ENABLE_SUBCALL_CHECK								1

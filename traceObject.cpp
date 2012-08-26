@@ -156,7 +156,7 @@ void traceObject_generic(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx,
 		treeBottom->incCounter();
 	}
 
-	//the counter was removed
+	
 	ctx->counter++;
 }
 
