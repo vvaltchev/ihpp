@@ -13,14 +13,14 @@ using namespace std;
 
 
 template <typename keyT>
-class node : public ihppObjectWithKey<keyT> {
+class node : public ObjectWithKey<keyT> {
 
 private:
 	node<keyT> *parent; 
 
 protected:
 
-	ihppObjectWithKey<keyT> *val;
+	ObjectWithKey<keyT> *val;
 	obj_counter_t counter;
 
 	ihppNodeChildrenContainer< keyT, node<keyT> > children;
@@ -34,7 +34,7 @@ public:
 
 	node(); 
 	node(const node& n);
-	node(keyT key, ihppObjectWithKey<keyT>* val, obj_counter_t counter=0);
+	node(keyT key, ObjectWithKey<keyT>* val, obj_counter_t counter=0);
 	~node();
 	
 	node<keyT>* getChildRef(keyT k);
@@ -54,7 +54,7 @@ public:
 	bool isValid() { return val != 0; }
 
 	keyT getKey() { assert(isValid()); return val->getKey(); }
-	ihppObjectWithKey<keyT> * getValue() { assert(isValid()); return val; }
+	ObjectWithKey<keyT> * getValue() { assert(isValid()); return val; }
 	
 	nodesIterator getNodesIteratorBegin() { return nodesIterator(children.begin()); }
 	nodesIterator getNodesIteratorEnd() { return nodesIterator(children.end()); }	
@@ -114,7 +114,7 @@ inline node<keyT>::node() {
 }
 
 template <typename keyT>
-inline node<keyT>::node(keyT key, ihppObjectWithKey<keyT>* val, obj_counter_t counter) {
+inline node<keyT>::node(keyT key, ObjectWithKey<keyT>* val, obj_counter_t counter) {
 
 	this->val=val;
 	this->counter=counter;

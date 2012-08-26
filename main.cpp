@@ -494,11 +494,6 @@ int main(int argc, char ** argv) {
 
 	globalSharedContext = new ihppContextClass(optionsClass::getGlobalWM(), optionsClass::getGlobalKVal(), options);
 	
-	//KNOB<string> &funcs = optionsClass::tracingFunctions();
-
-	//for (unsigned int i=0; i < funcs.NumberOfValues(); i++)
-	//	globalSharedContext->funcsToTrace.insert(funcs.Value(i));
-
 	vector<string> *funcs = optionsClass::splitString(options.tracingFuncList, ',');
 
 	if (!funcs) {
@@ -510,7 +505,6 @@ int main(int argc, char ** argv) {
 
 	for (size_t i=0; i < funcs->size(); i++)
 		globalSharedContext->funcsToTrace.insert(funcs->at(i));
-		//printf("func '%s'\n", funcs->at(i).c_str());
 
 	delete funcs;
 

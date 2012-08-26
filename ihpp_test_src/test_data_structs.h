@@ -2,7 +2,7 @@
 #include "../util.h"
 
 template <typename keyT>
-class TracingObject : public ihppObjectWithKey<keyT> {
+class TracingObject : public ObjectWithKey<keyT> {
 
 protected:
 
@@ -20,7 +20,7 @@ public:
 };
 
 
-class simpleVal : public ihppObjectWithKey<const char*> {
+class simpleVal : public ObjectWithKey<const char*> {
 
 	const char *key;
 

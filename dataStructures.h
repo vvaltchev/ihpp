@@ -21,7 +21,7 @@ typedef size_t obj_counter_t;
 	node<keyT> and TracingObject<keyT> implement this interface
 */
 template <typename keyT>
-class ihppObjectWithKey {
+class ObjectWithKey {
 
 public:
 
@@ -98,7 +98,7 @@ public:
 
 
 /*
-	valueT is assumed to be an ihppObjectWithKey and to be NOT a pointer.
+	valueT is assumed to be an ObjectWithKey and to be NOT a pointer.
 */
 template <typename keyT, typename valueT>
 class ihppNodeChildrenContainerList1 {
@@ -158,7 +158,7 @@ public:
 
 
 /*
-	valueT is assumed to be an ihppObjectWithKey and to be NOT a pointer.
+	valueT is assumed to be an ObjectWithKey and to be NOT a pointer.
 */
 template <typename keyT, typename valueT>
 class ihppNodeChildrenContainerList2 {
