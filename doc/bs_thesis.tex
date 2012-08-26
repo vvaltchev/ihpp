@@ -1898,12 +1898,12 @@ Function: foo()
 
 \noindent
 Even if the interpretation of the outputs at the point \emph{should} be trivial,
-some little complications not correlated with the \emph{joinThread} option 
+some complications not correlated with the \emph{joinThreads} option 
 has came out.
 The function \verb|foo()| is executed once per thread; in the main thread, the loop does 3 iterations and then exists going to line 14, instead
 in the second one, the loop does 9 iterations and then exists going to line 18.
 A first problem: it is unclear why BBL at line 11 is activated \emph{after} 
-and not \emph{before} BBL at line 22. The answer can be known only by looking at
+and not \emph{before} BBL at line 22. The answer can be found only by looking at
 the disassembly code in \cref{intraJoinThAsm}.
 
 \begin{lstlisting}[language={[x86masm]Assembler}, 
@@ -1942,6 +1942,21 @@ the disassembly code in \cref{intraJoinThAsm}.
 								       ret 
 
 \end{lstlisting}
+
+The BBL \verb|{foo+0 at 5,0}| includes in itself the BBL \verb|{foo+13 at 11,0}|: 
+that is the reason why BBL on line 11 is not activated suddenly 
+after the BBL on line 5; instead, it is activated at every loop iteration 
+after BBL on line 22 (not shown in the \cref{intraJoinThAsm}). 
+The same ``problem'' occurs for BBLs on lines 18 and 25: 
+as already explained, the origin of this unusual concept of BBL is the real-time BBL 
+identification: when the program ran at \verb|foo+13| (included in BBL at \verb|foo+0|),
+\textbf{Pin} had no way to understand that in the future a BBL at \verb|foo+53| will 
+branch to it.
+
+Apart of these considerations about BBLs, as it can be seen in \cref{out12},
+the behavior of the \emph{joinThreads} option is exactly what one expects: 
+it produces as output the forest join of the $k$-SFs related to each thread, 
+or better, in this particular case, the \emph{tree} join of the two CCTs.
 
 \section{The \emph{inter}-procedural mode}
 
