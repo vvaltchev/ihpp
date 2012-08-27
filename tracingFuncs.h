@@ -6,16 +6,21 @@
 #include "tracingObjects.h"
 
 
+//FuncMode tracing functions
 
-VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp);
-
+void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp);
 void funcMode_ret();
 
+//IntraMode tracing functions
 
-VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp);
-
+void intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp);
 void intraMode_ret();
 
+//InterProcMode tracing functions
+
+void interModeBlockTrace(TracingObject<ADDRINT> *to);
+
+//Instruction-tracing functions
 
 #if ENABLE_INS_TRACING
 
@@ -30,7 +35,7 @@ void indirect_branchOrCall(ADDRINT currentFuncAddr,
 
 #endif
 
-
+//The main traceObject function
 
 void traceObject_generic(TracingObject<ADDRINT> *to, 
 										ihppAbstractContext *ctx, ihppNode* &treeTop, 
