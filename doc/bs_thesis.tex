@@ -2077,8 +2077,8 @@ Of course, there will be source code listings, but almost always the code will b
 
 \begin{figure}[t]
 
-\begin{center}
-\scalebox{1.0}{
+%\begin{center}
+%\scalebox{1.0}{
 
 \begin{tikzpicture}[
 %level distance=1.5cm,
@@ -2089,9 +2089,12 @@ Of course, there will be source code listings, but almost always the code will b
 %  tnode/.style={above, draw=none, rectangle},
 %  every fit/.style = {draw, black, inner sep = 5pt, 
 %						rectangle, rounded corners=10pt, thin, fill=none}]
-flist/.style = {rectangle, rounded corners=6pt, thin, draw},
-headnode/.style = {rectangle, fill=none, font=\small\bfseries}
+flist/.style = {rectangle, rounded corners=6pt, 
+					thin, draw, font=\small\ttfamily, minimum width = 4.6cm},
+headnode/.style = {rectangle, fill=none, font=\small\bfseries\itshape}
 ]
+
+\begin{scope}[shift={(-5cm,0)}]
 
 \node[flist, minimum width = 4.5cm] (n1) at (0,0) {
 \makecell[l]{
@@ -2102,10 +2105,10 @@ datastructures.h
 
 \node[headnode, above = 0.2cm of n1] (t1) { Fundamental data classes };
 
-\node[flist, minimum width = 5.2cm] (n2) at (7,0) {
+\node[flist] (n2) at (6.5,0) {
 \makecell[l] {
 tracingObjects.h\\
-traceObject.cpp
+traceObjFunc.cpp
 }};
 
 \node[headnode, above = 0.1cm of n2] (t2) {
@@ -2114,7 +2117,7 @@ Tracing objects classes and\\
 generic functions 
 }};
 
-\node[flist, minimum width = 5.2cm] (n3) at (0,-4.5) {
+\node[flist] (n3) at (0,-4.5) {
 \makecell[l] {
 tracingFuncs.h\\
 funcMode.cpp\\
@@ -2129,11 +2132,12 @@ Working mode-specific\\
 tracing functions
 }};
 
-\node[flist, minimum width = 5.2cm] (n4) at (7,-3.5) {
+\node[flist] (n4) at (6.5,-3.5) {
 \makecell[l] {
 ihpp.h\\
-ihppContextClass.h\\
-ihppThreadContextClass.h
+globalContextClass.h\\
+threadContextClass.h\\
+intraModeContext.h
 }};
 
 \node[headnode, above = 0.1cm of n4] (t4) {
@@ -2142,7 +2146,7 @@ Fundamental IHPP\\
 context classes
 }};
 
-\node[flist, minimum width = 5.2cm] (n5) at (7,-6.5) {
+\node[flist] (n5) at (6.5,-6.5) {
 \makecell[l] {
 config.h\\
 main.cpp
@@ -2153,7 +2157,7 @@ main.cpp
 Main files
 }};
 
-\node[flist, minimum width = 5.2cm] (n6) at (0,-9) {
+\node[flist] (n6) at (0,-9) {
 \makecell[l] {
 util.h\\
 util.cpp\\
@@ -2166,7 +2170,7 @@ output.cpp
 Output-related files
 }};
 
-\node[flist, minimum width = 5.2cm] (n7) at (7,-10) {
+\node[flist] (n7) at (6.5,-10) {
 \makecell[l] {
 options.h\\
 options.cpp\\
@@ -2181,13 +2185,17 @@ debug.h
 Other files
 }};
 
-\node[rectangle, thin, draw, inner sep = 30pt, 
+\node[rectangle, thin, draw, inner sep = 25pt, 
 rounded corners = 10pt, fit = (t1) (n2) (n6) (n7)] {};
+
+%\draw[thin, rounded corners = 10pt] (-3.5,2.5) rectangle +(14,-15);
+
+\end{scope}
 
 \end{tikzpicture}
 
-}
-\end{center}
+%}
+%\end{center}
 
 \caption{File organization of the project}
 \label{proj_files}

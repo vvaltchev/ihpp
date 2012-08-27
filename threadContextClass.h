@@ -1,7 +1,7 @@
 
 #include "specialfuncs.h"
 #include "dataStructures.h"
-#include "IntraModeContext.h"
+#include "intraModeContext.h"
 
 #ifndef __THREAD_CTX_HEADER__
 #define __THREAD_CTX_HEADER__

@@ -13,7 +13,7 @@
 #include "benchmark.h"
 #include "forest.h"
 #include "tracingObjects.h"
-#include "ThreadContextClass.h"
+#include "threadContextClass.h"
 #include "options.h"
 
 #ifndef __IHPP_HEADER__
