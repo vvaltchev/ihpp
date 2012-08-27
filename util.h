@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 
 #include <string.h>
@@ -13,6 +14,41 @@
 
 vector<string> *splitString(string s, char sep);
 
+inline string operator +(string str, int n) {
+
+	stringstream ss;
+	ss << str;
+	ss << n;
+
+	return ss.str();
+}
+
+inline string operator +(string str, unsigned int n) {
+
+	stringstream ss;
+	ss << str;
+	ss << n;
+
+	return ss.str();
+}
+
+inline string operator +(string str, long long n) {
+
+	stringstream ss;
+	ss << str;
+	ss << n;
+
+	return ss.str();
+}
+
+inline string operator +(string str, unsigned long long n) {
+
+	stringstream ss;
+	ss << str;
+	ss << n;
+
+	return ss.str();
+}
 
 inline const char *duplicate_string(string &s) {
 

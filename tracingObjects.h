@@ -6,27 +6,7 @@
 #include <string.h>
 
 #include "dataStructures.h"
-
-
-inline string operator +(string str, INT32 n) {
-
-	stringstream ss;
-	ss << str;
-	ss << n;
-
-	return ss.str();
-}
-
-inline string operator +(string str, ADDRINT n) {
-
-	stringstream ss;
-	ss << str;
-	ss << n;
-
-	return ss.str();
-}
-
-
+#include "util.h"
 
 template <typename keyT>
 class TracingObject : public ObjectWithKey<keyT> {

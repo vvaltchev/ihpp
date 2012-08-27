@@ -17,12 +17,12 @@
 \usepackage{wrapfig}
 \usepackage{listings}
 \usepackage{cite}
-%\usepackage[lighttt]{lmodern}
 \usepackage{bold-extra}
 \usepackage{cleveref}
+\usepackage{makecell}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usetikzlibrary{arrows,graphs,trees,fit,shapes,backgrounds}
+\usetikzlibrary{arrows,graphs,trees,fit,shapes,backgrounds,positioning}
 
 \hypersetup{
     colorlinks,
@@ -2075,7 +2075,124 @@ Of course, there will be source code listings, but almost always the code will b
 
 \section{The general organization of the project}
 
+\begin{figure}[t]
 
+\begin{center}
+\scalebox{1.0}{
+
+\begin{tikzpicture}[
+%level distance=1.5cm,
+%  level 1/.style={sibling distance=2.0cm},
+%  level 2/.style={sibling distance=1.3cm},
+%  every node/.style={circle,draw,font=\small, radius=1, fill=white},
+%  knode/.style={fill=black!10},
+%  tnode/.style={above, draw=none, rectangle},
+%  every fit/.style = {draw, black, inner sep = 5pt, 
+%						rectangle, rounded corners=10pt, thin, fill=none}]
+flist/.style = {rectangle, rounded corners=6pt, thin, draw},
+headnode/.style = {rectangle, fill=none, font=\small\bfseries}
+]
+
+\node[flist, minimum width = 4.5cm] (n1) at (0,0) {
+\makecell[l]{
+node.h\\
+forest.h\\
+datastructures.h
+}};
+
+\node[headnode, above = 0.2cm of n1] (t1) { Fundamental data classes };
+
+\node[flist, minimum width = 5.2cm] (n2) at (7,0) {
+\makecell[l] {
+tracingObjects.h\\
+traceObject.cpp
+}};
+
+\node[headnode, above = 0.1cm of n2] (t2) {
+\makecell[c] {
+Tracing objects classes and\\
+generic functions 
+}};
+
+\node[flist, minimum width = 5.2cm] (n3) at (0,-4.5) {
+\makecell[l] {
+tracingFuncs.h\\
+funcMode.cpp\\
+intraMode.cpp\\
+interProcMode.cpp\\
+insTracing.cpp
+}};
+
+\node[headnode, above = 0.1cm of n3] (t3) {
+\makecell[c] {
+Working mode-specific\\
+tracing functions
+}};
+
+\node[flist, minimum width = 5.2cm] (n4) at (7,-3.5) {
+\makecell[l] {
+ihpp.h\\
+ihppContextClass.h\\
+ihppThreadContextClass.h
+}};
+
+\node[headnode, above = 0.1cm of n4] (t4) {
+\makecell[c] {
+Fundamental IHPP\\
+context classes
+}};
+
+\node[flist, minimum width = 5.2cm] (n5) at (7,-6.5) {
+\makecell[l] {
+config.h\\
+main.cpp
+}};
+
+\node[headnode, above = 0.1cm of n5] (t5) {
+\makecell[c] {
+Main files
+}};
+
+\node[flist, minimum width = 5.2cm] (n6) at (0,-9) {
+\makecell[l] {
+util.h\\
+util.cpp\\
+output.h\\
+output.cpp
+}};
+
+\node[headnode, above = 0.1cm of n6] (t6) {
+\makecell[c] {
+Output-related files
+}};
+
+\node[flist, minimum width = 5.2cm] (n7) at (7,-10) {
+\makecell[l] {
+options.h\\
+options.cpp\\
+benchmark.h\\
+benchmark.cpp\\
+specialfuncs.h\\
+debug.h
+}};
+
+\node[headnode, above = 0.1cm of n7] (t7) {
+\makecell[c] {
+Other files
+}};
+
+\node[rectangle, thin, draw, inner sep = 30pt, 
+rounded corners = 10pt, fit = (t1) (n2) (n6) (n7)] {};
+
+\end{tikzpicture}
+
+}
+\end{center}
+
+\caption{File organization of the project}
+\label{proj_files}
+
+\end{figure}
 
 \chapter{Case studies}
 
