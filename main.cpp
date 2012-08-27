@@ -443,7 +443,7 @@ int main(int argc, char ** argv) {
 
 	globalSharedContext = new ihppContextClass(optionsClass::getGlobalWM(), optionsClass::getGlobalKVal(), options);
 	
-	vector<string> *funcs = optionsClass::splitString(options.tracingFuncList, ',');
+	vector<string> *funcs = splitString(options.tracingFuncList, ',');
 
 	if (!funcs) {
 	

@@ -65,7 +65,7 @@ public:
 	static unsigned int getGlobalKVal();
 	static WorkingModeType getGlobalWM();
 	static const char *getOutfileName();
-	static vector<string> *splitString(string s, char sep);
+	//static vector<string> *splitString(string s, char sep);
 };
 
 

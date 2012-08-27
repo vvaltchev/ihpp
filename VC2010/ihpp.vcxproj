@@ -116,6 +116,7 @@
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\options.cpp" />
     <ClCompile Include="..\output.cpp" />
+    <ClCompile Include="..\util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\benchmark.h" />
