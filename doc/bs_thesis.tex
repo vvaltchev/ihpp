@@ -20,6 +20,7 @@
 \usepackage{bold-extra}
 \usepackage{cleveref}
 \usepackage{makecell}
+\usepackage{float}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usetikzlibrary{arrows,graphs,trees,fit,shapes,backgrounds,positioning}
@@ -939,7 +940,7 @@ At the algorithm start, \verb|S| contains a special pair of \verb|null| pointers
 at the first procedure call, the \verb|if| condition on line 15 is verified:
 the algorithm creates the root-node, makes \verb|top| pointing on it and adds also that pointer in \verb|R|. In the following procedure calls, the \verb|top| pointer is updated exactly as the \verb|currentNode| pointer in the CCT building algorithm (lines 36-46) except when \verb|S.size()-1| is a multiple of $k$: in that case (lines 16-34), \verb|bottom| is moved to \verb|top| and \verb|top| is moved to a (possibly) new tree of the forest; when the ``new'' tree already exists (this information is provided by \verb|R|), \verb|top| is simply moved to its root (line 25). After the first time \verb|top| is moved, the pointer \verb|bottom| is not more \verb|null| and is updated as the \verb|currentNode| pointer in CCT (lines 54-66). 
 
-\begin{lstlisting}[language=java, caption=An algorithm for building a $k$-SF,
+\begin{lstlisting}[language=java, label=ksf_alg, caption=An algorithm for building a $k$-SF,
 			morekeywords={function,then,endif},
 			frame=leftline,framesep=10pt,numbers=left, numbersep=15pt]
 
@@ -2075,26 +2076,33 @@ Of course, there will be source code listings, but almost always the code will b
 
 \section{The general organization of the project}
 
-\begin{figure}[t]
+As can be seen in \cref{proj_files}, IHPP has been implemented in 26 files,
+grouped by areas of competence. The \verb|main.cpp| file is where the enter point
+ of the profiler is located and contains, in addition to the initialization code, all \emph{instrumentation routines}. These last ones substantially place \emph{callbacks}
+in the target program to functions located in files of group (3): functions in these
+files use context objects defined in files of groups (4), 
+tracing objects defined in files of group (2) and specially
+the \verb|traceObject()| function implemented in \verb|traceObjFunc.cpp|.
+This last one, is substantially the function that implements the algorithm for building
+a $k$-SF from an execution trace shown in \cref{ksf_alg}: 
+when called, it \emph{traces} the activation of a generic \verb|TracingObject<T>| 
+in the given \emph{context}. The \emph{context} depends from the working mode:
+in \verb|funcMode|, for example, the \emph{context} is pointer to a \verb|ThreadContextClass| object; instead, in \verb|IntraMode| the \emph{context} is 
+a pointer to a \verb|IntraModeContext| object. In order to simply everything, 
+\emph{abstraction}
+\begin{figure}[H]
 
 %\begin{center}
 %\scalebox{1.0}{
 
-\begin{tikzpicture}[
-%level distance=1.5cm,
-%  level 1/.style={sibling distance=2.0cm},
-%  level 2/.style={sibling distance=1.3cm},
-%  every node/.style={circle,draw,font=\small, radius=1, fill=white},
-%  knode/.style={fill=black!10},
-%  tnode/.style={above, draw=none, rectangle},
-%  every fit/.style = {draw, black, inner sep = 5pt, 
-%						rectangle, rounded corners=10pt, thin, fill=none}]
+\begin{tikzpicture}
+[
 flist/.style = {rectangle, rounded corners=6pt, 
 					thin, draw, font=\small\ttfamily, minimum width = 4.6cm},
 headnode/.style = {rectangle, fill=none, font=\small\bfseries\itshape}
 ]
 
-\begin{scope}[shift={(-5cm,0)}]
+%\begin{scope}[shift={(-5cm,0)}]
 
 \node[flist, minimum width = 4.5cm] (n1) at (0,0) {
 \makecell[l]{
@@ -2103,7 +2111,11 @@ forest.h\\
 datastructures.h
 }};
 
-\node[headnode, above = 0.2cm of n1] (t1) { Fundamental data classes };
+\node[headnode, above = 0.2cm of n1] (t1) { 
+\makecell[c] {
+(1) Files related to\\ 
+fundamental data classes 
+}};
 
 \node[flist] (n2) at (6.5,0) {
 \makecell[l] {
@@ -2113,8 +2125,8 @@ traceObjFunc.cpp
 
 \node[headnode, above = 0.1cm of n2] (t2) {
 \makecell[c] {
-Tracing objects classes and\\
-generic functions 
+(2) File related to\\
+tracing objects and functions
 }};
 
 \node[flist] (n3) at (0,-4.5) {
@@ -2128,22 +2140,22 @@ insTracing.cpp
 
 \node[headnode, above = 0.1cm of n3] (t3) {
 \makecell[c] {
-Working mode-specific\\
-tracing functions
+(3) Files related to\\
+the three working modes
 }};
 
 \node[flist] (n4) at (6.5,-3.5) {
 \makecell[l] {
 ihpp.h\\
-globalContextClass.h\\
+globalContextClass.cpp\\
 threadContextClass.h\\
 intraModeContext.h
 }};
 
 \node[headnode, above = 0.1cm of n4] (t4) {
 \makecell[c] {
-Fundamental IHPP\\
-context classes
+(4) Files related to\\
+IHPP context classes
 }};
 
 \node[flist] (n5) at (6.5,-6.5) {
@@ -2154,7 +2166,7 @@ main.cpp
 
 \node[headnode, above = 0.1cm of n5] (t5) {
 \makecell[c] {
-Main files
+(5) Main files
 }};
 
 \node[flist] (n6) at (0,-9) {
@@ -2167,7 +2179,8 @@ output.cpp
 
 \node[headnode, above = 0.1cm of n6] (t6) {
 \makecell[c] {
-Output-related files
+(6) Files related to\\
+normal and XML output
 }};
 
 \node[flist] (n7) at (6.5,-10) {
@@ -2182,7 +2195,7 @@ debug.h
 
 \node[headnode, above = 0.1cm of n7] (t7) {
 \makecell[c] {
-Other files
+(7) Other files
 }};
 
 \node[rectangle, thin, draw, inner sep = 25pt, 
@@ -2190,7 +2203,7 @@ rounded corners = 10pt, fit = (t1) (n2) (n6) (n7)] {};
 
 %\draw[thin, rounded corners = 10pt] (-3.5,2.5) rectangle +(14,-15);
 
-\end{scope}
+%\end{scope}
 
 \end{tikzpicture}
 
@@ -2201,6 +2214,26 @@ rounded corners = 10pt, fit = (t1) (n2) (n6) (n7)] {};
 \label{proj_files}
 
 \end{figure}
+
+\noindent
+ is used: 
+both \verb|ThreadContextClass| and \verb|IntraModeContext| classes are specializations of
+the \verb|GenericTraceContext| class, exactly as \verb|FunctionObj| and 
+\verb|BasicBlock| classes are specializations of the generic \verb|TracingObject<T>| class.
+The \verb|traceObject()| function mentioned before, works with basilar objects 
+defined in files of group (1). The first two files in this last group use on their basis
+container classes for \verb|ObjectWithKey<T>| objects defined and implemented 
+in file \verb|datastructures.h|.
+\verb|ObjectWithKey<T>| is the most abstract class in IHPP since it is a generalization of the abstract class \verb|TracingObject<T>|. 
+Nodes and forests concepts are implemented respectively in \verb|node.h| and \verb|forest.h|
+files. The concept of \emph{tree} is not explicitly modeled in IHPP, but it is 
+modeled inside the \verb|node<T>| class instead. Files in groups (1) and (2) 
+are mainly \emph{headers} because they
+contain \emph{template} classes which cannot be complied like others; 
+the \verb|traceObject()| function instead, is not a template function because of 
+an optimization strategy: it is a function pointer which is assigned at runtime
+to the \emph{quicker} \verb|traceObject| implementation, specially to speeding up 
+the $k=\infty$ case.
 
 \chapter{Case studies}
 
