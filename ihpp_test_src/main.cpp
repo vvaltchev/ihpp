@@ -21,7 +21,7 @@ unsigned int k_value=2;
 
 void call_handler(testFuncObj *f, int n=1) {
 
-	ShadowStackType<keyT> s;
+	ShadowStackItemType<keyT> s;
 
 	for (int i=0; i < n; i++) {
 		
@@ -29,7 +29,7 @@ void call_handler(testFuncObj *f, int n=1) {
 		traceObject_generic(f, &ctx, s.treeTop, s.treeBottom, false, k_value);
 	}
 
-	ctx.shadowstack.push(ShadowStackType<keyT>(s.treeTop, s.treeBottom));
+	ctx.shadowstack.push(ShadowStackItemType<keyT>(s.treeTop, s.treeBottom));
 }
 
 void ret_handler() {
@@ -150,7 +150,7 @@ void ksf_test() {
 
 int main(int argc, char ** argv) {
 
-	ctx.shadowstack.push(ShadowStackType<keyT>(0,0));
+	ctx.shadowstack.push(ShadowStackItemType<keyT>(0,0));
 
 	join_test();
 

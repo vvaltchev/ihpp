@@ -7,7 +7,7 @@
 
 void interModeBlockTrace(TracingObject<ADDRINT> *to) { 
 
-	ihppThreadContextClass *ctx;
+	ThreadContextClass *ctx;
 	BasicBlock *bb = static_cast<BasicBlock*>(to);
 
 	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());

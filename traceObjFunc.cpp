@@ -5,10 +5,10 @@
 #include "benchmark.h"
 
 
-void (*traceObject)(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx, 
+void (*traceObject)(TracingObject<ADDRINT> *to, GenericTraceContext *ctx, 
 										ihppNode* &treeTop, ihppNode* &treeBottom)=0;
 
-void traceObject_acc_kinf(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx, 
+void traceObject_acc_kinf(TracingObject<ADDRINT> *to, GenericTraceContext *ctx, 
 										ihppNode* &treeTop, ihppNode* &treeBottom)
 {
 	ihppNode *n;
@@ -43,7 +43,7 @@ void traceObject_acc_kinf(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx,
 
 }
 
-void traceObject_generic(TracingObject<ADDRINT> *to, ihppAbstractContext *ctx, 
+void traceObject_generic(TracingObject<ADDRINT> *to, GenericTraceContext *ctx, 
 										ihppNode* &treeTop, ihppNode* &treeBottom) 
 {
 

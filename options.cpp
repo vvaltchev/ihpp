@@ -12,7 +12,6 @@ using namespace std;
 //Static symbols... 
 
 static KNOB<unsigned int> kparameter(KNOB_MODE_WRITEONCE, "pintool", "k", "3", "");
-//static KNOB<string> singleFunctions(KNOB_MODE_APPEND, "pintool", "f", "", "");
 static KNOB<string> funcList(KNOB_MODE_WRITEONCE, "pintool", "funcs", "", "");
 
 static KNOB<string> outFileName(KNOB_MODE_WRITEONCE, "pintool", "outfile", "out.txt", "");
@@ -21,11 +20,7 @@ static KNOB<bool> showkSF(KNOB_MODE_WRITEONCE, "pintool", "ksf", "0", "");
 static KNOB<bool> showkSF2(KNOB_MODE_WRITEONCE, "pintool", "ksf2", "0", "");
 static KNOB<bool> showkCCF(KNOB_MODE_WRITEONCE, "pintool", "kccf", "0", "");
 
-////////
-//static KNOB<bool> purge(KNOB_MODE_WRITEONCE, "pintool", "purge", "0", "");
 static KNOB<bool> experimental(KNOB_MODE_WRITEONCE, "pintool", "experimental", "0", "");
-/////////
-
 
 //working modes options
 static KNOB<bool> opt_funcMode(KNOB_MODE_WRITEONCE, "pintool", "funcMode", "0", "");        //0
@@ -83,7 +78,6 @@ void optionsClass::initFromGlobalOptions()
 
 	startFuncName = ::startFunc.Value();
 	stopFuncName = ::stopFunc.Value();
-	//purgeFuncs = ::purge.Value();
 
 	joinThreads = ::joinThreads.Value();
 	rollLoops = ::rollLoops.Value();

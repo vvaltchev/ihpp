@@ -12,10 +12,10 @@ using namespace std;
 
 #define FUNCMODE_TOP_STACKPTR()				(ctx->shadowStack.size()?ctx->shadowStack.top().stackPtr:(ADDRINT)-1)
 #define FUNCMODE_LOAD_TOP_BOTTOM()			treeTop = ctx->shadowStack.top().treeTop; treeBottom = ctx->shadowStack.top().treeBottom;
-#define FUNCMODE_STORE_TOP_BOTTOM(sp)		ctx->shadowStack.push(ShadowStackType(treeTop,treeBottom,(sp)));
+#define FUNCMODE_STORE_TOP_BOTTOM(sp)		ctx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom,(sp)));
 #define FUNCMODE_SET_TOP_BOTTOM_TO_ROOT()	ctx->counter=0; treeTop=ctx->kSlabForest.getTreeRef(ctx->rootKey); treeBottom=0;
 
-inline void funcMode_sp_check(ihppThreadContextClass *ctx, ADDRINT reg_sp)
+inline void funcMode_sp_check(ThreadContextClass *ctx, ADDRINT reg_sp)
 {
 	if (reg_sp >= FUNCMODE_TOP_STACKPTR()) {
 
@@ -37,8 +37,8 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 	ihppNode *treeTop=0;
 	ihppNode *treeBottom=0;	
-	ihppThreadContextClass *ctx;
-	ihppContextClass *globalCtx = globalSharedContext;
+	ThreadContextClass *ctx;
+	GlobalContextClass *globalCtx = globalSharedContext;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 
@@ -85,42 +85,12 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 	assert(ctx->shadowStack.size() || !ctx->rootKey);
 
-	//stackSize == 0 && rootKey != null
-	//This should never happen for functions in full trace mode
-	//because stack size is FORCED to be > 0 after the first function call
-	//but it can happen in funcMode or intraMode when tracing only a few functions,
-	//or very often when tracing only one function.
-	/*
-	else if (ctx->rootKey) {
-
-		
-		//Reset top,bottom pointers to root of the function's tree
-		FUNCMODE_SET_TOP_BOTTOM_TO_ROOT();
-		
-		cerr << "else if rootKey condition!\n";
-
-		if (globalCtx->options.showCalls)
-			funcTraceDebugDump(globalCtx, fc, ctx, reg_sp, treeTop, treeBottom);
-
-		//Push them on the shadow stack a increment the root counter
-		FUNCMODE_STORE_TOP_BOTTOM((ADDRINT)-1);
-		treeTop->incCounter();
-
-		goto before_ret;
-	}
-	*/
-
-	/////////////////////////////////////////////
-
 	if (globalCtx->options.showCalls)
 		funcTraceDebugDump(globalCtx, fc, ctx, reg_sp, treeTop, treeBottom);
 
 	traceObject(fc, ctx, treeTop, treeBottom);
 
 	FUNCMODE_STORE_TOP_BOTTOM(reg_sp);
-
-
-//before_ret:
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
 
@@ -139,8 +109,8 @@ VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 void funcMode_ret()
 {
-	ihppContextClass *globalCtx = globalSharedContext;
-	ihppThreadContextClass *ctx;
+	GlobalContextClass *globalCtx = globalSharedContext;
+	ThreadContextClass *ctx;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 

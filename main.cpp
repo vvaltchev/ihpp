@@ -121,13 +121,12 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
     
 	RTN rtn;
 	string file;
-	//string funcName;
 	INT32 row,col;
 	BasicBlock *bb;
 	ADDRINT blockPtr,funcAddr;
 	map<ADDRINT,BasicBlock*>::iterator it;
 
-	ihppContextClass *ctx = globalSharedContext;
+	GlobalContextClass *ctx = globalSharedContext;
 
     for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl))
     {
@@ -146,20 +145,7 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 			continue;
 		}
 
-
-		//funcName=RTN_Name(rtn);
 		funcAddr=RTN_Address(rtn);
-
-		/*
-		if (ctx->options.purgeFuncs) {
-				
-			if (funcName[0] == '_') {
-				PIN_UnlockClient();
-				continue;
-			}
-		}
-		*/
-
 
 		if (!ctx->hasToTrace(funcAddr)) {
 
@@ -236,7 +222,7 @@ inline void imageload_specialfunc(ADDRINT &funcAddr, string &funcName) {
 
 void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 
-	ihppContextClass *ctx = globalSharedContext;
+	GlobalContextClass *ctx = globalSharedContext;
 
 	RTN_Open(rtn);
 
@@ -289,7 +275,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 void ImageLoad(IMG img, void *) {
 
 	RTN rtn2;
-	ihppContextClass *ctx = globalSharedContext;
+	GlobalContextClass *ctx = globalSharedContext;
 	
 	FunctionObj *fc;
 	map<ADDRINT, FunctionObj*>::iterator it;
@@ -329,15 +315,6 @@ void ImageLoad(IMG img, void *) {
 				continue;
 
 #endif
-			/*
-			if (ctx->options.purgeFuncs) {
-				
-				if (funcName[0] == '_' && !IS_WIN32_NLG_NOTIFY(funcAddr)) {
-					continue;
-				}
-			}
-			*/
-			
 
 			assert(ctx->allFuncs.find(funcAddr) == ctx->allFuncs.end());
 
@@ -421,7 +398,6 @@ void ImageLoad(IMG img, void *) {
 /* Main                                                                  */
 /* ===================================================================== */
 
-
 int main(int argc, char ** argv) {
 
 	PIN_InitSymbols();
@@ -441,7 +417,7 @@ int main(int argc, char ** argv) {
 
 	options.initFromGlobalOptions();
 
-	globalSharedContext = new ihppContextClass(optionsClass::getGlobalWM(), optionsClass::getGlobalKVal(), options);
+	globalSharedContext = new GlobalContextClass(optionsClass::getGlobalWM(), optionsClass::getGlobalKVal(), options);
 	
 	vector<string> *funcs = splitString(options.tracingFuncList, ',');
 

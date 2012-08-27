@@ -12,13 +12,13 @@ using namespace std;
 
 
 	
-string ihppThreadContextClass::getCurrentFunctionName() { 
+string ThreadContextClass::getCurrentFunctionName() { 
 	return globalSharedContext->allFuncs[currentFunction]->functionName(); 
 }
 
-ihppThreadContextClass *ihppContextClass::getThreadCtx(PIN_THREAD_UID tid) { 
+ThreadContextClass *GlobalContextClass::getThreadCtx(PIN_THREAD_UID tid) { 
 	
-	ihppThreadContextClass *ret;
+	ThreadContextClass *ret;
 
 	GetLock(&lock, 1);
 
@@ -33,7 +33,7 @@ ihppThreadContextClass *ihppContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 		}
 	}
 
-	threadContexts.push_back(new ihppThreadContextClass(tid, startFuncAddr, stopFuncAddr));
+	threadContexts.push_back(new ThreadContextClass(tid, startFuncAddr, stopFuncAddr));
 
 	ret = threadContexts.back();
 	ReleaseLock(&lock);
@@ -45,17 +45,17 @@ ihppThreadContextClass *ihppContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 		if (globalSharedContext->WorkingMode() != WM_InterProcMode) {
 
 			traceObject(globalSharedContext->allFuncs[(ADDRINT)-1], ret, t, b);
-			ret->shadowStack.push(ShadowStackType(t,b,(ADDRINT)-1));
+			ret->shadowStack.push(ShadowStackItemType(t,b,(ADDRINT)-1));
 
 			if (globalSharedContext->WorkingMode() == WM_IntraMode) {
 				
-				ihppIntraModeContext *intraCtx;
+				IntraModeContext *intraCtx;
 				ret->setCurrentFunction((ADDRINT)-1);
 				intraCtx = ret->getCurrentFunctionCtx();
 
 				t=b=0;
 				traceObject(globalSharedContext->allBlocks[(ADDRINT)-1], intraCtx, t, b);
-				intraCtx->shadowStack.push(ShadowStackType(t,b,(ADDRINT)-1));
+				intraCtx->shadowStack.push(ShadowStackItemType(t,b,(ADDRINT)-1));
 			}
 
 		} else {
@@ -68,7 +68,7 @@ ihppThreadContextClass *ihppContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 	return ret;
 }
 
-ihppContextClass::ihppContextClass(WorkingModeType wm, unsigned kval, optionsClass options) : 
+GlobalContextClass::GlobalContextClass(WorkingModeType wm, unsigned kval, optionsClass options) : 
 	_K_CCF_VAL(kval), _WorkingMode(wm)
 {
 	startFuncAddr=0;
@@ -86,7 +86,7 @@ ihppContextClass::ihppContextClass(WorkingModeType wm, unsigned kval, optionsCla
 
 }
 
-ihppContextClass::~ihppContextClass() {
+GlobalContextClass::~GlobalContextClass() {
 
 	for (unsigned i=0; i < threadContexts.size(); i++)
 		delete threadContexts[i];

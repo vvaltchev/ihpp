@@ -13,7 +13,7 @@
 #include "benchmark.h"
 #include "forest.h"
 #include "tracingObjects.h"
-#include "ihppThreadContextClass.h"
+#include "ThreadContextClass.h"
 #include "options.h"
 
 #ifndef __IHPP_HEADER__
@@ -56,7 +56,7 @@ public:
 
 
 
-class ihppContextClass {
+class GlobalContextClass {
 
 	PIN_LOCK lock;
 	unsigned int _K_CCF_VAL;
@@ -71,7 +71,7 @@ public:
 
 	BlocksMap allBlocks;
 	FuncsMap allFuncs;
-	vector<ihppThreadContextClass*> threadContexts;
+	vector<ThreadContextClass*> threadContexts;
 
 	bool exitPassed;
 	
@@ -87,10 +87,10 @@ public:
 
 
 	
-	ihppContextClass(WorkingModeType wm, unsigned kval, optionsClass options);
-	~ihppContextClass();
+	GlobalContextClass(WorkingModeType wm, unsigned kval, optionsClass options);
+	~GlobalContextClass();
 
-	ihppThreadContextClass *getThreadCtx(PIN_THREAD_UID tid);
+	ThreadContextClass *getThreadCtx(PIN_THREAD_UID tid);
 	
 	WorkingModeType WorkingMode() { return _WorkingMode; }
 	unsigned int kval() { return _K_CCF_VAL; }
@@ -101,16 +101,16 @@ public:
 
 #ifdef MAIN_IHPP_MODULE
 
-ihppContextClass *globalSharedContext=0;
+GlobalContextClass *globalSharedContext=0;
 
 #else
 
-extern ihppContextClass *globalSharedContext;
+extern GlobalContextClass *globalSharedContext;
 
 #endif
 
 
-inline bool ihppContextClass::hasToTraceByName(string funcName, ADDRINT funcAddr) 
+inline bool GlobalContextClass::hasToTraceByName(string funcName, ADDRINT funcAddr) 
 {
 	if (funcsToTrace.size()) 
 		return funcsToTrace.find(funcName) != funcsToTrace.end();
@@ -119,7 +119,7 @@ inline bool ihppContextClass::hasToTraceByName(string funcName, ADDRINT funcAddr
 }
 
 
-inline bool ihppContextClass::hasToTrace(ADDRINT funcAddr)
+inline bool GlobalContextClass::hasToTrace(ADDRINT funcAddr)
 {
 	return funcAddrsToTrace.find(funcAddr) != funcAddrsToTrace.end();
 }

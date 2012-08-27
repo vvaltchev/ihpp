@@ -109,13 +109,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\benchmark.cpp" />
-    <ClCompile Include="..\ihppContextClass.cpp" />
+    <ClCompile Include="..\GlobalContextClass.cpp" />
     <ClCompile Include="..\insTracing.cpp" />
     <ClCompile Include="..\interProcMode.cpp" />
     <ClCompile Include="..\intraMode.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\options.cpp" />
     <ClCompile Include="..\output.cpp" />
+    <ClCompile Include="..\traceObjFunc.cpp" />
     <ClCompile Include="..\util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -128,14 +129,14 @@
       <FileType>CppHeader</FileType>
     </ClCompile>
     <ClInclude Include="..\ihpp.h" />
-    <ClInclude Include="..\ihppThreadContextClass.h" />
+    <ClInclude Include="..\IntraModeContext.h" />
     <ClInclude Include="..\node.h" />
     <ClInclude Include="..\options.h" />
     <ClInclude Include="..\output.h" />
     <ClInclude Include="..\specialfuncs.h" />
+    <ClInclude Include="..\ThreadContextClass.h" />
     <ClInclude Include="..\tracingFuncs.h" />
     <ClInclude Include="..\tracingObjects.h" />
-    <ClCompile Include="..\traceObject.cpp" />
     <ClInclude Include="..\util.h" />
   </ItemGroup>
   <ItemGroup>

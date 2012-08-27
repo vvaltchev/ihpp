@@ -12,10 +12,10 @@ using namespace std;
 
 #define INTRAMODE_LOAD_TOP_BOTTOM()					treeTop = intraCtx->shadowStack.top().treeTop; treeBottom = intraCtx->shadowStack.top().treeBottom; 
 
-#define INTRAMODE_STORE_TOP_BOTTOM(sp)				intraCtx->shadowStack.push(ShadowStackType(treeTop,treeBottom, (sp) ));
+#define INTRAMODE_STORE_TOP_BOTTOM(sp)				intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom, (sp) ));
 
 
-#define INTRAMODE_REPLACE_TOP_BOTTOM(sp)			intraCtx->shadowStack.pop(); intraCtx->shadowStack.push(ShadowStackType(treeTop,treeBottom, (sp) ));
+#define INTRAMODE_REPLACE_TOP_BOTTOM(sp)			intraCtx->shadowStack.pop(); intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom, (sp) ));
 
 #define TOP_STACKPTR()								(intraCtx->shadowStack.size()?intraCtx->shadowStack.top().stackPtr:(ADDRINT)-1)
 
@@ -25,9 +25,9 @@ using namespace std;
 
 VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
 
-	ihppContextClass *globalCtx = globalSharedContext;
-	ihppThreadContextClass *ctx;
-	ihppIntraModeContext *intraCtx;
+	GlobalContextClass *globalCtx = globalSharedContext;
+	ThreadContextClass *ctx;
+	IntraModeContext *intraCtx;
 	ihppNode *treeTop;
 	ihppNode *treeBottom;
 
@@ -181,10 +181,10 @@ VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 void intraMode_ret() 
 {
-	ihppThreadContextClass *ctx;
-	ihppIntraModeContext *intraCtx;
+	ThreadContextClass *ctx;
+	IntraModeContext *intraCtx;
 
-	ihppContextClass *globalCtx = globalSharedContext;
+	GlobalContextClass *globalCtx = globalSharedContext;
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 
 

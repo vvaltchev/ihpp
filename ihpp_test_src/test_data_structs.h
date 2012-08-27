@@ -30,15 +30,15 @@ public:
 };
 
 template <typename T>
-class ShadowStackType {
+class ShadowStackItemType {
 
 public:
 
 	node<T> *treeTop;
 	node<T> *treeBottom;
 	
-	ShadowStackType() : treeTop(0), treeBottom(0) { }
-	ShadowStackType(node<T> *t, node<T> *b) : treeTop(t), treeBottom(b) { 	}
+	ShadowStackItemType() : treeTop(0), treeBottom(0) { }
+	ShadowStackItemType(node<T> *t, node<T> *b) : treeTop(t), treeBottom(b) { 	}
 };
 
 template<typename T>
@@ -52,7 +52,7 @@ public:
 
 	unsigned int counter;
 
-	stack< ShadowStackType<T> > shadowstack;
+	stack< ShadowStackItemType<T> > shadowstack;
 
 	testCtx() { counter=0; }
 };
