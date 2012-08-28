@@ -2074,7 +2074,7 @@ its key-files and the approaches adopted for solving problems occurred.
 Of course, there will be source code listings, but almost always the code will be
 \emph{purged} from the lines unessential for specific context in which the code is presented.
 
-\section{The general organization of the project}
+\section{A general overview of the project}
 
 As can be seen in \cref{proj_files}, IHPP has been implemented in 26 files,
 grouped by areas of competence. The \verb|main.cpp| file is where the enter point
@@ -2087,7 +2087,7 @@ This last one, is substantially the function that implements the algorithm for b
 a $k$-SF from an execution trace shown in \cref{ksf_alg}: 
 when called, it \emph{traces} the activation of a generic \verb|TracingObject<T>| 
 in the given \emph{context}. The \emph{context} depends from the working mode:
-in \verb|funcMode|, for example, the \emph{context} is pointer to a \verb|ThreadContextClass| object; instead, in \verb|IntraMode| the \emph{context} is 
+in \verb|funcMode|, for example, the \emph{context} is pointer to a \verb|ThreadContext| object; instead, in \verb|IntraMode| the \emph{context} is 
 a pointer to a \verb|IntraModeContext| object. In order to simply everything, 
 \emph{abstraction}
 \begin{figure}[H]
@@ -2147,8 +2147,8 @@ the three working modes
 \node[flist] (n4) at (6.5,-3.5) {
 \makecell[l] {
 ihpp.h\\
-globalContextClass.cpp\\
-threadContextClass.h\\
+globalContext.cpp\\
+threadContext.h\\
 intraModeContext.h
 }};
 
@@ -2217,7 +2217,7 @@ rounded corners = 10pt, fit = (t1) (n2) (n6) (n7)] {};
 
 \noindent
  is used: 
-both \verb|ThreadContextClass| and \verb|IntraModeContext| classes are specializations of
+both \verb|ThreadContext| and \verb|IntraModeContext| classes are specializations of
 the \verb|GenericTraceContext| class, exactly as \verb|FunctionObj| and 
 \verb|BasicBlock| classes are specializations of the generic \verb|TracingObject<T>| class.
 The \verb|traceObject()| function mentioned before, works with basilar objects 
@@ -2225,17 +2225,205 @@ defined in files of group (1). The first two files in this last group use on the
 container classes for \verb|ObjectWithKey<T>| objects defined and implemented 
 in file \verb|datastructures.h|.
 \verb|ObjectWithKey<T>| is the most abstract class in IHPP since it is a generalization of the abstract class \verb|TracingObject<T>|. 
-Nodes and forests concepts are implemented respectively in \verb|node.h| and \verb|forest.h|
-files. The concept of \emph{tree} is not explicitly modeled in IHPP, but it is 
-modeled inside the \verb|node<T>| class instead. Files in groups (1) and (2) 
+Nodes and forests data structures are implemented respectively in \verb|node.h| and \verb|forest.h| files. The concept of \emph{tree} is not explicitly modeled in IHPP, but it is 
+modeled inside the \verb|node<T>| class instead. 
+\begin{paragraph}{A technical note}
+Files in groups (1) and (2) 
 are mainly \emph{headers} because they
 contain \emph{template} classes which cannot be complied like others; 
 the \verb|traceObject()| function instead, is not a template function because of 
 an optimization strategy: it is a function pointer which is assigned at runtime
-to the \emph{quicker} \verb|traceObject| implementation, specially to speeding up 
-the $k=\infty$ case.
+to the \emph{faster} \verb|traceObject| implementation, specially to speeding up 
+the $k=\infty$ case. 
+\end{paragraph}
 
-\chapter{Case studies}
+\Cref{classdiag1} shows an UML-like diagram which summarizes
+some of the relations just explained.
+
+\begin{figure}[h]
+
+\begin{center}
+
+\scalebox{0.9} {
+\begin{tikzpicture}
+[
+	class/.style = {rectangle, draw, rounded corners = 4pt, inner sep=6pt, font=\ttfamily},
+	arrow/.style = {->, >=open triangle 90, thick},
+	line/.style = {-, thick}
+]
+
+\node[class] (objectwithkey) at (0,0) {ObjectWithKey<T>};
+\node[class, below left = 1.5cm and -1cm of objectwithkey] (tracingobject) {TracingObject<T>};
+\node[class, below left = 1.5cm and -1cm of tracingobject] (functionobj) {FunctionObj};
+\node[class, below right = 1.5cm and -1cm of tracingobject] (basicblock) {BasicBlock};
+
+\node[class, below right = 1.5cm and 0cm of objectwithkey] (nodet) {node<T>};
+
+\draw[arrow] (tracingobject.north) -- ++(0,0.5) -| ([xshift=-1cm] objectwithkey.south);
+\draw[arrow] (functionobj.north) -- ++(0,0.5) -| (tracingobject.south);
+\draw[line, shorten >= 0.5cm] (basicblock.north) -- ++(0,0.5) -| (tracingobject.south);
+
+\node[class] (bench) at (0,-7) {BenchmarkObj};
+\node[class, below = of bench] (genericCtx) {GenericTraceContext};
+\node[class, below left = 1.5cm and -1.3cm of genericCtx] (intraCtx) {IntraModeContext};
+\node[class, below right = 1.5cm and -1.3cm of genericCtx] (thCtx) {ThreadContext};
+
+\draw[arrow] (genericCtx.north) -- ++(0,0) -| (bench.south);
+\draw[arrow] (intraCtx.north) -- ++(0,0.5) -| (genericCtx.south);
+\draw[line, shorten >= 0.5cm] (thCtx.north) - ++(0,0.5) -| (genericCtx.south);
+\draw[arrow] (nodet.north) -- ++(0,0.5) -| ([xshift=1cm] objectwithkey.south);
+
+\end{tikzpicture}
+}
+
+\end{center}
+
+\caption{some important class relationships}
+\label{classdiag1}
+\end{figure}
+
+\begin{paragraph}{The output generation}
+When the target program ends, the \verb|Fini()| \emph{callback} routine located in 
+\verb|output.cpp| is called. It writes the output, as shown in chapter 4, using 
+supporting routines in \verb|output.cpp| and \verb|util.cpp| files.
+When the \verb|-kccf| option is used, supporting routines in \verb|output.cpp| 
+use the \verb|inverseK()| method of class \verb|forest<T>| to produce a $k$-CCF
+from each $k$-SF. The \verb|-joinThreads| option makes output routines to 
+do a preventive \emph{join} operation on all $k$-SFs, leaving the result 
+in the first thread context. 
+\end{paragraph}
+
+\begin{paragraph}{The \emph{instruction} tracing mode}
+The shortly called \emph{insTracing} mode is a hidden part of IHPP never
+mentioned before. It handles the instrumenting of \emph{all} machine instructions
+contained in chosen functions in order to improve correctness 
+of outputs produced by \verb|funcMode| and \verb|intraMode| 
+in \emph{extreme} conditions, for example when \emph{calling conventions} are not
+respected by the compiler such as a call to routine with a \verb|jmp| instruction 
+instead of a \verb|call| one, or when particular functions like \verb|longjmp()| are used.
+This \emph{feature} consists of a \emph{set} of several approaches to the problem 
+of correctly understanding the execution trace of the program but, 
+since it is really \emph{heavier} than the simply function instrumentation,
+it can be disabled (each approach separately) in the \verb|config.h| file.
+\end{paragraph}
+
+\begin{paragraph}{Other features}
+IHPP has implemented in it a tiny benchmark framework which allows 
+to count the number of nodes and forests created and copied (during the 
+target program execution) within each
+thread or even each function in each thread. For that reason,
+the \verb|GenericTraceContext| class derives from the \verb|BenchmarkObj| class.
+Of course, benchmark is a \emph{heavy} feature too which can be disabled 
+in the \verb|config.h| file. Also, IHPP provides a set \emph{debug} mode
+which writes selective debug info to the \verb|stderr| file stream.
+\end{paragraph}
+
+\section{The context classes}
+
+The knowledge of context classes is essential to understand the IHPP implementation.
+
+\subsection{The \emph{GlobalContext} class}
+The main IHPP context class is \verb|GlobalContext|: it contains all globally shared variables in the program and it is instanced only once. 
+Even if the \emph{singleton} design pattern could had be used for it, for 
+performance reasons it is instanced as a simply global symbol called \verb|globalSharedContext| defined in \verb|ihpp.h|.
+\Cref{globalCtx} shows a great part of the \verb|GlobalContext| implementation.
+
+\begin{lstlisting}[language=C++, 
+	caption={partial definition of \texttt{GlobalContext}}, label=globalCtx, frame=leftline]
+
+class GlobalContext {
+	
+	PIN_LOCK lock;
+	/* omitted code [...] */
+
+public:
+
+	ofstream OutFile;
+
+	set<string> funcsToTrace;
+	set<ADDRINT> funcAddrsToTrace;
+
+	BlocksMap allBlocks;
+	FuncsMap allFuncs;
+	vector<ThreadContext*> threadContexts;
+
+	/* omitted code [...] */
+
+	optionsClass options;
+	specialAttrs spAttrs;
+
+	GlobalContext(WorkingModeType wm, unsigned kval, optionsClass options);
+	ThreadContext *getThreadCtx(PIN_THREAD_UID tid);
+
+	WorkingModeType WorkingMode() { return _WorkingMode; }
+	unsigned int kval() { return _K_CCF_VAL; }
+
+	inline bool hasToTrace(ADDRINT funcAddr);
+
+	/* omitted code [...] */
+};
+
+\end{lstlisting}
+
+\noindent
+As told in the chapter introduction, source code will not be explained line by line.
+The most important properties and methods in this case are:
+\begin{description}
+\item[allBlocks] is a \emph{hashmap} of all BBLs (\verb|BasicBlock| objects) indexed by their address (of type \verb|ADDRINT|).
+\item[allFuncs] is a \emph{hashmap} containing all functions of the main image of the
+program, not only the ones that have to be traced
+\item[funcsAddrsToTrace] is a set of all functions that have to be traced, indexed 
+by their address. When all functions of main image of the program have to be traced,
+this set, like the set \verb|funcsToTrace|, will have no elements
+\item[threadContexts] is a vector containing pointers to all \verb|ThreadContext| objects. A \verb|std::vector<T>| is used intentionally instead of a \verb|std::map| because
+usually programs have a small number of threads: iterating all them is better than using a \emph{hashmap} which works in $O(1)$ but has big hidden constants
+\item[getThreadCtx(...)] is the fundamental method of this class used in all working modes:
+given the current \emph{thread\_id}, it returns a pointer to its relative thread context object or, if this one does not exists, creates a new thread context object and then returns it.
+\end{description}
+
+\subsection{The \emph{GenericTraceContext} class}
+
+The \verb|GenericTraceContext| class is the basic context used 
+by the \verb|traceObject()| function. \Cref{genericCtx} shows its definition.
+
+\begin{lstlisting}[language=C++, 
+	caption={partial definition of \texttt{GenericTraceContext}}, 
+	label=genericCtx, frame=leftline]
+
+class GenericTraceContext: public BenchmarkObj {
+
+public:
+
+	ADDRINT rootKey;
+	ihppForest kSlabForest;
+	ihppNodeMap R;
+	
+	unsigned int counter;
+
+	ihppStack<ShadowStackItemType> shadowStack;
+
+	GenericTraceContext() : rootKey(0), counter(0) 
+	{ 
+		//omitted code [...]
+	}
+
+};
+
+\end{lstlisting}
+
+It contains the essential elements explained in chapter 3 for building 
+a couple $k$-SF - $k$-CCF: a $k$-slab forest, a shadowStack, a map \verb|R| and a \verb|rootKey| variable used to identity the first tree of the $k$-SF.
+
+
+\section{Basics of \emph{function} mode}
+
+\section{\emph{Intra-}procedural mode}
+
+\section{\emph{Inter-}procedural mode}
+
+\section{Advanced \emph{function} mode: \emph{insTracing}}
+
+\section{Performance of IHPP}
 
 \chapter{Conclusions}
 

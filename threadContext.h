@@ -9,7 +9,7 @@
 void funcMode_ret();
 
 
-class ThreadContextClass : public GenericTraceContext {
+class ThreadContext : public GenericTraceContext {
 
 	ADDRINT currentFunction;
 
@@ -55,9 +55,9 @@ public:
 
 	//Methods
 
-	ThreadContextClass(PIN_THREAD_UID tid, ADDRINT startFuncAddr, ADDRINT stopFuncAddr);
+	ThreadContext(PIN_THREAD_UID tid, ADDRINT startFuncAddr, ADDRINT stopFuncAddr);
 
-	~ThreadContextClass();
+	~ThreadContext();
 
 	inline bool canPopStack();
 	inline bool popShadowStack();
@@ -70,7 +70,7 @@ public:
 	string getCurrentFunctionName(); 
 };
 
-inline bool ThreadContextClass::canPopStack() {
+inline bool ThreadContext::canPopStack() {
 	
 #if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT
 	
@@ -84,7 +84,7 @@ inline bool ThreadContextClass::canPopStack() {
 #endif
 }
 
-inline bool ThreadContextClass::popShadowStack() 
+inline bool ThreadContext::popShadowStack() 
 {
 	if (canPopStack()) {
 			
@@ -95,7 +95,7 @@ inline bool ThreadContextClass::popShadowStack()
 	return false;
 }
 
-inline ThreadContextClass::ThreadContextClass(PIN_THREAD_UID tid, ADDRINT startFuncAddr, ADDRINT stopFuncAddr)
+inline ThreadContext::ThreadContext(PIN_THREAD_UID tid, ADDRINT startFuncAddr, ADDRINT stopFuncAddr)
 	 :  GenericTraceContext(),  currentFunction(0), threadID(tid)
 	{
 		INIT_SUBCALL_CHECK_VARS();
@@ -113,8 +113,8 @@ inline ThreadContextClass::ThreadContextClass(PIN_THREAD_UID tid, ADDRINT startF
 		fjmpsFuncAddr=0;
 #endif
 
-		ThreadContextClass::startFuncAddr = startFuncAddr;
-		ThreadContextClass::stopFuncAddr = stopFuncAddr;
+		ThreadContext::startFuncAddr = startFuncAddr;
+		ThreadContext::stopFuncAddr = stopFuncAddr;
 
 		if (startFuncAddr)
 			haveToTrace = false;
@@ -122,32 +122,32 @@ inline ThreadContextClass::ThreadContextClass(PIN_THREAD_UID tid, ADDRINT startF
 			haveToTrace = true;
 	}
 
-inline ADDRINT ThreadContextClass::getCurrentFunction() 
+inline ADDRINT ThreadContext::getCurrentFunction() 
 { 
 	return currentFunction; 
 }
 
-inline ThreadContextClass::~ThreadContextClass()
+inline ThreadContext::~ThreadContext()
 {
 	for (map<ADDRINT, IntraModeContext*>::iterator it = intraModeContexts.begin(); it != intraModeContexts.end(); it++)
 		delete it->second;
 }
 
 
-inline IntraModeContext *ThreadContextClass::getCurrentFunctionCtx() 
+inline IntraModeContext *ThreadContext::getCurrentFunctionCtx() 
 { 
 	return getFunctionCtx(currentFunction); 
 }
 
 
-inline IntraModeContext *ThreadContextClass::setCurrentFunction(ADDRINT currFunc)
+inline IntraModeContext *ThreadContext::setCurrentFunction(ADDRINT currFunc)
 {
 	currentFunction=currFunc; 
 	return getCurrentFunctionCtx();
 }
 
 
-inline IntraModeContext *ThreadContextClass::getFunctionCtx(ADDRINT funcAddr) 
+inline IntraModeContext *ThreadContext::getFunctionCtx(ADDRINT funcAddr) 
 {
 
 	if (intraModeContexts.find(funcAddr) == intraModeContexts.end()) {

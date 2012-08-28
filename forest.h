@@ -227,7 +227,6 @@ forest<keyT> forest<keyT>::inverseK(unsigned int k) {
 
 		for (it2 = tmp.begin(); it2 != tmp.end(); it2++)
 			res.local_joinByVal((*it2)->kpathR(k));
-			//res = res.joinByVal((*it2)->kpathR(k));
 	}
 
 	return res;

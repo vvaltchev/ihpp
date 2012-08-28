@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "dataStructures.h"
-
+#include "benchmark.h"
 
 using namespace std;
 
