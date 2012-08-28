@@ -119,16 +119,15 @@ void traceObject_generic(TracingObject<ADDRINT> *to, GenericTraceContext *ctx,
 	// For k -> inf, this code runs only first time, when counter=0
 	if (!( (ctx->counter) % k )) {
 
-	//if ( ! (ctx->shadowStack.size() % k) ) {
-
 		treeBottom=treeTop;
-		it = ctx->R.find(key);
 
-		if (it == ctx->R.end())
-			ctx->R[key] = ( treeTop = ctx->kSlabForest.addTreeByVal(ihppNode(key, to, 0))  );
-		else
-			treeTop = it->second;
-	
+		n = ctx->kSlabForest.getTreeRef(key);
+
+		if (!n)
+			n = ctx->kSlabForest.addTreeByVal(ihppNode(key,to,0));
+		
+		treeTop = n;
+
 	} else {
 		
 		//For k -> inf, only this code runs

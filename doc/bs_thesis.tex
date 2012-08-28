@@ -2329,7 +2329,7 @@ performance reasons it is instanced as a simply global symbol called \verb|globa
 \Cref{globalCtx} shows a great part of the \verb|GlobalContext| implementation.
 
 \begin{lstlisting}[language=C++, 
-	caption={partial implementation of \texttt{GlobalContext}}, label=globalCtx, frame=leftline]
+	caption={partial definition of \texttt{GlobalContext}}, label=globalCtx, frame=leftline]
 
 class GlobalContext {
 	
@@ -2382,6 +2382,38 @@ given the current \emph{thread\_id}, it returns a pointer to its relative thread
 \end{description}
 
 \subsection{The \emph{GenericTraceContext} class}
+
+The \verb|GenericTraceContext| class is the basic context used 
+by the \verb|traceObject()| function. \Cref{genericCtx} shows its definition.
+
+\begin{lstlisting}[language=C++, 
+	caption={partial definition of \texttt{GenericTraceContext}}, 
+	label=genericCtx, frame=leftline]
+
+class GenericTraceContext: public BenchmarkObj {
+
+public:
+
+	ADDRINT rootKey;
+	ihppForest kSlabForest;
+	ihppNodeMap R;
+	
+	unsigned int counter;
+
+	ihppStack<ShadowStackItemType> shadowStack;
+
+	GenericTraceContext() : rootKey(0), counter(0) 
+	{ 
+		//omitted code [...]
+	}
+
+};
+
+\end{lstlisting}
+
+It contains the essential elements explained in chapter 3 for building 
+a couple $k$-SF - $k$-CCF: a $k$-slab forest, a shadowStack, a map \verb|R| and a \verb|rootKey| variable used to identity the first tree of the $k$-SF.
+
 
 \section{Basics of \emph{function} mode}
 

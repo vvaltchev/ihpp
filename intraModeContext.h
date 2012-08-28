@@ -36,8 +36,6 @@ public:
 
 	ADDRINT rootKey;
 	ihppForest kSlabForest;
-	ihppNodeMap R;
-	
 	unsigned int counter;
 
 	ihppStack<ShadowStackItemType> shadowStack;
