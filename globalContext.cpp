@@ -24,7 +24,7 @@ ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) {
 
 	for (unsigned i=0; i < threadContexts.size(); i++) {
 		
-		if (threadContexts[i]->threadID == tid) {
+		if (threadContexts[i]->getThreadID() == tid) {
 			
 			ret = threadContexts[i];
 			ReleaseLock(&lock);

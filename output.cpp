@@ -960,13 +960,13 @@ void Fini(INT32 code, void *)
 	
 	for (unsigned i=0; i < ctx->threadContexts.size(); i++) {
 	
-		print_openThread(ctx->threadContexts[i]->threadID);
+		print_openThread(ctx->threadContexts[i]->getThreadID());
 
 
 
 		//Operations in printContextInfo (inversion of the K slab forest and others)
 		//have to counted as operations made by thread "threadID" and not by current thread.
-		BENCHMARK_SET_THREAD(ctx->threadContexts[i]->threadID);
+		BENCHMARK_SET_THREAD(ctx->threadContexts[i]->getThreadID());
 
 		//cerr << "Computing kCCF for thread " << ctx->threadContexts[i]->threadID << "...\n";
 

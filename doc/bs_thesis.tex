@@ -2369,7 +2369,8 @@ public:
 As told in the chapter introduction, source code will not be explained line by line.
 The most important properties and methods in this case are:
 \begin{description}
-\item[allBlocks] is a \emph{hashmap} of all BBLs (\verb|BasicBlock| objects) indexed by their address (of type \verb|ADDRINT|).
+\item[allBlocks] is a \emph{hashmap} of all BBLs (\verb|BasicBlock| objects) indexed by their address (of type \verb|ADDRINT|, a Pin macro that stands for an unsigned integer
+of pointer size).
 \item[allFuncs] is a \emph{hashmap} containing all functions of the main image of the
 program, not only the ones that have to be traced
 \item[funcsAddrsToTrace] is a set of all functions that have to be traced, indexed 
@@ -2396,8 +2397,6 @@ public:
 
 	ADDRINT rootKey;
 	ihppForest kSlabForest;
-	ihppNodeMap R;
-	
 	unsigned int counter;
 
 	ihppStack<ShadowStackItemType> shadowStack;
@@ -2411,9 +2410,80 @@ public:
 
 \end{lstlisting}
 
+\noindent
 It contains the essential elements explained in chapter 3 for building 
-a couple $k$-SF - $k$-CCF: a $k$-slab forest, a shadowStack, a map \verb|R| and a \verb|rootKey| variable used to identity the first tree of the $k$-SF.
+a couple $k$-SF - $k$-CCF: a $k$-slab forest, a shadowStack and a \verb|rootKey| variable used to identity the first tree of the $k$-SF. 
+The \verb|R| map, explained in chapter 3, is not necessary here because the \verb|forest<T>| class used as \verb|kSlabForest| type\footnote{\texttt{ihppForest} is simply a \texttt{typedef} of \texttt{forest<T>} with \texttt{T = ADDRINT}.} uses itself 
+a hashmap for tree roots searches. The \verb|counter| variable, instead, is a new concept:
+it is used by the \verb|traceObject()| function as a replacement of the 
+expression \verb|S.size()-1| used in \cref{ksf_alg} on line 15. 
+The reason of \verb|counter| is that the \verb|shadowStack| size does not grow 
+neither in \verb|intraMode| nor in \verb|interMode| when new BBLs are activated but
+the algorithm needs a growing variable. Actually, \verb|counter| is always incremented
+by every \verb|traceObject()| invocation; also \verb|funcMode| uses this counter
+instead of \verb|shadowStack.size()| but, its value is decreased on stack \verb|pop()| actions.
 
+\subsection{The \emph{IntraModeContext} class}
+
+\begin{lstlisting}[language=C++, 
+	caption={definition of \texttt{IntraModeContext}}, 
+	label=intraCtx, frame=leftline]
+
+class IntraModeContext : public GenericTraceContext {
+
+	ADDRINT funcAddr;
+
+public:
+
+	IntraModeContext(ADDRINT functionAddr) : 
+		GenericTraceContext(), funcAddr(functionAddr) { }
+
+	ADDRINT getFunctionAddr() { return funcAddr; }
+};
+
+
+\end{lstlisting}
+
+\subsection{The \emph{ThreadContext} class}
+
+\begin{lstlisting}[language=C++, 
+	caption={definition of \texttt{IntraModeContext}}, 
+	label=threadCtx, frame=leftline]
+
+class ThreadContext : public GenericTraceContext {
+
+	ADDRINT currentFunction;
+	PIN_THREAD_UID threadID;
+
+public:
+	
+	//WM_InterProcMode and WM_FuncMode properies
+
+	ihppNode *treeTop;
+	ihppNode *treeBottom;
+
+	//omitted code [...]
+
+
+	//WM_IntraMode properties
+	map<ADDRINT, IntraModeContext*> intraModeContexts;
+
+
+	ThreadContext(PIN_THREAD_UID tid, /* omitted code [...] */);
+
+	//omitted code [...]
+
+	IntraModeContext *getFunctionCtx(ADDRINT funcAddr);
+	IntraModeContext *getCurrentFunctionCtx();
+
+	ADDRINT getCurrentFunction();
+	IntraModeContext *setCurrentFunction(ADDRINT currFunc);
+	string getCurrentFunctionName(); 
+
+	PIN_THREAD_UID getThreadID() { return threadID; }
+};
+
+\end{lstlisting}
 
 \section{Basics of \emph{function} mode}
 

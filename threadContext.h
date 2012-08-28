@@ -12,11 +12,10 @@ void funcMode_ret();
 class ThreadContext : public GenericTraceContext {
 
 	ADDRINT currentFunction;
+	PIN_THREAD_UID threadID;
 
 public:
-	
-	PIN_THREAD_UID threadID;
-	
+		
 	//WM_InterProcMode and WM_FuncMode properies
 
 	ihppNode *treeTop;
@@ -68,6 +67,8 @@ public:
 	ADDRINT getCurrentFunction();
 	IntraModeContext *setCurrentFunction(ADDRINT currFunc);
 	string getCurrentFunctionName(); 
+
+	PIN_THREAD_UID getThreadID() { return threadID; }
 };
 
 inline bool ThreadContext::canPopStack() {
