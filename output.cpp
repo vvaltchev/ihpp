@@ -38,7 +38,7 @@ inline void closeAttr(const char *tag, ostream &s = globalSharedContext->OutFile
 	s << "\" ";
 }
 
-inline void benchmark_dump_before_kCCF(GlobalContextClass *globalCtx, BenchmarkObj *ctx)
+inline void benchmark_dump_before_kCCF(GlobalContext *globalCtx, BenchmarkObj *ctx)
 {
 
 #if IHPP_BENCHMARK 
@@ -54,7 +54,7 @@ inline void benchmark_dump_before_kCCF(GlobalContextClass *globalCtx, BenchmarkO
 
 }
 
-inline void benchmark_dump_after_kCCF(GlobalContextClass *globalCtx, BenchmarkObj *ctx)
+inline void benchmark_dump_after_kCCF(GlobalContext *globalCtx, BenchmarkObj *ctx)
 {
 
 #if IHPP_BENCHMARK 
@@ -70,7 +70,7 @@ inline void benchmark_dump_after_kCCF(GlobalContextClass *globalCtx, BenchmarkOb
 }
 
 template <typename T>
-inline void print_title(GlobalContextClass *globalCtx, T str)
+inline void print_title(GlobalContext *globalCtx, T str)
 {
 	globalCtx->OutFile << OUTPUT_PLINE;
 	globalCtx->OutFile << str << "\n";
@@ -79,7 +79,7 @@ inline void print_title(GlobalContextClass *globalCtx, T str)
 
 
 template <typename T>
-inline void print_thread_id(GlobalContextClass *ctx, T str)
+inline void print_thread_id(GlobalContext *ctx, T str)
 {
 	ctx->OutFile << OUTPUT_LINE;
 	ctx->OutFile << OUTPUT_LINE;
@@ -120,7 +120,7 @@ inline void print_closeThread()
 
 
 template <typename T>
-inline void print_func_name(GlobalContextClass *ctx, T str)
+inline void print_func_name(GlobalContext *ctx, T str)
 {
 	ctx->OutFile << OUTPUT_LINE;
 	ctx->OutFile << "Function: " << str << "()\n";
@@ -184,7 +184,7 @@ void dumpXmlForest(ihppForest &f) {
 	}
 }
 
-void printContextInfo(GlobalContextClass *globalCtx, GenericTraceContext *ctx) {
+void printContextInfo(GlobalContext *globalCtx, GenericTraceContext *ctx) {
 
 	ihppForest kccf;
 	ihppForest *kSFCopy = 0;
@@ -268,7 +268,7 @@ void printContextInfo(GlobalContextClass *globalCtx, GenericTraceContext *ctx) {
 	}
 }
 
-void printThreadContextInfo(GlobalContextClass *globalCtx, ThreadContextClass *ctx) 
+void printThreadContextInfo(GlobalContext *globalCtx, ThreadContext *ctx) 
 {
 	if (globalCtx->WorkingMode() == WM_FuncMode || globalCtx->WorkingMode() == WM_InterProcMode) {
 	
@@ -313,10 +313,10 @@ void printThreadContextInfo(GlobalContextClass *globalCtx, ThreadContextClass *c
 
 }
 
-void blockFuncMode_joinThreads(GlobalContextClass *globalCtx) {
+void blockFuncMode_joinThreads(GlobalContext *globalCtx) {
 
-	ThreadContextClass *thCtx = globalCtx->threadContexts[0];
-	ThreadContextClass *thCtx2;
+	ThreadContext *thCtx = globalCtx->threadContexts[0];
+	ThreadContext *thCtx2;
 	ihppForest *forest = &thCtx->kSlabForest;
 
 	for (unsigned i=1; i < globalCtx->threadContexts.size(); i++) {
@@ -337,10 +337,10 @@ void blockFuncMode_joinThreads(GlobalContextClass *globalCtx) {
 		globalCtx->threadContexts.erase(globalCtx->threadContexts.begin()+1,globalCtx->threadContexts.end());
 }
 
-void intraMode_joinThreads(GlobalContextClass *globalCtx) {
+void intraMode_joinThreads(GlobalContext *globalCtx) {
 
-	ThreadContextClass *th0Ctx = globalCtx->threadContexts[0];
-	ThreadContextClass *thCtx2;
+	ThreadContext *th0Ctx = globalCtx->threadContexts[0];
+	ThreadContext *thCtx2;
 	IntraModeContext *intraCtx;
 	ihppForest *forest;
 
@@ -396,7 +396,7 @@ string getInsName(string ins) {
 
 string makeHumanJump(insInfo &insData) {
 
-	GlobalContextClass *globalCtx = globalSharedContext;
+	GlobalContext *globalCtx = globalSharedContext;
 
 	string ins = insData.ins_text;
 
@@ -479,7 +479,7 @@ string makeHumanJump(insInfo &insData) {
 
 void makeHumanDisasm() {
 
-	GlobalContextClass *globalCtx = globalSharedContext;
+	GlobalContext *globalCtx = globalSharedContext;
 
 	for (FuncsMapIt funcIt = globalCtx->allFuncs.begin(); funcIt != globalCtx->allFuncs.end(); funcIt++)
 	{
@@ -506,7 +506,7 @@ void makeHumanDisasm() {
 
 void writeXmlConfig() {
 
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 	ostream &o = globalSharedContext->OutFile;
 
 	openTag("configuration",true);
@@ -564,7 +564,7 @@ void writeXmlConfig() {
 
 void print_outputInit() {
 
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 
 	if (!ctx->options.xmloutput) {
 
@@ -607,7 +607,7 @@ void print_outputInit() {
 
 size_t getMaxFuncLen() {
 
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 	size_t maxFuncLen=0;
 
 	if (ctx->options.showFuncs || (ctx->options.showBlocks && !ctx->funcsToTrace.size())) {
@@ -627,7 +627,7 @@ size_t getMaxFuncLen() {
 
 void print_ins(ADDRINT addr, insInfo &info) {
 
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 
 	openAttr("address");
 	ctx->OutFile << "0x" << hex << (size_t)addr << dec;
@@ -695,7 +695,7 @@ void print_ins(ADDRINT addr, insInfo &info) {
 
 void print_showBlocks(size_t maxFuncLen) {
 
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 	size_t maxLen=0;
 
 	if (!ctx->options.xmloutput) {
@@ -825,7 +825,7 @@ void print_showBlocks(size_t maxFuncLen) {
 
 void print_showFuncs(size_t maxFuncLen) {
 
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 
 	if (!ctx->options.xmloutput) {
 
@@ -919,7 +919,7 @@ void print_showFuncs(size_t maxFuncLen) {
 
 void freeMemory() {
 
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 
 	for (FuncsMapIt it = ctx->allFuncs.begin(); it != ctx->allFuncs.end(); it++) {
 		
@@ -941,7 +941,7 @@ void freeMemory() {
 
 void Fini(INT32 code, void *)
 {
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 
 
 	print_outputInit();
@@ -1005,8 +1005,8 @@ void Fini(INT32 code, void *)
 	delete ctx;
 }
 
-void funcTraceDebugDump(GlobalContextClass *globalCtx, FunctionObj *fc, 
-						ThreadContextClass *ctx, ADDRINT reg_sp, 
+void funcTraceDebugDump(GlobalContext *globalCtx, FunctionObj *fc, 
+						ThreadContext *ctx, ADDRINT reg_sp, 
 						ihppNode *treeTop, ihppNode *treeBottom) 
 {
 

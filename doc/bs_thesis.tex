@@ -2087,7 +2087,7 @@ This last one, is substantially the function that implements the algorithm for b
 a $k$-SF from an execution trace shown in \cref{ksf_alg}: 
 when called, it \emph{traces} the activation of a generic \verb|TracingObject<T>| 
 in the given \emph{context}. The \emph{context} depends from the working mode:
-in \verb|funcMode|, for example, the \emph{context} is pointer to a \verb|ThreadContextClass| object; instead, in \verb|IntraMode| the \emph{context} is 
+in \verb|funcMode|, for example, the \emph{context} is pointer to a \verb|ThreadContext| object; instead, in \verb|IntraMode| the \emph{context} is 
 a pointer to a \verb|IntraModeContext| object. In order to simply everything, 
 \emph{abstraction}
 \begin{figure}[H]
@@ -2147,8 +2147,8 @@ the three working modes
 \node[flist] (n4) at (6.5,-3.5) {
 \makecell[l] {
 ihpp.h\\
-globalContextClass.cpp\\
-threadContextClass.h\\
+globalContext.cpp\\
+threadContext.h\\
 intraModeContext.h
 }};
 
@@ -2217,7 +2217,7 @@ rounded corners = 10pt, fit = (t1) (n2) (n6) (n7)] {};
 
 \noindent
  is used: 
-both \verb|ThreadContextClass| and \verb|IntraModeContext| classes are specializations of
+both \verb|ThreadContext| and \verb|IntraModeContext| classes are specializations of
 the \verb|GenericTraceContext| class, exactly as \verb|FunctionObj| and 
 \verb|BasicBlock| classes are specializations of the generic \verb|TracingObject<T>| class.
 The \verb|traceObject()| function mentioned before, works with basilar objects 
@@ -2266,7 +2266,7 @@ some of the relations just explained.
 \node[class] (bench) at (0,-7) {BenchmarkObj};
 \node[class, below = of bench] (genericCtx) {GenericTraceContext};
 \node[class, below left = 1.5cm and -1.3cm of genericCtx] (intraCtx) {IntraModeContext};
-\node[class, below right = 1.5cm and -1.3cm of genericCtx] (thCtx) {ThreadContextClass};
+\node[class, below right = 1.5cm and -1.3cm of genericCtx] (thCtx) {ThreadContext};
 
 \draw[arrow] (genericCtx.north) -- ++(0,0) -| (bench.south);
 \draw[arrow] (intraCtx.north) -- ++(0,0.5) -| (genericCtx.south);
@@ -2322,16 +2322,16 @@ which writes selective debug info to the \verb|stderr| file stream.
 
 The knowledge of context classes is essential to understand the IHPP implementation.
 
-\subsection{The \emph{GlobalContextClass} class}
-The main IHPP context class is \verb|GlobalContextClass|: it contains all globally shared variables in the program and it is instanced only once. 
+\subsection{The \emph{GlobalContext} class}
+The main IHPP context class is \verb|GlobalContext|: it contains all globally shared variables in the program and it is instanced only once. 
 Even if the \emph{singleton} design pattern could had be used for it, for 
 performance reasons it is instanced as a simply global symbol called \verb|globalSharedContext| defined in \verb|ihpp.h|.
-\Cref{globalCtx} shows a great part of the \verb|GlobalContextClass| implementation.
+\Cref{globalCtx} shows a great part of the \verb|GlobalContext| implementation.
 
 \begin{lstlisting}[language=C++, 
-	caption={partial implementation of \texttt{GlobalContextClass}}, label=globalCtx, frame=leftline]
+	caption={partial implementation of \texttt{GlobalContext}}, label=globalCtx, frame=leftline]
 
-class GlobalContextClass {
+class GlobalContext {
 	
 	PIN_LOCK lock;
 	/* omitted code [...] */
@@ -2345,15 +2345,15 @@ public:
 
 	BlocksMap allBlocks;
 	FuncsMap allFuncs;
-	vector<ThreadContextClass*> threadContexts;
+	vector<ThreadContext*> threadContexts;
 
 	/* omitted code [...] */
 
 	optionsClass options;
 	specialAttrs spAttrs;
 
-	GlobalContextClass(WorkingModeType wm, unsigned kval, optionsClass options);
-	ThreadContextClass *getThreadCtx(PIN_THREAD_UID tid);
+	GlobalContext(WorkingModeType wm, unsigned kval, optionsClass options);
+	ThreadContext *getThreadCtx(PIN_THREAD_UID tid);
 
 	WorkingModeType WorkingMode() { return _WorkingMode; }
 	unsigned int kval() { return _K_CCF_VAL; }
@@ -2375,7 +2375,7 @@ program, not only the ones that have to be traced
 \item[funcsAddrsToTrace] is a set of all functions that have to be traced, indexed 
 by their address. When all functions of main image of the program have to be traced,
 this set, like the set \verb|funcsToTrace|, will have no elements
-\item[threadContexts] is a vector containing pointers to all \verb|ThreadContextClass| objects. A \verb|std::vector<T>| is used intentionally instead of a \verb|std::map| because
+\item[threadContexts] is a vector containing pointers to all \verb|ThreadContext| objects. A \verb|std::vector<T>| is used intentionally instead of a \verb|std::map| because
 usually programs have a small number of threads: iterating all them is better than using a \emph{hashmap} which works in $O(1)$ but has big hidden constants
 \item[getThreadCtx(...)] is the fundamental method of this class used in all working modes:
 given the current \emph{thread\_id}, it returns a pointer to its relative thread context object or, if this one does not exists, creates a new thread context object and then returns it.

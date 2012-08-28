@@ -126,7 +126,7 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 	ADDRINT blockPtr,funcAddr;
 	map<ADDRINT,BasicBlock*>::iterator it;
 
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 
     for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl))
     {
@@ -222,7 +222,7 @@ inline void imageload_specialfunc(ADDRINT &funcAddr, string &funcName) {
 
 void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 
 	RTN_Open(rtn);
 
@@ -275,7 +275,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 void ImageLoad(IMG img, void *) {
 
 	RTN rtn2;
-	GlobalContextClass *ctx = globalSharedContext;
+	GlobalContext *ctx = globalSharedContext;
 	
 	FunctionObj *fc;
 	map<ADDRINT, FunctionObj*>::iterator it;
@@ -417,7 +417,7 @@ int main(int argc, char ** argv) {
 
 	options.initFromGlobalOptions();
 
-	globalSharedContext = new GlobalContextClass(optionsClass::getGlobalWM(), optionsClass::getGlobalKVal(), options);
+	globalSharedContext = new GlobalContext(optionsClass::getGlobalWM(), optionsClass::getGlobalKVal(), options);
 	
 	vector<string> *funcs = splitString(options.tracingFuncList, ',');
 

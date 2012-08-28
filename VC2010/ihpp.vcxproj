@@ -109,7 +109,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\benchmark.cpp" />
-    <ClCompile Include="..\globalContextClass.cpp" />
+    <ClCompile Include="..\globalContext.cpp" />
     <ClCompile Include="..\insTracing.cpp" />
     <ClCompile Include="..\interProcMode.cpp" />
     <ClCompile Include="..\intraMode.cpp" />
@@ -134,7 +134,7 @@
     <ClInclude Include="..\options.h" />
     <ClInclude Include="..\output.h" />
     <ClInclude Include="..\specialfuncs.h" />
-    <ClInclude Include="..\threadContextClass.h" />
+    <ClInclude Include="..\threadContext.h" />
     <ClInclude Include="..\tracingFuncs.h" />
     <ClInclude Include="..\tracingObjects.h" />
     <ClInclude Include="..\util.h" />

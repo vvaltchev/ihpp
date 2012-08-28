@@ -12,13 +12,13 @@ using namespace std;
 
 
 	
-string ThreadContextClass::getCurrentFunctionName() { 
+string ThreadContext::getCurrentFunctionName() { 
 	return globalSharedContext->allFuncs[currentFunction]->functionName(); 
 }
 
-ThreadContextClass *GlobalContextClass::getThreadCtx(PIN_THREAD_UID tid) { 
+ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) { 
 	
-	ThreadContextClass *ret;
+	ThreadContext *ret;
 
 	GetLock(&lock, 1);
 
@@ -33,7 +33,7 @@ ThreadContextClass *GlobalContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 		}
 	}
 
-	threadContexts.push_back(new ThreadContextClass(tid, startFuncAddr, stopFuncAddr));
+	threadContexts.push_back(new ThreadContext(tid, startFuncAddr, stopFuncAddr));
 
 	ret = threadContexts.back();
 	ReleaseLock(&lock);
@@ -68,7 +68,7 @@ ThreadContextClass *GlobalContextClass::getThreadCtx(PIN_THREAD_UID tid) {
 	return ret;
 }
 
-GlobalContextClass::GlobalContextClass(WorkingModeType wm, unsigned kval, optionsClass options) : 
+GlobalContext::GlobalContext(WorkingModeType wm, unsigned kval, optionsClass options) : 
 	_K_CCF_VAL(kval), _WorkingMode(wm)
 {
 	startFuncAddr=0;
@@ -86,7 +86,7 @@ GlobalContextClass::GlobalContextClass(WorkingModeType wm, unsigned kval, option
 
 }
 
-GlobalContextClass::~GlobalContextClass() {
+GlobalContext::~GlobalContext() {
 
 	for (unsigned i=0; i < threadContexts.size(); i++)
 		delete threadContexts[i];

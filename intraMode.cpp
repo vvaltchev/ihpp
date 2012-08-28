@@ -25,8 +25,8 @@ using namespace std;
 
 void intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
 
-	GlobalContextClass *globalCtx = globalSharedContext;
-	ThreadContextClass *ctx;
+	GlobalContext *globalCtx = globalSharedContext;
+	ThreadContext *ctx;
 	IntraModeContext *intraCtx;
 	ihppNode *treeTop;
 	ihppNode *treeBottom;
@@ -181,10 +181,10 @@ void intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 void intraMode_ret() 
 {
-	ThreadContextClass *ctx;
+	ThreadContext *ctx;
 	IntraModeContext *intraCtx;
 
-	GlobalContextClass *globalCtx = globalSharedContext;
+	GlobalContext *globalCtx = globalSharedContext;
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 
 
