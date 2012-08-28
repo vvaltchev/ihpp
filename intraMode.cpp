@@ -23,7 +23,7 @@ using namespace std;
 #define INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()	(treeTop==intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey) && !treeBottom)
 
 
-VOID intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
+void intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
 
 	GlobalContextClass *globalCtx = globalSharedContext;
 	ThreadContextClass *ctx;

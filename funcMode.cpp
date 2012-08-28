@@ -33,7 +33,7 @@ inline void funcMode_sp_check(ThreadContextClass *ctx, ADDRINT reg_sp)
 }
 
 
-VOID FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
+void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 	ihppNode *treeTop=0;
 	ihppNode *treeBottom=0;	
