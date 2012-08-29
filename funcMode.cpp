@@ -143,7 +143,7 @@ void funcMode_ret()
 
 #endif
 
-	if (ctx->shadowStack.size() == 1) {// && !globalCtx->funcsToTrace.size()) {
+	if (ctx->shadowStack.size() == 1) {
 
 		dbg_funcret_pop_err();
 		goto function_end;
@@ -157,9 +157,6 @@ void funcMode_ret()
 	}
 
 	dbg_funcret_stack_after_pop();
-
-	//dbg_funcret_new_call();
-
 
 function_end:
 

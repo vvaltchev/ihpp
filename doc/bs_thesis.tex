@@ -2334,7 +2334,7 @@ performance reasons it is instanced as a simply global symbol called \verb|globa
 class GlobalContext {
 	
 	PIN_LOCK lock;
-	/* omitted code [...] */
+	/* code omitted [...] */
 
 public:
 
@@ -2347,7 +2347,7 @@ public:
 	FuncsMap allFuncs;
 	vector<ThreadContext*> threadContexts;
 
-	/* omitted code [...] */
+	/* code omitted [...] */
 
 	optionsClass options;
 	specialAttrs spAttrs;
@@ -2360,7 +2360,7 @@ public:
 
 	inline bool hasToTrace(ADDRINT funcAddr);
 
-	/* omitted code [...] */
+	/* code omitted [...] */
 };
 
 \end{lstlisting}
@@ -2403,7 +2403,7 @@ public:
 
 	GenericTraceContext() : rootKey(0), counter(0) 
 	{ 
-		//omitted code [...]
+		//code omitted [...]
 	}
 
 };
@@ -2487,15 +2487,15 @@ public:
 	ihppNode *treeTop;
 	ihppNode *treeBottom;
 
-	//omitted code [...]
+	//code omitted [...]
 
 	//WM_IntraMode properties
 	map<ADDRINT, IntraModeContext*> intraModeContexts;
 
 	//Methods
-	ThreadContext(PIN_THREAD_UID tid, /* omitted code [...] */);
+	ThreadContext(PIN_THREAD_UID tid, /* code omitted [...] */);
 
-	//omitted code [...]
+	//code omitted [...]
 
 	IntraModeContext *getFunctionCtx(ADDRINT funcAddr);
 	IntraModeContext *getCurrentFunctionCtx();
@@ -2510,6 +2510,8 @@ public:
 \end{lstlisting}
 
 \section{Nodes and forests}
+
+\subsection{The \emph{node} class}
 
 A fundamental IHPP class is \verb|node<T>| or better, \verb|node<keyT>|:
 it is the basic element used in data structures such as $k$-SFs and $k$-CCFs.
@@ -2547,7 +2549,7 @@ protected:
 
 	ihppNodeChildrenContainer< keyT, node<keyT> > children;
 	
-	//omitted code [...]
+	//code omitted [...]
 
 public:
 
@@ -2555,19 +2557,20 @@ public:
 	ihppNodeChildrenContainer< keyT, 
 							node<keyT> >::iterator nodesIterator;
 
-	//omitted code [...]
+	//code omitted [...]
 
 	node(keyT key, ObjectWithKey<keyT>* val, 
 								obj_counter_t counter=0);
 
 	node<keyT>* getChildRef(keyT k);
 	node<keyT>* addChild(node<keyT> &n);
+	node<keyT>* getParentRef() { /* omitted */ }
 
-	//omitted code [...]
+	//code omitted [...]
 
 	size_t childrenCount() { return children.size(); }
 
-	//omitted code [...]
+	//code omitted [...]
 
 	keyT getKey() { /* omitted */ }
 	ObjectWithKey<keyT> * getValue() { /* omitted */ }
@@ -2579,7 +2582,10 @@ public:
 	obj_counter_t getCounter() { return counter; }
 	void setCounter(obj_counter_t c) { counter=c; }
 
-	//omitted code [...]
+	node<keyT> kpathR(unsigned int k);
+
+	//code omitted [...]
+	node<keyT> &operator=(node<keyT> n);
 };
 
 \end{lstlisting}
@@ -2588,9 +2594,305 @@ public:
 Technically, \verb|ihppNodeChildrenContainer| is a macro which
 \emph{actually} stands for \verb|ihppNodeChildrenContainerList1|.
 This last one, is one of the actually \emph{three} node container 
-classes defined in \verb|dataStructures.h|.
+classes defined in \verb|dataStructures.h|. Other container classes
+has exactly the same interface but store data internally in other ways,
+for example using a hashmap. The linked list is the preferred data structure
+for children nodes because they are almost always only a few per node: 
+hashmap, as can be empirically proved, is slower the linked list 
+in this particular case. Containers that \emph{relocate} data
+such as \emph{dynamic arrays} cannot be used as children containers for \verb|node<keyT>|
+class because it stores \verb|node| objects into the container (and not \emph{pointers} to node objects) and then uses a node-\emph{pointer} for the \emph{parent} node: 
+if the \emph{parent} node is moved in the memory by the children nodes container,
+all its children will have an invalid \verb|parent| reference. 
+This approach, apart of this little problem, is better than manually using pointers 
+to \verb|node| objects because fully delegates the memory management problem to the container: when a \verb|node| object is destroyed the \verb|children| object
+is automatically destroyed too with all its nodes; therefore, full tree copies
+are very simply in this way since the \verb|node<keyT>| class has its 
+overload of \verb|operator=()| like the \verb|ihppNodeChildrenContainer| has its own:
+no explicit memory allocations in \verb|node<keyT>| are necessary.
+
+A technical note. Methods directly implemented in class definitions like
+the ones in \verb|node<keyT>| class, are \emph{implicit inline} methods with
+\emph{no overhead} compared to \emph{public} properties.
+
+\subsection{The \emph{forest} class}
+
+The \verb|forest<keyT>| class is very similar to \verb|node<keyT>|, with
+the main difference that is not identified by a key, neither transports
+an object pointer as value. It is substantially a container 
+for nodes and can use exactly the same children nodes containers. Actually
+it uses \verb|ihppNodeChildrenContainerMap| as container because for small values
+of $k$ in \verb|funcMode|, a forest can have hundreds trees and a hashmap will have
+better performance then a linked list. 
+\Cref{forestClass} shows a partial definition of \verb|forest<keyT>| class.
+
+\begin{lstlisting}[language=C++, 
+	caption={partial definition of \texttt{forest<keyT>} class}, 
+	label=forestClass, frame=leftline]
+template <typename keyT>
+class forest {
+
+	ihppNodeChildrenContainerMap< keyT, node<keyT> > trees;
+	static void joinSubtrees(node<keyT> &t1, node<keyT> &t2);
+
+public:
+
+	//code omitted [...]
+	
+	typedef typename ihppNodeChildrenContainerMap< keyT, 
+						node<keyT>  >::iterator treesIterator;
+
+	forest();
+	forest(const forest &f);
+	forest(node<keyT> n);
+
+	node<keyT> * getTreeRef(keyT k);
+	
+	//code omitted [...]
+
+	inline node<keyT> * addTree(node<keyT> &n);
+	
+	//code omitted [...]
+	treesIterator getTreesIteratorBegin() { /* omitted */ }
+	treesIterator getTreesIteratorEnd() { /* omitted */ }
+	
+	//code omitted [...]
+
+	forest<keyT> inverseK(unsigned int k);
+
+	void local_join(node<keyT> &t2);
+	void local_join(forest<keyT> &f2);
+	void local_joinByVal(node<keyT> t2) { local_join(t2); }
+	
+	//code omitted [...]
+
+	inline forest<keyT> &operator=(forest<keyT> f);
+};
+
+\end{lstlisting}
+
+\subsection{The $inv_k$ operation}
+
+The $inv_k$ operation described in chapter 3 is implemented
+in the \verb|inverseK()| method which uses the $join$ operation implemented in 
+the \verb|local_join()| method. Listings \ref{joinop} and \ref{invk}
+shows full code of \emph{join} and $inv_k$ operations with no  
+explanations. Only a remark: \verb|kpathR()| method of \verb|node| class
+returns a \emph{degenerated} tree (a list) made by the first (or at most) $k$ 
+ancestors of the node on which the method is called.
+
+\begin{lstlisting}[language=C++, 
+	caption={the implementation of the $join$ operation}, 
+	label=joinop, frame=leftline]
+
+template <typename keyT>
+void forest<keyT>::joinSubtrees(node<keyT> &t1, node<keyT> &t2) {
+
+	node<keyT> *t;
+	typename node<keyT>::nodesIterator it;
+
+	t1.setCounter(t1.getCounter() + t2.getCounter());
+
+	for (it = t2.getNodesIteratorBegin(); 
+			it != t2.getNodesIteratorEnd(); it++) 
+	{
+	
+		t = t1.getChildRef(it->getKey());
+
+		if (!t)
+			t1.addChild(*it);
+		else
+			joinSubtrees(*t, *it); 
+	}
+}
+
+template <typename keyT>
+void forest<keyT>::local_join(node<keyT> &t2) {
+
+	node<keyT> *t;
+	t = getTreeRef(t2.getKey());
+
+	if (t)
+		joinSubtrees(*t, t2);
+	else
+		addTree(t2);
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, 
+	caption={the implementation of the $inv_k$ operation}, 
+	label=invk, frame=leftline]
+template <typename keyT>
+forest<keyT> forest<keyT>::inverseK(unsigned int k) {
+
+	treesIterator it;
+	forest<keyT> res;
+	vector< node<keyT> * > tmp;
+	typename vector< node<keyT> * >::iterator it2;
+	
+	for (it = getTreesIteratorBegin(); 
+			it != getTreesIteratorEnd(); it++) 
+	{
+		it->autoSetParents();
+		tmp = it->getAllTreeNodesRef();
+
+		for (it2 = tmp.begin(); it2 != tmp.end(); it2++)
+			res.local_joinByVal((*it2)->kpathR(k));
+	}
+
+	return res;
+}
+\end{lstlisting}
 
 \section{Basics of \emph{function} mode}
+
+\subsection{The instrumentation}
+
+As the reader would know at this point, everything starts in the \verb|main()| routine
+where function pointers to instrumentation routines are given to \texttt{Pin};
+\cref{main1} shows these lines of code.
+
+\begin{lstlisting}[language=C++, 
+	caption={a fragment of main() routine}, 
+	label=main1, frame=leftline]	
+int main(int argc, char ** argv) {
+
+	//much code omitted [...]
+
+	if (globalSharedContext->WorkingMode() != WM_FuncMode) {
+		TRACE_AddInstrumentFunction(BlockTraceInstrumentation, 0);
+	}
+
+	IMG_AddInstrumentFunction(ImageLoad, 0);
+
+	//much code omitted [...]
+}
+
+\end{lstlisting}
+
+As the above code shows, only the \verb|ImageLoad()| function is added to instrumentation
+functions in \verb|funcMode|.
+\Cref{imgload} shows a fragment of the \verb|ImageLoad()| function which
+is called by \textbf{Pin} every time the target program loads a new 
+image\footnote{An \emph{image} is a file with compiled symbols (routines and constant variables), for example a \texttt{.so} (or \texttt{DLL} under Windows) dynamic library.
+An executable file is the \emph{main} image of a program.}.
+
+\begin{lstlisting}[language=C++, 
+	caption={a fragment of ImageLoad() routine}, 
+	label=imgload, frame=leftline]	
+
+void ImageLoad(IMG img, void *) {
+
+	GlobalContext *ctx = globalSharedContext;
+	
+	//code omitted [...]
+
+	for (SEC sec = IMG_SecHead(img); 
+				SEC_Valid(sec); sec = SEC_Next(sec)) 
+	{
+
+		for (RTN rtn = SEC_RtnHead(sec); 
+				RTN_Valid(rtn); rtn = RTN_Next(rtn)) 
+		{
+		
+			ADDRINT funcAddr = RTN_Address(rtn);
+			string funcName = RTN_Name(rtn);
+
+			//code omitted [...]
+
+			fc = new FunctionObj(funcAddr, funcName, fileName);
+			ctx->allFuncs[funcAddr]=fc;		
+
+			bool trace = ctx->hasToTraceByName(funcName, funcAddr);
+
+			if (trace || FUNC_IS_TEXT_N(funcName)) {
+				imageLoad_doInsInstrumentation(img, rtn, fc);
+			}
+
+			if (!trace)
+				continue;
+
+			if (ctx->WorkingMode() != WM_InterProcMode)
+			{	
+				RTN_Open(rtn);
+				RTN_InsertCall(rtn, 
+					IPOINT_BEFORE, AFUNPTR(FunctionObjTrace), 
+					IARG_CALL_ORDER, CALL_ORDER_FIRST, 
+					IARG_PTR, (ADDRINT)fc,  
+					IARG_REG_VALUE, REG_STACK_PTR, 
+					IARG_END);
+				RTN_Close(rtn);
+			}			
+		}
+	}
+
+	//code omitted [...]
+}
+
+\end{lstlisting}
+
+\noindent
+The \emph{instrumentation} of the function on address \verb|funcAddr| is achieved 
+calling the Pin \verb|RTN_InsertCall()| routine. 
+As it is clearly evident, a \verb|FunctionObj| object pointer is also passed as
+argument to the \verb|RTN_InsertCall()| routine. 
+Now, after the end of \verb|ImageLoad()|, every time the target program
+enters in the \verb|funcName| routine, the \verb|FunctionObjTrace()| function 
+will be called with the \verb|fc| pointer passed as first argument.
+The function \emph{return} is caught by instrumenting all \verb|ret| instructions
+within it: \verb|ImageLoad| calls \verb|imageLoad_doInsInstrumentation()| function
+to do this. 
+
+\begin{lstlisting}[language=C++, 
+	caption={a fragment of \texttt{imageLoad\_doInsInstrumentation()} routine}, 
+	label=doIns, frame=leftline]	
+
+void imageLoad_doInsInstrumentation(IMG &img, 
+							RTN &rtn, FunctionObj *fc) 
+{
+	//code omitted [...]
+	RTN_Open(rtn);
+	for( INS ins = RTN_InsHead(rtn); 
+			INS_Valid(ins); ins = INS_Next(ins) ) 
+	{
+		if (ctx->WorkingMode() != WM_InterProcMode)
+			insInstrumentation(rtn, ins);	
+
+		//much code omitted [...]		
+	}
+	RTN_Close(rtn);
+}
+\end{lstlisting}
+
+As shown in \cref{doIns}, among many other things, this last function
+calls \verb|insInstrumentation()| at every function instruction.
+
+\begin{lstlisting}[language=C++, 
+	caption={a fragment of \texttt{insInstrumentation()} routine}, 
+	label=ins, frame=leftline]
+void insInstrumentation(RTN rtn, INS ins) {
+
+	if (INS_IsRet(ins) && !FUNC_IS_TEXT(RTN_Address(rtn))) {
+
+		INS_InsertPredicatedCall(ins, 
+				IPOINT_BEFORE, (AFUNPTR)funcMode_ret, 
+				IARG_CALL_ORDER, CALL_ORDER_FIRST, IARG_END);
+	}
+
+#if ENABLE_INS_TRACING
+	//much code omitted [...]	
+#endif
+}
+
+\end{lstlisting}
+	
+As \cref{ins} shows, when \verb|ins| is a \verb|ret|, the 
+instruction is \emph{instrumented} with the \verb|funcMode_ret()| routine.
+
+\subsection{The \emph{funcMode} routines}
+
+
 
 \section{\emph{Intra-}procedural mode}
 

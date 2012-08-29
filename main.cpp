@@ -343,8 +343,7 @@ void ImageLoad(IMG img, void *) {
 				RTN_Open(rtn);
 				RTN_InsertCall(rtn, IPOINT_BEFORE, AFUNPTR(FunctionObjTrace), 
 									IARG_CALL_ORDER, CALL_ORDER_FIRST, 
-									IARG_PTR, (ADDRINT)fc, 
-									IARG_PTR, ctx, 
+									IARG_PTR, (ADDRINT)fc,  
 									IARG_REG_VALUE, REG_STACK_PTR, 
 									IARG_END);
 				RTN_Close(rtn);
