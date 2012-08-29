@@ -16,7 +16,7 @@ class ThreadContext : public GenericTraceContext {
 
 public:
 		
-	//WM_InterProcMode and WM_FuncMode properies
+	//WM_InterProcMode properties
 
 	ihppNode *treeTop;
 	ihppNode *treeBottom;

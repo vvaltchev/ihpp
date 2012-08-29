@@ -2089,7 +2089,11 @@ when called, it \emph{traces} the activation of a generic \verb|TracingObject<T>
 in the given \emph{context}. The \emph{context} depends from the working mode:
 in \verb|funcMode|, for example, the \emph{context} is pointer to a \verb|ThreadContext| object; instead, in \verb|IntraMode| the \emph{context} is 
 a pointer to a \verb|IntraModeContext| object. In order to simply everything, 
-\emph{abstraction}
+\emph{abstraction} is used: 
+both \verb|ThreadContext| and \verb|IntraModeContext| classes
+are specializations of
+the \verb|GenericTraceContext| class, exactly as \verb|FunctionObj| and 
+\verb|BasicBlock| classes are specializations of the generic \verb|TracingObject<T>| class.
 \begin{figure}[H]
 
 %\begin{center}
@@ -2108,7 +2112,7 @@ headnode/.style = {rectangle, fill=none, font=\small\bfseries\itshape}
 \makecell[l]{
 node.h\\
 forest.h\\
-datastructures.h
+dataStructures.h
 }};
 
 \node[headnode, above = 0.2cm of n1] (t1) { 
@@ -2215,15 +2219,11 @@ rounded corners = 10pt, fit = (t1) (n2) (n6) (n7)] {};
 
 \end{figure}
 
-\noindent
- is used: 
-both \verb|ThreadContext| and \verb|IntraModeContext| classes are specializations of
-the \verb|GenericTraceContext| class, exactly as \verb|FunctionObj| and 
-\verb|BasicBlock| classes are specializations of the generic \verb|TracingObject<T>| class.
+\noindent 
 The \verb|traceObject()| function mentioned before, works with basilar objects 
 defined in files of group (1). The first two files in this last group use on their basis
 container classes for \verb|ObjectWithKey<T>| objects defined and implemented 
-in file \verb|datastructures.h|.
+in file \verb|dataStructures.h|.
 \verb|ObjectWithKey<T>| is the most abstract class in IHPP since it is a generalization of the abstract class \verb|TracingObject<T>|. 
 Nodes and forests data structures are implemented respectively in \verb|node.h| and \verb|forest.h| files. The concept of \emph{tree} is not explicitly modeled in IHPP, but it is 
 modeled inside the \verb|node<T>| class instead. 
@@ -2412,7 +2412,7 @@ public:
 
 \noindent
 It contains the essential elements explained in chapter 3 for building 
-a couple $k$-SF - $k$-CCF: a $k$-slab forest, a shadowStack and a \verb|rootKey| variable used to identity the first tree of the $k$-SF. 
+a couple $k$-SF - $k$-CCF: a $k$-slab forest, a shadowStack and a \verb|rootKey| variable used to identify the first tree of the $k$-SF. 
 The \verb|R| map, explained in chapter 3, is not necessary here because the \verb|forest<T>| class used as \verb|kSlabForest| type\footnote{\texttt{ihppForest} is simply a \texttt{typedef} of \texttt{forest<T>} with \texttt{T = ADDRINT}.} uses itself 
 a hashmap for tree roots searches. The \verb|counter| variable, instead, is a new concept:
 it is used by the \verb|traceObject()| function as a replacement of the 
@@ -2425,10 +2425,13 @@ instead of \verb|shadowStack.size()| but, its value is decreased on stack \verb|
 
 \subsection{The \emph{IntraModeContext} class}
 
+The \verb|IntraModeContext| class is no more than a 
+\verb|GenericTraceContext| with an attribute \verb|functionAddr|.
+Its full definition is shown in \cref{intraCtx}.
+
 \begin{lstlisting}[language=C++, 
 	caption={definition of \texttt{IntraModeContext}}, 
 	label=intraCtx, frame=leftline]
-
 class IntraModeContext : public GenericTraceContext {
 
 	ADDRINT funcAddr;
@@ -2446,8 +2449,31 @@ public:
 
 \subsection{The \emph{ThreadContext} class}
 
+The \verb|ThreadContext| class, as mentioned before, is the main 
+tracing context dedicated to each thread of the target program; it has
+many properties, specially Windows-specific and related to \emph{insTracing} ones,
+but they are not shown in \cref{threadCtx}. 
+It is a derived class of \verb|GenericTraceContext| because it \emph{is} 
+a tracing context from the \verb|funcMode|'s routines point of view.
+Instead, in \verb|intraMode| it is used properly as a \emph{thread context} 
+and the \emph{right} intraMode context is obtained by invoking its 
+\verb|getCurrentFunctionCtx()| method.
+An important concept to be understood is that for each thread there is
+always a \emph{current function} in which the thread in running: 
+the address of that function is kept by \verb|ThreadContext| in the
+variable \verb|currentFunction| which is \emph{mainly} set by \verb|funcMode|
+routines. This means that a \verb|funcMode| layer runs also in \verb|intraMode|,
+in order to help it to correctly understand which is 
+the current function instance that executes a specific BBL.
+
+The \verb|treeTop| and \verb|treeBottom| properties are used, as a comment says,
+only by \verb|InterProcMode| routines: as it will be explained later, 
+\verb|InterProcMode| does not need a \emph{shadow stack} 
+but a context that provides only three elements: 
+top and bottom pointers and a $k$-SF object.
+
 \begin{lstlisting}[language=C++, 
-	caption={definition of \texttt{IntraModeContext}}, 
+	caption={partial definition of \texttt{ThreadContext} class}, 
 	label=threadCtx, frame=leftline]
 
 class ThreadContext : public GenericTraceContext {
@@ -2457,18 +2483,16 @@ class ThreadContext : public GenericTraceContext {
 
 public:
 	
-	//WM_InterProcMode and WM_FuncMode properies
-
+	//WM_InterProcMode properties
 	ihppNode *treeTop;
 	ihppNode *treeBottom;
 
 	//omitted code [...]
 
-
 	//WM_IntraMode properties
 	map<ADDRINT, IntraModeContext*> intraModeContexts;
 
-
+	//Methods
 	ThreadContext(PIN_THREAD_UID tid, /* omitted code [...] */);
 
 	//omitted code [...]
@@ -2484,6 +2508,87 @@ public:
 };
 
 \end{lstlisting}
+
+\section{Nodes and forests}
+
+A fundamental IHPP class is \verb|node<T>| or better, \verb|node<keyT>|:
+it is the basic element used in data structures such as $k$-SFs and $k$-CCFs.
+A \verb|node| object is a \emph{container} for \emph{one}
+value-object of type \verb|ObjectWithKey<keyT> *| and \emph{one} integer counter. 
+Besides, a \verb|node<keyT>| object is identified among other nodes by a
+\emph{key} of type \verb|keyT|, a \emph{template} parameter. 
+In IHPP, \verb|keyT| is always \verb|ADDRINT| which is, as already told, a Pin macro
+that stands for a pointer size unsigned integer, even if, \verb|keyT| can be 
+any type, for example \verb|std::string|.
+
+The relationship between \verb|TracingObject<keyT>| and \verb|node<keyT>| classes is
+that the first ones are always used as node \emph{values}, thus practically 
+nodes are a \emph{transport} for \emph{tracing objects} inside trees and forests.
+
+Since \verb|node| objects act as \emph{trees} in IHPP, they have to transport 
+also their \emph{children} nodes. As can be seen in \cref{nodeClass}, 
+\emph{children} nodes are contained using a 
+\verb|ihppNodeChildrenContainer<keyT,valueT>| object.
+
+\begin{lstlisting}[language=C++, 
+	caption={partial definition of \texttt{node<keyT>} class}, 
+	label=nodeClass, frame=leftline]
+
+template <typename keyT>
+class node : public ObjectWithKey<keyT> {
+
+private:
+	node<keyT> *parent; 
+
+protected:
+
+	ObjectWithKey<keyT> *val;
+	obj_counter_t counter;
+
+	ihppNodeChildrenContainer< keyT, node<keyT> > children;
+	
+	//omitted code [...]
+
+public:
+
+	typedef typename 
+	ihppNodeChildrenContainer< keyT, 
+							node<keyT> >::iterator nodesIterator;
+
+	//omitted code [...]
+
+	node(keyT key, ObjectWithKey<keyT>* val, 
+								obj_counter_t counter=0);
+
+	node<keyT>* getChildRef(keyT k);
+	node<keyT>* addChild(node<keyT> &n);
+
+	//omitted code [...]
+
+	size_t childrenCount() { return children.size(); }
+
+	//omitted code [...]
+
+	keyT getKey() { /* omitted */ }
+	ObjectWithKey<keyT> * getValue() { /* omitted */ }
+	
+	nodesIterator getNodesIteratorBegin() { /* omitted */ }
+	nodesIterator getNodesIteratorEnd() { /* omitted */ }	
+
+	void incCounter() { counter++; }
+	obj_counter_t getCounter() { return counter; }
+	void setCounter(obj_counter_t c) { counter=c; }
+
+	//omitted code [...]
+};
+
+\end{lstlisting}
+
+\noindent
+Technically, \verb|ihppNodeChildrenContainer| is a macro which
+\emph{actually} stands for \verb|ihppNodeChildrenContainerList1|.
+This last one, is one of the actually \emph{three} node container 
+classes defined in \verb|dataStructures.h|.
 
 \section{Basics of \emph{function} mode}
 
