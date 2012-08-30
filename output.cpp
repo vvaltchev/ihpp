@@ -17,6 +17,7 @@ using namespace std;
 #define OUTPUT_PLINE	"---------------------------------------------------------------------------------------------\n"
 #define OUTPUT_PLINE2	"---------------------------------------------------------------------------------------------\n\n"
 
+#define TSP "        "
 
 inline void openTag(const char *tag, bool ret=false, ostream &s = globalSharedContext->OutFile) {
 
@@ -733,7 +734,9 @@ void print_showBlocks(size_t maxFuncLen) {
 			ctx->OutFile << left << bb;
 			ctx->OutFile << " addr: 0x";
 			ctx->OutFile << hex << (size_t)bb.getKey() << dec; 
-			ctx->OutFile << " simpleCounter: " << bb.getSimpleCounter();
+			ctx->OutFile << " simpleCounter: ";
+			ctx->OutFile.width(6);
+			ctx->OutFile << bb.getSimpleCounter();
 
 		} else {
 		
@@ -767,7 +770,8 @@ void print_showBlocks(size_t maxFuncLen) {
 		if (ctx->options.blocksDisasm)
 		{
 			if (!ctx->options.xmloutput) {
-				ctx->OutFile << "\tDisassembly: \n";
+				//ctx->OutFile << TSP;
+				ctx->OutFile << "Disassembly: \n";
 			
 			} else {
 				ctx->OutFile << ">\n";
@@ -788,7 +792,10 @@ void print_showBlocks(size_t maxFuncLen) {
 				if (!ctx->options.xmloutput) {
 					string ins = insIt->second.ins_text;
 					ctx->OutFile.width(maxLen+12);
-					ctx->OutFile << "\t\t\t\t\t\t\t\t" << ins << endl;
+					//ctx->OutFile << "\t\t\t\t\t\t\t\t";
+					ctx->OutFile << TSP << TSP << TSP << TSP;
+					ctx->OutFile << TSP << TSP << TSP << TSP;
+					ctx->OutFile << ins << endl;
 				} else {
 				
 					ctx->OutFile << "<ins ";
@@ -847,7 +854,9 @@ void print_showFuncs(size_t maxFuncLen) {
 			ctx->OutFile.width(maxFuncLen+4);
 			ctx->OutFile << left << fc;
 			ctx->OutFile << " addr: 0x" << hex << (size_t)fc.getKey() << dec; 
-			ctx->OutFile << " simpleCounter: " << fc.getSimpleCounter() << endl;
+			ctx->OutFile << " simpleCounter: ";
+			ctx->OutFile.width(6);
+			ctx->OutFile << fc.getSimpleCounter() << endl;
 
 			if (ctx->options.funcsDisasm) {
 

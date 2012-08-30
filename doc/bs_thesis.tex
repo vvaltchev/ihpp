@@ -1,5 +1,5 @@
 \listfiles
-\documentclass[a4paper,11pt]{report}
+\documentclass[a4paper,10pt]{report}
 
 \author{Vladislav K. Valtchev} 
 \title{IHPP: An Intraprocedural Hot Path Profiler}
@@ -17,10 +17,20 @@
 \usepackage{wrapfig}
 \usepackage{listings}
 \usepackage{cite}
-\usepackage{bold-extra}
 \usepackage{cleveref}
 \usepackage{makecell}
 \usepackage{float}
+
+%\usepackage{bold-extra}
+%\usepackage[lighttt]{lmodern}
+%\usepackage{pxfonts}
+\usepackage[scaled=0.9]{couriers}
+
+\addtolength{\textwidth}{1cm}
+\addtolength{\textheight}{2cm}
+\addtolength{\voffset}{-0.5cm}
+\addtolength{\hoffset}{-0.5cm}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usetikzlibrary{arrows,graphs,trees,fit,shapes,backgrounds,positioning}
@@ -35,7 +45,7 @@
 
 \lstset{
 	basicstyle=\ttfamily\small, 
-	basewidth=0.5em,
+	%basewidth=0.5em,
 	tabsize=4,
 	keywordstyle=\bfseries,
 	captionpos=b,
@@ -210,8 +220,9 @@ For these great and innovative data structures and algorithms, the author warmly
 thanks \emph{Giorgio Ausiello}, \emph{Camil Demetrescu}, \emph{Irene Finocchi}
 and \emph{Donatella Firmani}, professors at the \emph{Sapienza University of
 Rome}\footnote{Officially, \textbf{Universit\`a degli studi di Roma ``La
-Sapienza''}}. Their work, called \emph{\mbox{k-Calling Context Profiling}}, has
-been accepted for the \emph{27th \mbox{ACM SIGPLAN} Conference on
+Sapienza''}}.
+Their work, called \emph{\mbox{k-Calling} \mbox{Context} \mbox{Profiling}}, has
+been accepted for the \emph{27th \mbox{ACM} \mbox{SIGPLAN} Conference on
 Object-Oriented Programming, Systems, Languages and Applications (OOPSLA 2012)}.
 
 \section{Thesis structure}
@@ -470,10 +481,9 @@ As mentioned in chapter 1, \emph{vertex profiling} consists of counting the numb
 
 \textbf{Definition 1}: \emph{$k$-calling context}~\cite{kccf}. 
 Let $\pi = \langle r,...,v\rangle$ be a calling context of $v$. The k-calling context of $v$
-in $\pi$ is the maximal suffix of $\pi$ of length at most $k+1$.\\
+in $\pi$ is the maximal suffix of $\pi$ of length at most $k+1$.
 
-For example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$.\\
-% and \emph{not} $\langle\rangle$.
+For example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0$-context is $\langle b\rangle$.
 
 \textbf{Definition 2}: \emph{Path activation}~\cite{kccf}. 
 A path $\pi$ of length $q$ in the call graph of the program is activated by 
@@ -675,7 +685,8 @@ is the minimal labeled forest $F$ such that $F$ contains a root-label path $\pi$
 only if $T_1$ or $T_2$ contain $\pi$.
 
 Note: if $T_1$ and $T_2$ have different root labels, 
-formally if $l(r_1)\ne l(r_2)$, then $F$ will be simply a forest with two trees: $T_1$ and $T_2$. In order to deals with weighted trees, the join operation just defined have to be extended in this way: \\
+formally if $l(r_1)\ne l(r_2)$, then $F$ will be simply a forest with two trees: $T_1$ and $T_2$. In order to deals with weighted trees, the join operation just defined have to be extended in this way: 
+\newpage
 \textbf{Definition 4*} \emph{Weighted tree join}~\cite{kccf}.
 Let: 
 
@@ -746,7 +757,6 @@ is the sum of the counters of that path in trees $T_1$ and $T_2$;
 the same logic can be used for node $a\rightarrow b\rightarrow d$. 
 Instead, paths $\langle a, b, c\rangle$ and $\langle a, c\rangle$ are not common 
 in both trees so they exist in the merged tree, but no counters are summed.
-
 The join operation can be extended for working with more than two trees.
 let ($T_1$, ..., $T_h$), with $h > 2$, be a set of trees, then:
 if all them have distinct root labels, the output forest $F$ will be the same
@@ -1221,13 +1231,12 @@ will produce as output a file called \verb|out1.txt|\footnote{Some lines have be
 \begin{lstlisting}[label=out1, caption=file out1.txt]
 
 K value: INFINITE
-====================================================================
+=============================================================================
 Thread ID: 4294967296
-====================================================================
---------------------------------------------------------------------
+=============================================================================
+-----------------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------------
-
+-----------------------------------------------------------------------------
 | _start(),1
    | __libc_csu_init(),1
       | __i686.get_pc_thunk.bx(),1
@@ -1247,12 +1256,12 @@ DUMP of K-SF
             | c(),2
    | _fini(),1
       | __do_global_dtors_aux(),1
-====================================================================
+=============================================================================
 Thread ID: 8589934593
-====================================================================
---------------------------------------------------------------------
+=============================================================================
+-----------------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 | thread2_func(),1
    | a(),1
@@ -1280,13 +1289,12 @@ of functions to instrument with \verb|-funcs a,b,c,d,e,f| the output written by 
 \begin{lstlisting}[label=out2, 
 caption={The output of IHPP run with selective tracing}, frame=bottomline]
 K value: INFINITE
-====================================================================
+=============================================================================
 Thread ID: 4294967296
-====================================================================
---------------------------------------------------------------------
+=============================================================================
+-----------------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------------
-
+-----------------------------------------------------------------------------
 | __root__(),1
    | a(),1
       | b(),1
@@ -1298,13 +1306,12 @@ DUMP of K-SF
       | a(),2
          | b(),2
          | c(),2
-====================================================================
+=============================================================================
 Thread ID: 8589934593
-====================================================================
---------------------------------------------------------------------
+=============================================================================
+-----------------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------------
-
+-----------------------------------------------------------------------------
 | __root__(),1
    | a(),1
       | b(),1
@@ -1332,9 +1339,9 @@ The output of IHPP after profiling the program in \cref{prog1} with this options
 
 \begin{lstlisting}[label=out3, frame=bottomline, 
 caption={the output of IHPP with the joinThreads option}]
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 | __root__(),2
    | a(),2
@@ -1358,16 +1365,16 @@ Observing \cref{out3} should be clear that the $k$-SF of the second thread has b
 Using the \verb|-kccf| option simply makes IHPP to produce also a $k$-CCF relative 
 to each $k$-SF. It can be used with every value of $k$ specified by the option 
 \verb|-k <value>| as it can used combined with the \verb|-kinf| even if this is often
-useless. Below is shown the \emph{full} output of IHPP running on the program of \cref{prog1} with \verb|-joinThreads -ksf -kccf -k 2 -funcs a,b,c,d,e,f| options.
+useless. Below is shown the \emph{full} output of IHPP running on the program of \cref{prog1} with \verb|-joinThreads| \verb|-ksf| \verb|-kccf| \verb|-k 2| \verb|-funcs| \verb|a,b,c,d,e,f| options.
 \begin{lstlisting}[label=out4, caption={a full IHPP output}, frame=bottomline]
 K value: 2
 Functions count: 18
 Maximum number of different threads: 2
 Nodes count of k slab forest: 20
 Nodes count of kCCF: 25
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 | __root__(),2
    | a(),2
@@ -1389,9 +1396,9 @@ DUMP of K-SF
    | b(),2
    | c(),2
 | f(),1
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 DUMP of K-CCF
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 | __root__(),2
 | a(),4
@@ -1619,18 +1626,18 @@ int main(int argc, char ** argv) { foo(1); return 0; }
 Running IHPP with \verb|-intraMode -ksf -k 100 -funcs foo,p| produces:
 
 \begin{lstlisting}[label=out8, caption={IHPP partial output for \texttt{prog4}},frame=bottomline]
-====================================================================
+=============================================================================
 Function: p()
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 | {p+0 at 3,0},5
    | {p+26 at 6,0},5
-====================================================================
+=============================================================================
 Function: foo()
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 | {foo+0 at 8,0},2
    | {foo+12 at 14,0},1
       | {foo+24 at 16,0},1
@@ -1699,39 +1706,41 @@ all addresses with human readable strings. The \cref{out9} shows that.
 
 \begin{lstlisting}[language={[x86masm]Assembler}, 
 	label=out9, caption={a part of ``all basic blocks'' table}, frame=bottomline]
---------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
 All basic blocks
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
 
 {foo+24 at 16,0} addr: 0x8048418 counter: 1	
 Disassembly: 
-										mov dword ptr [ebp-0xc], 0x0
-										jmp {foo+49 at 16,0}
+											mov dword ptr [ebp-0xc], 0x0
+											jmp {foo+49 at 16,0}
 
 {foo+33 at 17,0} addr: 0x8048421 counter: 3	
 Disassembly: 
-										mov dword ptr [esp], 0x1
-										call p
+											mov dword ptr [esp], 0x1
+											call p
 
 {foo+45 at 16,0} addr: 0x804842d counter: 3	
 Disassembly: 
-										add dword ptr [ebp-0xc], 0x1
-										cmp dword ptr [ebp-0xc], 0x2
-										jle {foo+33 at 17,0}
+											add dword ptr [ebp-0xc], 0x1
+											cmp dword ptr [ebp-0xc], 0x2
+											jle {foo+33 at 17,0}
 
 {foo+49 at 16,0} addr: 0x8048431 counter: 1	
 Disassembly: 
-										cmp dword ptr [ebp-0xc], 0x2
-										jle {foo+33 at 17,0}
+											cmp dword ptr [ebp-0xc], 0x2
+											jle {foo+33 at 17,0}
 
 {foo+55 at 20,0} addr: 0x8048437 counter: 1	
 Disassembly: 
-										mov dword ptr [esp], 0x0
-										call foo
+											mov dword ptr [esp], 0x0
+											call foo
 
 {foo+67 at 20,0} addr: 0x8048443 counter: 1	
 Disassembly: 
-										jmp {foo+81 at 25,0}
+											jmp {foo+81 at 25,0}
 
 \end{lstlisting}
 
@@ -1753,8 +1762,8 @@ the disassembly code relative to the Linux BBL \verb|{foo+55 at 20,0}| is:
 
 {foo+68 at 23,0} addr: 0x951094 counter: 1	
 Disassembly: 
-									push 0x1
-									call .text+5 --> jmp {p+0 at 3,0}
+										push 0x1
+										call .text+5 --> jmp {p+0 at 3,0}
 \end{lstlisting}
 
 This means that \verb|foo()| does not call \verb|p()| function \emph{directly}, 
@@ -1778,7 +1787,7 @@ Running IHPP with the \verb|-rollLoops| option on the program in the \cref{prog4
 produces for the \verb|foo()| function the $k$-SF in the \cref{out10}:
 
 \begin{lstlisting}[label=out10, caption={an output of IHPP with rollLoops option}]
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 | {foo+0 at 8,0},2
    | {foo+12 at 14,0},1
       | {foo+24 at 16,0},1
@@ -1849,9 +1858,9 @@ int main(int argc, char ** argv) {
 The IHPP analysis of the program in \cref{prog5} with the options\\\verb|-intraMode| \verb|-rollLoops| \verb|-func foo| produces the following output\footnote{A great deal of output lines have been omitted}:
 
 \begin{lstlisting}[label=out11, caption={the output of IHPP analyzing \texttt{prog5}}]
-====================================================================
+=============================================================================
 Thread ID: 4294967296
-====================================================================
+=============================================================================
 
 | {foo+0 at 5,0},1
    | {foo+19 at 13,0},4
@@ -1861,9 +1870,9 @@ Thread ID: 4294967296
       | {foo+25 at 14,0},1
          | {foo+60 at 25,0},1
 
-====================================================================
+=============================================================================
 Thread ID: 8589934593
-====================================================================
+=============================================================================
 
 | {foo+0 at 5,0},1
    | {foo+27 at 17,0},10
@@ -1879,9 +1888,9 @@ Instead, using the \verb|-joinThreads| option, the output is:
 
 \begin{lstlisting}[label=out12, 
 caption={the output of IHPP analyzing \texttt{prog5} with \texttt{-joinThreads}}]
-====================================================================
+=============================================================================
 Function: foo()
-====================================================================
+=============================================================================
 | {foo+0 at 5,0},2
    | {foo+19 at 13,0},4
       | {foo+33 at 21,0},3
@@ -1909,38 +1918,45 @@ the disassembly code in \cref{intraJoinThAsm}.
 
 \begin{lstlisting}[language={[x86masm]Assembler}, 
 	label=intraJoinThAsm, caption={a part of ``all basic blocks'' table of \texttt{prog5}}]
-{foo+0 at 5,0}  Disassembly: 
-								       push ebp
-								       mov ebp, esp
-								       sub esp, 0x28
-								       mov dword ptr [ebp-0xc], 0x0
-								       cmp dword ptr [ebp+0x8], 0x0
-								       jz {foo+27 at 17,0}
-{foo+13 at 11,0} Disassembly: 
-								       cmp dword ptr [ebp+0x8], 0x0
-								       jz {foo+27 at 17,0}
+{foo+0 at 5,0}   
+Disassembly:
+												push ebp
+												mov ebp, esp
+												sub esp, 0x28
+												mov dword ptr [ebp-0xc], 0x0
+												cmp dword ptr [ebp+0x8], 0x0
+												jz {foo+27 at 17,0}
+{foo+13 at 11,0} 
+Disassembly: 
+												cmp dword ptr [ebp+0x8], 0x0
+												jz {foo+27 at 17,0}
 
-{foo+19 at 13,0} Disassembly: 
-								       cmp dword ptr [ebp-0xc], 0x2
-								       jle {foo+33 at 21,0}
+{foo+19 at 13,0} 
+Disassembly: 
+												cmp dword ptr [ebp-0xc], 0x2
+												jle {foo+33 at 21,0}
 
-{foo+25 at 14,0} Disassembly: 
-								       jmp {foo+60 at 25,0}
+{foo+25 at 14,0} 
+Disassembly: 
+												jmp {foo+60 at 25,0}
 
-{foo+27 at 17,0} Disassembly: 
-								       cmp dword ptr [ebp-0xc], 0x8
-								       jnle {foo+59 at 18,0}
+{foo+27 at 17,0} 
+Disassembly: 
+												cmp dword ptr [ebp-0xc], 0x8
+												jnle {foo+59 at 18,0}
 
-{foo+59 at 18,0} Disassembly: 
-								       nop 
-								       mov eax, 0x0
-								       leave 
-								       ret 
+{foo+59 at 18,0} 
+Disassembly: 
+												nop 
+												mov eax, 0x0
+												leave 
+												ret 
 
-{foo+60 at 25,0} Disassembly: 
-								       mov eax, 0x0
-								       leave 
-								       ret 
+{foo+60 at 25,0} 
+Disassembly: 
+												mov eax, 0x0
+												leave 
+												ret 
 
 \end{lstlisting}
 
@@ -2016,9 +2032,9 @@ already analyzed in \verb|intraMode| in the \cref{out8}.
 
 \begin{lstlisting}[label=out14, 
 caption={partial output of IHPP analysis in \texttt{interProcMode} of \texttt{prog4}}]
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 DUMP of K-SF
---------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 | {__root__+0 at 0,0},1
    | {foo+0 at 8,0},1
