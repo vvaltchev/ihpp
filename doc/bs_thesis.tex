@@ -2083,7 +2083,7 @@ of the project.
 Actually, the IHPP project is written in about 4,800 lines of \verb|C++| 
 code\footnote{All source code line are included in this calculation, even ones which 
 contain comments and the empty ones.}: 
-even only copying down its full source code will take about 100 pages using
+even only copying down its full source code will take about 82 pages using
 this font. Therefore, the goal of this chapter is not to explain 
 all IHPP source code line by line, but instead is to give to the reader 
 a panoramic overview of the project implementation, showing its architecture, 
@@ -2883,9 +2883,7 @@ void imageLoad_doInsInstrumentation(IMG &img,
 \end{lstlisting}
 
 \noindent
-As shown in \cref{doIns}, the above function
-calls \verb|insInstrumentation()| at every routine instruction.
-In fact, even if it is not shown above, it does many other operations 
+The above function in \cref{doIns} calls \verb|insInstrumentation()| at every routine instruction and, even if it not shown above, it does many other operations 
 related to saving disassembly code of instructions.
 
 \begin{lstlisting}[language=C++, 
@@ -2908,11 +2906,70 @@ void insInstrumentation(RTN rtn, INS ins) {
 \end{lstlisting}
 
 \noindent
-As \cref{ins} shows, when \verb|ins| is a \verb|ret|, the 
-instruction is \emph{instrumented} with the \verb|funcMode_ret()| routine.
+As \cref{ins} shows, when \verb|ins| variable is a \verb|ret| instruction,  
+it is \emph{instrumented} with the \verb|funcMode_ret()| routine.
 
 \subsection{The \emph{funcMode} routines}
 
+Once instrumentation is finished, only two routines are 
+called\footnote{Instrumentation routines are technically called by the target program
+which instructions have been modified by Pin in order call them}
+at runtime in \verb|funcMode|: \verb|FunctionObjTrace()| and \verb|funcMode_ret()|.
+
+\begin{lstlisting}[language=C++, 
+	caption={a fragment of \texttt{FunctionObjTrace()} routine}, 
+	label=functrace, frame=leftline]
+
+void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
+
+	ihppNode *treeTop=0;
+	ihppNode *treeBottom=0;	
+	ThreadContext *ctx;
+	GlobalContext *globalCtx = globalSharedContext;
+
+	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
+
+	//code omitted [...]
+
+	ctx->setCurrentFunction(fc->functionAddress());
+	fc->incSimpleCounter();
+
+	//code omitted [...]
+
+#if ENABLE_RELY_ON_SP_CHECK
+	funcMode_sp_check(ctx, reg_sp);
+#endif
+
+	if (ctx->shadowStack.size()) {
+		treeTop = ctx->shadowStack.top().treeTop; 
+		treeBottom = ctx->shadowStack.top().treeBottom;
+	} 
+
+	//code omitted [...]
+
+	traceObject(fc, ctx, treeTop, treeBottom);
+
+	ctx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom,reg_sp));
+
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
+
+	//code omitted [...]
+#endif
+}
+
+\end{lstlisting}
+
+As can be seen in \cref{functrace}, the \emph{essence} of \verb|FunctionObjTrace()|
+function is simply: for first the current thread context is obtained then, 
+the current function is set and the \verb|simpleCounter| property of \verb|fc|
+is incremented\footnote{This counter is 
+a sort of ``absolutely reliable'' counter variable contained in each \texttt{TracingObject}:
+it has the benefit to be totally independent from $k$-SFs, $k$-CCFs and their join
+operations.}; then \emph{top} and \emph{bottom} pointers are loaded from the 
+\emph{shadow stack} if it not empty and then finally the fundamental \verb|traceObject()|
+function is called passing to it all strictly necessary parameters: 
+the pointer to the \verb|FunctionObj| to be traced, the current context and the
+two \emph{top} and \emph{bottom} pointers. After that, the \emph{top} and \emph{bottom} pointers and the \verb|reg_sp| variable are stored to the \emph{shadow stack}.
 
 
 \section{\emph{Intra-}procedural mode}

@@ -12,18 +12,25 @@ using namespace std;
 
 #define INTRAMODE_LOAD_TOP_BOTTOM()					treeTop = intraCtx->shadowStack.top().treeTop; treeBottom = intraCtx->shadowStack.top().treeBottom; 
 
-#define INTRAMODE_STORE_TOP_BOTTOM(sp)				intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom, (sp) ));
-
-
-#define INTRAMODE_REPLACE_TOP_BOTTOM(sp)			intraCtx->shadowStack.pop(); intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom, (sp) ));
-
+#if ENABLE_KEEP_STACK_PTR
+#define INTRAMODE_STORE_TOP_BOTTOM()				intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom,reg_sp));
+#define INTRAMODE_REPLACE_TOP_BOTTOM()				intraCtx->shadowStack.pop(); intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom,oldStackPtr));
+#else
+#define INTRAMODE_STORE_TOP_BOTTOM()				intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom));
+#define INTRAMODE_REPLACE_TOP_BOTTOM()				intraCtx->shadowStack.pop(); intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom));
+#endif
 #define TOP_STACKPTR()								(intraCtx->shadowStack.size()?intraCtx->shadowStack.top().stackPtr:(ADDRINT)-1)
 
 #define INTRAMODE_SET_TOP_BOTTOM_TO_ROOT()			intraCtx->counter=1; treeTop=intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey); treeBottom=0;
 #define INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()	(treeTop==intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey) && !treeBottom)
 
 
-void intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) { 
+void intraModeBlockTrace(TracingObject<ADDRINT> *to
+
+#if ENABLE_KEEP_STACK_PTR
+	, ADDRINT reg_sp
+#endif
+) { 
 
 	GlobalContext *globalCtx = globalSharedContext;
 	ThreadContext *ctx;
@@ -86,7 +93,9 @@ void intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 
 		INTRAMODE_LOAD_TOP_BOTTOM();
 
+#if ENABLE_KEEP_STACK_PTR
 		ADDRINT oldStackPtr = TOP_STACKPTR();
+#endif
 
 		if (!globalCtx->options.rollLoops) {
 
@@ -123,7 +132,7 @@ void intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 			} 
 		}
 
-		INTRAMODE_REPLACE_TOP_BOTTOM(oldStackPtr);
+		INTRAMODE_REPLACE_TOP_BOTTOM();
 
 		dbg_intratr_end_sp();
 
@@ -154,7 +163,7 @@ void intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 		assert(intraCtx->rootKey);
 		assert(treeTop);
 
-		INTRAMODE_STORE_TOP_BOTTOM(reg_sp);
+		INTRAMODE_STORE_TOP_BOTTOM();
 		return;
 	}
 
@@ -168,8 +177,8 @@ void intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp) {
 		//Reset top,bottom pointers to root of the function's tree
 		INTRAMODE_SET_TOP_BOTTOM_TO_ROOT();
 
-		//Push them on the shadow stack a increment the root counter
-		INTRAMODE_STORE_TOP_BOTTOM(reg_sp);
+		//Push them on the shadow stack and increment the root counter
+		INTRAMODE_STORE_TOP_BOTTOM();
 	}
 
 	treeTop->incCounter();
@@ -212,6 +221,7 @@ void intraMode_ret()
 
 		ihppNode *treeTop;
 		ihppNode *treeBottom;
+		ADDRINT reg_sp = (ADDRINT)-1;
 
 		dbg_intraret_lastret();
 
@@ -224,6 +234,6 @@ void intraMode_ret()
 		INTRAMODE_SET_TOP_BOTTOM_TO_ROOT();
 
 		//Push them on the shadow stack a increment the root counter
-		INTRAMODE_STORE_TOP_BOTTOM((ADDRINT)-1);		
+		INTRAMODE_STORE_TOP_BOTTOM();		
 	}
 }

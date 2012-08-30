@@ -182,7 +182,9 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 								IPOINT_BEFORE, AFUNPTR(intraModeBlockTrace), 
 								IARG_CALL_ORDER, CALL_ORDER_LAST, 
 								IARG_PTR, bb, 
+#if ENABLE_KEEP_STACK_PTR
 								IARG_REG_VALUE, REG_STACK_PTR, 
+#endif
 								IARG_END);		
 
 		PIN_UnlockClient();
@@ -344,7 +346,9 @@ void ImageLoad(IMG img, void *) {
 				RTN_InsertCall(rtn, IPOINT_BEFORE, AFUNPTR(FunctionObjTrace), 
 									IARG_CALL_ORDER, CALL_ORDER_FIRST, 
 									IARG_PTR, (ADDRINT)fc,  
+#if ENABLE_KEEP_STACK_PTR
 									IARG_REG_VALUE, REG_STACK_PTR, 
+#endif
 									IARG_END);
 				RTN_Close(rtn);
 			}

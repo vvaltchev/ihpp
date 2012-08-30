@@ -45,7 +45,12 @@ ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) {
 		if (globalSharedContext->WorkingMode() != WM_InterProcMode) {
 
 			traceObject(globalSharedContext->allFuncs[(ADDRINT)-1], ret, t, b);
+			
+#if ENABLE_KEEP_STACK_PTR
 			ret->shadowStack.push(ShadowStackItemType(t,b,(ADDRINT)-1));
+#else
+			ret->shadowStack.push(ShadowStackItemType(t,b));
+#endif
 
 			if (globalSharedContext->WorkingMode() == WM_IntraMode) {
 				
@@ -55,7 +60,12 @@ ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) {
 
 				t=b=0;
 				traceObject(globalSharedContext->allBlocks[(ADDRINT)-1], intraCtx, t, b);
+
+#if ENABLE_KEEP_STACK_PTR
 				intraCtx->shadowStack.push(ShadowStackItemType(t,b,(ADDRINT)-1));
+#else
+				intraCtx->shadowStack.push(ShadowStackItemType(t,b));
+#endif
 			}
 
 		} else {

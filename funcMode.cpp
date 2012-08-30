@@ -11,10 +11,10 @@ using namespace std;
 #include "tracingFuncs.h"
 
 #define FUNCMODE_TOP_STACKPTR()				(ctx->shadowStack.size()?ctx->shadowStack.top().stackPtr:(ADDRINT)-1)
-#define FUNCMODE_LOAD_TOP_BOTTOM()			treeTop = ctx->shadowStack.top().treeTop; treeBottom = ctx->shadowStack.top().treeBottom;
+//#define FUNCMODE_LOAD_TOP_BOTTOM()			treeTop = ctx->shadowStack.top().treeTop; treeBottom = ctx->shadowStack.top().treeBottom;
 #define FUNCMODE_STORE_TOP_BOTTOM(sp)		ctx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom,(sp)));
-#define FUNCMODE_SET_TOP_BOTTOM_TO_ROOT()	ctx->counter=0; treeTop=ctx->kSlabForest.getTreeRef(ctx->rootKey); treeBottom=0;
 
+#if ENABLE_RELY_ON_SP_CHECK
 inline void funcMode_sp_check(ThreadContext *ctx, ADDRINT reg_sp)
 {
 	if (reg_sp >= FUNCMODE_TOP_STACKPTR()) {
@@ -31,14 +31,24 @@ inline void funcMode_sp_check(ThreadContext *ctx, ADDRINT reg_sp)
 
 	}
 }
+#endif
 
 
-void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
+void FunctionObjTrace(FunctionObj *fc
+
+#if ENABLE_KEEP_STACK_PTR
+	, ADDRINT reg_sp
+#endif
+) {
 
 	ihppNode *treeTop=0;
 	ihppNode *treeBottom=0;	
 	ThreadContext *ctx;
 	GlobalContext *globalCtx = globalSharedContext;
+
+#if !ENABLE_KEEP_STACK_PTR
+	const ADDRINT reg_sp = (ADDRINT)-1;
+#endif
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 
@@ -79,8 +89,8 @@ void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 	if (ctx->shadowStack.size()) {
 
-		FUNCMODE_LOAD_TOP_BOTTOM();
-
+		treeTop = ctx->shadowStack.top().treeTop; 
+		treeBottom = ctx->shadowStack.top().treeBottom;
 	} 
 
 	assert(ctx->shadowStack.size() || !ctx->rootKey);
@@ -90,7 +100,11 @@ void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 	traceObject(fc, ctx, treeTop, treeBottom);
 
-	FUNCMODE_STORE_TOP_BOTTOM(reg_sp);
+#if ENABLE_KEEP_STACK_PTR
+	ctx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom,reg_sp));
+#else
+	ctx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom));
+#endif
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
 
@@ -103,7 +117,6 @@ void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 #endif
 
-	return;
 }
 
 

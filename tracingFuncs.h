@@ -6,15 +6,18 @@
 #include "tracingObjects.h"
 
 
-//FuncMode tracing functions
+//FuncMode and IntraMode tracing functions
 
+#if ENABLE_KEEP_STACK_PTR
 void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp);
-void funcMode_ret();
-
-//IntraMode tracing functions
-
 void intraModeBlockTrace(TracingObject<ADDRINT> *to, ADDRINT reg_sp);
+#else
+void FunctionObjTrace(FunctionObj *fc);
+void intraModeBlockTrace(TracingObject<ADDRINT> *to);
+#endif
+
 void intraMode_ret();
+void funcMode_ret();
 
 //InterProcMode tracing functions
 

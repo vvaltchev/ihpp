@@ -11,23 +11,29 @@ public:
 
 	ihppNode *treeTop;
 	ihppNode *treeBottom;
+
+#if ENABLE_KEEP_STACK_PTR
 	ADDRINT stackPtr;
-
-#if ENABLE_INS_FORWARD_JMP_RECOGNITION
-
-	unsigned int fjmps;
-
 #endif
 
+#if ENABLE_INS_FORWARD_JMP_RECOGNITION
+	unsigned int fjmps;
+#endif
+
+#if ENABLE_KEEP_STACK_PTR
 	ShadowStackItemType(ihppNode *t, ihppNode *b, ADDRINT ptr) : treeTop(t), treeBottom(b), stackPtr(ptr) 
+#else
+	ShadowStackItemType(ihppNode *t, ihppNode *b) : treeTop(t), treeBottom(b)
+#endif
 	{ 
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
-
 		fjmps=0;
 #endif
 
 	}
+
+
 };
 
 class GenericTraceContext: public BenchmarkObj {
