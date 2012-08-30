@@ -11,8 +11,6 @@ using namespace std;
 #include "tracingFuncs.h"
 
 #define FUNCMODE_TOP_STACKPTR()				(ctx->shadowStack.size()?ctx->shadowStack.top().stackPtr:(ADDRINT)-1)
-//#define FUNCMODE_LOAD_TOP_BOTTOM()			treeTop = ctx->shadowStack.top().treeTop; treeBottom = ctx->shadowStack.top().treeBottom;
-#define FUNCMODE_STORE_TOP_BOTTOM(sp)		ctx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom,(sp)));
 
 #if ENABLE_RELY_ON_SP_CHECK
 inline void funcMode_sp_check(ThreadContext *ctx, ADDRINT reg_sp)

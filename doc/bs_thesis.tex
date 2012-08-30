@@ -2837,7 +2837,7 @@ void ImageLoad(IMG img, void *) {
 					IPOINT_BEFORE, AFUNPTR(FunctionObjTrace), 
 					IARG_CALL_ORDER, CALL_ORDER_FIRST, 
 					IARG_PTR, (ADDRINT)fc,  
-					IARG_REG_VALUE, REG_STACK_PTR, 
+					/* code about stack ptr omitted */
 					IARG_END);
 				RTN_Close(rtn);
 			}			
@@ -2920,7 +2920,7 @@ at runtime in \verb|funcMode|: \verb|FunctionObjTrace()| and \verb|funcMode_ret(
 	caption={a fragment of \texttt{FunctionObjTrace()} routine}, 
 	label=functrace, frame=leftline]
 
-void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
+void FunctionObjTrace(FunctionObj *fc, /* code omitted */) {
 
 	ihppNode *treeTop=0;
 	ihppNode *treeBottom=0;	
@@ -2936,9 +2936,7 @@ void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 	//code omitted [...]
 
-#if ENABLE_RELY_ON_SP_CHECK
-	funcMode_sp_check(ctx, reg_sp);
-#endif
+	/* code about stack ptr check omitted */
 
 	if (ctx->shadowStack.size()) {
 		treeTop = ctx->shadowStack.top().treeTop; 
@@ -2949,16 +2947,16 @@ void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp) {
 
 	traceObject(fc, ctx, treeTop, treeBottom);
 
-	ctx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom,reg_sp));
-
-#if ENABLE_INS_FORWARD_JMP_RECOGNITION
-
 	//code omitted [...]
-#endif
+
+	ctx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom));
+
+	/* code about forward jump recognition omitted */
 }
 
 \end{lstlisting}
 
+\noindent
 As can be seen in \cref{functrace}, the \emph{essence} of \verb|FunctionObjTrace()|
 function is simply: for first the current thread context is obtained then, 
 the current function is set and the \verb|simpleCounter| property of \verb|fc|
@@ -2969,8 +2967,165 @@ operations.}; then \emph{top} and \emph{bottom} pointers are loaded from the
 \emph{shadow stack} if it not empty and then finally the fundamental \verb|traceObject()|
 function is called passing to it all strictly necessary parameters: 
 the pointer to the \verb|FunctionObj| to be traced, the current context and the
-two \emph{top} and \emph{bottom} pointers. After that, the \emph{top} and \emph{bottom} pointers and the \verb|reg_sp| variable are stored to the \emph{shadow stack}.
+two \emph{top} and \emph{bottom} pointers. After that, the \emph{top} and \emph{bottom} pointers are stored to the \emph{shadow stack}. 
+The implementation of the \verb|traceObject()| function will not be shown here
+because it is very similar to the pseudo-code in \cref{ksf_alg}.
 
+The \verb|funcMode_ret()| routine implementation is conceptually very simple.
+
+\begin{lstlisting}[language=C++, 
+	caption={a fragment of \texttt{funcMode\_ret()} routine}, 
+	label=funcret, frame=leftline]
+void funcMode_ret()
+{
+	GlobalContext *globalCtx = globalSharedContext;
+	ThreadContext *ctx;
+
+	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
+
+	/* code about forward jump recognition omitted */
+	//other code omitted [...]
+
+	ctx->shadowStack.pop();
+
+	//code omitted [...]
+	if (ctx->shadowStack.size())
+		ctx->setCurrentFunction(
+			ctx->shadowStack.top().treeTop->getValue()->getKey()
+		);
+}
+\end{lstlisting}
+
+\noindent
+\Cref{funcret} shows a small fragment of \verb|funcMode_ret()|: 
+it substantially pops the \emph{shadow stack} and sets as current function
+the previously one. 
+
+These would be really the full implementations of \verb|funcMode| routines
+only in a ``perfect world'': practically in IHPP they are much more bigger
+because they have to handle \emph{unusual} situations like the one
+which is just going to be explained.
+
+\subsection{The \emph{longjmp} problem}
+
+The ANSI \verb|C| standard library provides a couple of functions called 
+\verb|setjmp()| and \verb|longjmp()| that allows to change the program \emph{context}:
+they are used mainly for handling exceptions because the \verb|C| language 
+has no a build-in method for doing this. 
+When a \emph{long jump} occurs, the \emph{context} saved by \verb|setjmp()| is restored
+and the program continues its execution from the point on which \verb|setjmp()| was called.
+\Cref{longjmp1} show an example program that uses \emph{long jumps}.
+
+\begin{lstlisting}[language=C++, 
+	caption={source code of \texttt{prog7.c}}, 
+	label=longjmp1, frame=leftline, numbers=left, showstringspaces=false]
+#include <stdio.h>
+#include <setjmp.h>
+
+jmp_buf jump_buffer;
+
+void testJmp(int par) {
+
+	if (par) 
+		longjmp(jump_buffer, 1);
+
+	printf("par is zero!\n");
+}
+
+int main(int argc, char ** argv) {
+
+	if (!setjmp(jump_buffer)) {
+
+		testJmp(1);
+		printf("this message will not be printed!\n");
+	
+	} else {
+		testJmp(0);
+	}	
+	return 0;
+}
+\end{lstlisting}
+
+\noindent
+The first time in \verb|main()| the \verb|jump_buffer| is set and \verb|setjmp()| 
+returns \verb|0|; then \verb|testJmp(1)| is called which makes a \emph{long jump} 
+again to the \verb|if| condition in \verb|main()| but, this time \verb|setjmp()| returns
+\verb|1| since a \emph{jump} is happened and the code in \verb|else| statement 
+is executed. The second call of \verb|testJmp()| is a normal function call.
+So, practically \verb|main()| function called \verb|testJmp()| twice but, since
+no \verb|ret| instruction is executed by \verb|testJmp()| when \verb|par=1|, 
+the \verb|funcMode| as described since now will produce in output this:
+
+\begin{lstlisting}[label=longjmp_ex_1, caption={an example of the \emph{longjmp} problem}]
+-----------------------------------------------------------------------------
+DUMP of K-SF
+-----------------------------------------------------------------------------
+
+| __root__(),1
+   | main(),1
+      | testJmp(),1
+         | testJmp(),1
+\end{lstlisting}
+
+\noindent
+The profiler assumed \emph{wrongly} that since no \verb|ret| instruction 
+has been executed by \verb|testJmp()|, the second call is a recursion of it.
+Results like this one can be obtained with IHPP by rebuilding it after 
+disabling all advanced checks in \verb|config.h|.
+
+\subsubsection{A first solution}
+The first solution implemented in IHPP to solve problems like these, 
+consisted of storing in the \emph{shadow stack} also 
+the value of the \emph{stack pointer}\footnote{register \texttt{ESP} on IA-32 or register \texttt{RSP} on amd64 architectures} and comparing it with the actual \emph{stack pointer}
+value every time the function \verb|FunctionObjTrace()| is called using this logic:
+since the \emph{stack} grows towards zero and \verb|call| instructions make 
+it to grow because they push on it the current \emph{instruction pointer} value, 
+the current \emph{stack pointer} value should be \emph{lesser} then the previously 
+stored one\footnote{obtained by \texttt{shadowStack.top().reg\_sp}}. 
+If the condition just stated is false, than something like a \emph{long jump} should be
+happen so, the solution is to \verb|pop()| the \verb|shadowStack| until a greater
+value of \emph{stack pointer} is found. 
+
+However, even if this approach to the problem is \emph{really fast} compared to others 
+later explained, it works perfectly only under two conditions: 
+the functions in target program \emph{must} follow the \emph{calling conventions} and routines with variable arguments must \emph{never} use \emph{long jumps}.
+The first condition simply requires that routines \emph{must} be called with the \verb|call| instruction or an equivalent sequence which pushes the \emph{instruction pointer} 
+on the stack, decreases its value and then jumps to the function address; even if it seems very strange, there are situations in which this does not happen: these not so unusual situations (specially using the \verb|cl| compiler) will be shown later.
+
+The requirement of the second condition is simply but its reason is not obvious:
+the \emph{stack pointer} check does not work in situations like the one shown in \cref{longjmp2}.
+
+\begin{lstlisting}[language=C++, 
+	caption={source code of \texttt{prog8.c}}, 
+	label=longjmp2, frame=leftline, numbers=left, showstringspaces=false]
+#include <stdio.h>
+#include <setjmp.h>
+
+jmp_buf jump_buffer;
+
+void testJmp(int par, ...) {
+
+	if (par) 
+		longjmp(jump_buffer, 1);
+
+	printf("par is zero!\n");
+}
+
+int main(int argc, char ** argv) {
+
+	if (!setjmp(jump_buffer)) {
+
+		testJmp(1);
+		printf("this message will not be printed!\n");
+	
+	} else {
+
+		testJmp(0, 25, 100, 386, 4096);
+	}	
+
+	return 0;
+}
+\end{lstlisting}
 
 \section{\emph{Intra-}procedural mode}
 
