@@ -1918,7 +1918,8 @@ the disassembly code in \cref{intraJoinThAsm}.
 
 \begin{lstlisting}[language={[x86masm]Assembler}, 
 	label=intraJoinThAsm, caption={a part of ``all basic blocks'' table of \texttt{prog5}}]
-{foo+0 at 5,0}   
+
+{foo+0 at 5,0} addr: 0x80484c4 counter: 2   
 Disassembly:
 												push ebp
 												mov ebp, esp
@@ -1926,33 +1927,33 @@ Disassembly:
 												mov dword ptr [ebp-0xc], 0x0
 												cmp dword ptr [ebp+0x8], 0x0
 												jz {foo+27 at 17,0}
-{foo+13 at 11,0} 
+{foo+13 at 11,0} addr: 0x80484d1 counter: 12
 Disassembly: 
 												cmp dword ptr [ebp+0x8], 0x0
 												jz {foo+27 at 17,0}
 
-{foo+19 at 13,0} 
+{foo+19 at 13,0} addr: 0x80484d7 counter: 4
 Disassembly: 
 												cmp dword ptr [ebp-0xc], 0x2
 												jle {foo+33 at 21,0}
 
-{foo+25 at 14,0} 
+{foo+25 at 14,0} addr: 0x80484dd counter: 1
 Disassembly: 
 												jmp {foo+60 at 25,0}
 
-{foo+27 at 17,0} 
+{foo+27 at 17,0} addr: 0x80484df counter: 10
 Disassembly: 
 												cmp dword ptr [ebp-0xc], 0x8
 												jnle {foo+59 at 18,0}
 
-{foo+59 at 18,0} 
+{foo+59 at 18,0} addr: 0x80484ff counter: 1
 Disassembly: 
 												nop 
 												mov eax, 0x0
 												leave 
 												ret 
 
-{foo+60 at 25,0} 
+{foo+60 at 25,0} addr: 0x8048500 counter: 1 
 Disassembly: 
 												mov eax, 0x0
 												leave 
@@ -2532,7 +2533,7 @@ public:
 A fundamental IHPP class is \verb|node<T>| or better, \verb|node<keyT>|:
 it is the basic element used in data structures such as $k$-SFs and $k$-CCFs.
 A \verb|node| object is a \emph{container} for \emph{one}
-value-object of type \verb|ObjectWithKey<keyT> *| and \emph{one} integer counter. 
+value-object of type \verb|ObjectWithKey<keyT>*| and \emph{one} integer counter. 
 Besides, a \verb|node<keyT>| object is identified among other nodes by a
 \emph{key} of type \verb|keyT|, a \emph{template} parameter. 
 In IHPP, \verb|keyT| is always \verb|ADDRINT| which is, as already told, a Pin macro
@@ -2607,8 +2608,8 @@ public:
 \end{lstlisting}
 
 \noindent
-Technically, \verb|ihppNodeChildrenContainer| is a macro which
-\emph{actually} stands for \verb|ihppNodeChildrenContainerList1|.
+Technically, \verb|ihppNodeChildrenContainer| is not a real type but a macro which
+stands for \verb|ihppNodeChildrenContainerList1|.
 This last one, is one of the actually \emph{three} node container 
 classes defined in \verb|dataStructures.h|. Other container classes
 has exactly the same interface but store data internally in other ways,
@@ -2881,8 +2882,11 @@ void imageLoad_doInsInstrumentation(IMG &img,
 }
 \end{lstlisting}
 
-As shown in \cref{doIns}, among many other things, this last function
-calls \verb|insInstrumentation()| at every function instruction.
+\noindent
+As shown in \cref{doIns}, the above function
+calls \verb|insInstrumentation()| at every routine instruction.
+In fact, even if it is not shown above, it does many other operations 
+related to saving disassembly code of instructions.
 
 \begin{lstlisting}[language=C++, 
 	caption={a fragment of \texttt{insInstrumentation()} routine}, 
@@ -2902,7 +2906,8 @@ void insInstrumentation(RTN rtn, INS ins) {
 }
 
 \end{lstlisting}
-	
+
+\noindent
 As \cref{ins} shows, when \verb|ins| is a \verb|ret|, the 
 instruction is \emph{instrumented} with the \verb|funcMode_ret()| routine.
 
