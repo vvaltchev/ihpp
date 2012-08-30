@@ -221,7 +221,10 @@ void intraMode_ret()
 
 		ihppNode *treeTop;
 		ihppNode *treeBottom;
+
+#if ENABLE_KEEP_STACK_PTR
 		ADDRINT reg_sp = (ADDRINT)-1;
+#endif
 
 		dbg_intraret_lastret();
 
