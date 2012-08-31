@@ -73,8 +73,12 @@ int main(int argc, char ** argv) {
 
 int i,x=0;
    
-getchar();
+//getchar();
 
+printf("size of int: %lu\n", sizeof(int));
+printf("size of long: %lu\n", sizeof(long));
+printf("size of long long: %lu\n", sizeof(long long));
+   
 printf("ptr: %u bits\n", 8*sizeof(void*));
 printf("factorial(6): %i\n", factorial(6));
 //printf("factorial(3): %i\n", factorial(3));
