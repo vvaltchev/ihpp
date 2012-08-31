@@ -3336,8 +3336,12 @@ void BlockTraceInstrumentation(TRACE trace, void *)
 As it can be seen, the instrumentation is not very different from the one
 of \emph{routines} but, this time instead of iterating over \emph{sectors} of an \emph{image} and then over \emph{routines}, 
 there is directly an iteration over BBLs of a 
-\emph{trace}\footnote{A \emph{trace} a one enter point - multiple exit points sequence of instructions.}. Differently from the function instrumentation, it can happen here
-that a more than one trace have the same BBL so, a preliminary check is necessary.
+\emph{trace}\footnote{A \emph{trace} a one enter point - multiple exit points sequence of instructions.}. Differently from the function instrumentation, here it can happen 
+that a more than one trace have a BBL on the same address so, 
+a preliminary check is done to avoid creation of 
+a new \verb|BasicBlock| object \emph{but} the instrumentation of the BBL \emph{must}
+be done again because Pin makes distinction between the same BBL on different traces; 
+technically the logic BBL is the same but the \verb|bbl| object is another.
 
 \section{\emph{Inter-}procedural mode}
 \section{Performance of IHPP}
