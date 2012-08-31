@@ -3006,9 +3006,9 @@ only in a ``perfect world'': practically in IHPP they are much more bigger
 because they have to handle \emph{unusual} situations like the one
 which is just going to be explained.
 
-\subsection{The \emph{longjmp} problem}
+\subsection{The \emph{long jump} problem}
 
-The ANSI \verb|C| standard library provides a couple of functions called 
+The \verb|ANSI C| standard library provides a couple of functions called 
 \verb|setjmp()| and \verb|longjmp()| that allows to change the program \emph{context}:
 they are used mainly for handling exceptions because the \verb|C| language 
 has no a build-in method for doing this. 
@@ -3186,34 +3186,32 @@ and so the problem just shown occurs. The below listing shows the \verb|main()| 
 compiled by \verb|cl|.
 
 \begin{lstlisting}[language={[x86masm]Assembler}, 
-	label=p8mainCL, caption={\texttt{main()} disassembly of \texttt{prog8.c} compiled with \texttt{cl}}]
-
-		1001dd0    push ebp
-		1001dd1    mov ebp, esp
-		1001dd3    push 0x0
-		1001dd5    push 0x100ee40
-		1001dda    call __setjmp3
-		1001ddf    add esp, 0x8
-		1001de2    test eax, eax
-		1001de4    jnz main+47
-		1001de6    push 0x1
-		1001de8    call .text+5 --> jmp testJmp
-		1001ded    add esp, 0x4
-		1001df0    push 0x100d01c
-		1001df5    call printf
-		1001dfa    add esp, 0x4
-		1001dfd    jmp main+68
-		1001dff    push 0xffffffff
-		1001e01    push 0x182
-		1001e06    push 0x64
-		1001e08    push 0x19
-		1001e0a    push 0x0
-		1001e0c    call .text+5 --> jmp testJmp
-		1001e11    add esp, 0x14
-		1001e14    xor eax, eax
-		1001e16    pop ebp
-		1001e17    ret 
-
+	label=p8mainCL, caption={\texttt{main()} disassembly of \texttt{prog8.c} compiled with \texttt{cl}}, frame=leftline]
+1001dd0    push ebp
+1001dd1    mov ebp, esp
+1001dd3    push 0x0
+1001dd5    push 0x100ee40
+1001dda    call __setjmp3
+1001ddf    add esp, 0x8
+1001de2    test eax, eax
+1001de4    jnz main+47
+1001de6    push 0x1
+1001de8    call .text+5 --> jmp testJmp
+1001ded    add esp, 0x4
+1001df0    push 0x100d01c
+1001df5    call printf
+1001dfa    add esp, 0x4
+1001dfd    jmp main+68
+1001dff    push 0xffffffff
+1001e01    push 0x182
+1001e06    push 0x64
+1001e08    push 0x19
+1001e0a    push 0x0
+1001e0c    call .text+5 --> jmp testJmp
+1001e11    add esp, 0x14
+1001e14    xor eax, eax
+1001e16    pop ebp
+1001e17    ret 
 \end{lstlisting}
 
 \noindent
@@ -3221,11 +3219,52 @@ Instead, the \verb|gcc 4.6| compiler does not use \verb|push| instructions, but
 writes the parameters directly to the \emph{stack red zone} 
 with \verb|mov| instructions as the \cref{p8mainGCC} shows.
 
-\begin{lstlisting}[language={[x86masm]Assembler}, 
-	label=p8mainCL, caption={\texttt{main()} disassembly of \texttt{prog8.c} compiled with 
-
-
+\begin{lstlisting}[ 
+	label=p8mainGCC, caption={\texttt{main()} disassembly of \texttt{prog8.c} compiled with \texttt{gcc}}, frame=leftline, 
+	keywords={push,add,sub,ptr,eax,mov,ebp,esp,and,jnz,test,dword,call,leave,ret,pop,jmp}]
+80484d4    push ebp
+80484d5    mov ebp, esp
+80484d7    and esp, 0xfffffff0
+80484da    sub esp, 0x20
+80484dd    mov dword ptr [esp], 0x804a040
+80484e4    call .plt+48
+80484e9    test eax, eax
+80484eb    jnz main+51
+80484ed    mov dword ptr [esp], 0x1
+80484f4    call testJmp
+80484f9    mov dword ptr [esp], 0x8048628
+8048500    call .plt+64
+8048505    jmp main+95
+8048507    mov dword ptr [esp+0x10], 0xffffffff
+804850f    mov dword ptr [esp+0xc], 0x182
+8048517    mov dword ptr [esp+0x8], 0x64
+804851f    mov dword ptr [esp+0x4], 0x19
+8048527    mov dword ptr [esp], 0x0
+804852e    call testJmp
+8048533    mov eax, 0x0
+8048538    leave 
+8048539    ret 
 \end{lstlisting}
+
+\noindent
+Paradoxically, in this situation the \emph{stack pointer check} method works
+great because the \emph{stack pointer} value is the same in both times \verb|testJmp()|
+is called: this means that the second \verb|testJmp()| call cannot be done by \verb|testJmp()| itself so, a \verb|long jump| has occurred.
+
+\subsubsection{Conclusions}
+It is possible to say that the \emph{stack pointer check} is
+a good and \emph{light} method for catching particular events such as \emph{long jumps}
+and that actually it \emph{should} always work for programs compiled with \verb|gcc|.
+Instead, it could produce wrong results with Windows programs compiled with \verb|cl|
+in rare situations (such as the one just shown) when only user routines are instrumented but, when \emph{all} routines of a program compiled with \verb|cl| are instrumented (IHPP called without the \verb|-funcs| option) this method produces \emph{totally} wrong results:
+the reason is that, as will be explained later, build-in routines in \verb|cl|-compiled programs calls each other sometimes using simply the \verb|jmp| instruction and also 
+\verb|ret| instructions can be replaced with unconditional jumps; in addition to
+all this, there are cases of fall-though in routines which means that the program 
+enters in a routine \emph{without} any form of \emph{branch}, by simply executing 
+the next instruction. In order to \emph{partially} solve these problems, 
+a mode called \verb|insTracing| has been implemented in IHPP which instruments all machine instructions of the program: even if neither in this way a 100\% correct $k$-SF 
+can be build, results are much better than without it and a percentage of correctness 
+about 90-95\% is achieved.    
 
 \section{\emph{Intra-}procedural mode}
 
