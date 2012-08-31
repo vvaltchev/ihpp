@@ -3070,10 +3070,10 @@ DUMP of K-SF
 \noindent
 The profiler assumed \emph{wrongly} that since no \verb|ret| instruction 
 has been executed by \verb|testJmp()|, the second call is a recursion of it.
-Results like this one can be obtained with IHPP by rebuilding it after 
-disabling all advanced checks in \verb|config.h|.
+Results like this one can be obtained with IHPP using \verb|-unrollSingleRec| option 
+after rebuilding it with all advanced checks in \verb|config.h| disabled.
 
-\subsubsection{A first solution}
+\subsubsection{A first good solution}
 The first solution implemented in IHPP to solve problems like these, 
 consisted of storing in the \emph{shadow stack} also 
 the value of the \emph{stack pointer}\footnote{register \texttt{ESP} on IA-32 or register \texttt{RSP} on amd64 architectures} and comparing it with the actual \emph{stack pointer}
@@ -3086,29 +3086,67 @@ If the condition just stated is false, than something like a \emph{long jump} sh
 happen so, the solution is to \verb|pop()| the \verb|shadowStack| until a greater
 value of \emph{stack pointer} is found. 
 
-However, even if this approach to the problem is \emph{really fast} compared to others 
-later explained, it works perfectly only under two conditions: 
-the functions in target program \emph{must} follow the \emph{calling conventions} and routines with variable arguments must \emph{never} use \emph{long jumps}.
-The first condition simply requires that routines \emph{must} be called with the \verb|call| instruction or an equivalent sequence which pushes the \emph{instruction pointer} 
-on the stack, decreases its value and then jumps to the function address; even if it seems very strange, there are situations in which this does not happen: these not so unusual situations (specially using the \verb|cl| compiler) will be shown later.
+This is implemented in \verb|FunctionObjTrace()| by calling 
+(in point where code is omitted in \cref{functrace})
+an \emph{inline} function shown below:
 
-The requirement of the second condition is simply but its reason is not obvious:
-the \emph{stack pointer} check does not work in situations like the one shown in \cref{longjmp2}.
+\begin{lstlisting}[language=C++, 
+	caption={implementation of \texttt{funcMode\_sp\_check()}}, 
+	label=spcheck, frame=leftline, showstringspaces=false]
+#if ENABLE_RELY_ON_SP_CHECK
+inline void funcMode_sp_check(ThreadContext *ctx, ADDRINT reg_sp)
+{
+	if (reg_sp >= FUNCMODE_TOP_STACKPTR()) 
+	{
+		while (ctx->shadowStack.size() > 1 && 
+				reg_sp >= FUNCMODE_TOP_STACKPTR()) 
+		{
+			if (!ctx->popShadowStack())
+				break;
+		}
+	}
+}
+#endif
+\end{lstlisting}
+
+However, even if this approach to the problem is \emph{really fast} compared to others 
+later explained, it works perfectly only under two conditions.
+The first condition simply requires that routines \emph{must} be called with the \verb|call| instruction or an equivalent sequence which pushes the \emph{instruction pointer} 
+on the stack, decreases its value and then jumps to the function address; even if it seems very strange, there are situations in which this does not happen: these not so unusual situations will be shown later.
+
+The second condition is: if the compiler of the target program \emph{strictly}
+follows the \verb|cdecl| calling convention for \emph{variadic} functions
+(which means passing arguments in inverse order using the \verb|push| instruction),
+they must not use \emph{long jumps}. The program in \cref{longjmp2} shows 
+a situation in which the \emph{stack pointer check} method 
+does not work with some compilers.
 
 \begin{lstlisting}[language=C++, 
 	caption={source code of \texttt{prog8.c}}, 
 	label=longjmp2, frame=leftline, numbers=left, showstringspaces=false]
 #include <stdio.h>
 #include <setjmp.h>
+#include <stdarg.h>
 
 jmp_buf jump_buffer;
 
 void testJmp(int par, ...) {
 
+	va_list ap;
+
 	if (par) 
 		longjmp(jump_buffer, 1);
 
 	printf("par is zero!\n");
+
+	va_start(ap, par);
+
+	while (par != -1) {
+
+		par = va_arg(ap, int);
+		printf("arg: %i\n", par);
+	}
+	va_end(ap);
 }
 
 int main(int argc, char ** argv) {
@@ -3120,11 +3158,73 @@ int main(int argc, char ** argv) {
 	
 	} else {
 
-		testJmp(0, 25, 100, 386, 4096);
+		testJmp(0, 25, 100, 386, -1);
 	}	
 
 	return 0;
 }
+\end{lstlisting}
+
+The reason why the \emph{stack pointer check} method does not work is that
+the \emph{stack pointer} value in the second call of \verb|testJmp()| is \emph{lesser}
+than (instead of be \emph{greater} or equals to) 
+its value in the first one because it has been called with 4 more 32-bit arguments 
+which subtracted 16 bytes from the \emph{stack pointer} so, the check does not 
+find nothing strange and the situation is equivalent (from the point of view of the stack pointer movement) as if \verb|testJmp()| had been called itself with 3 arguments.
+This would not have happened if \verb|testJmp()| was also called the first time with 
+the same number of arguments because in that case, the two \emph{stack pointer} values
+would have been equals and the \emph{shadow stack} would had been popped 
+by \verb|funcMode_sp_check()|.
+
+An interesting consideration related to this problem is that, as told before,
+the problem occurs when the compiler follows the \verb|cdecl| 
+convention for \emph{variadic} functions:
+the \verb|cl| compiler included with the software package 
+\emph{Microsoft Visual Studio 2010} which often uses particular optimizations (also in debug mode) for build-in routines, compiles (in debug mode, with no other options) 
+user functions in the \verb|prog8.c| exactly as one expects using \verb|push| instructions
+and so the problem just shown occurs. The below listing shows the \verb|main()| routine
+compiled by \verb|cl|.
+
+\begin{lstlisting}[language={[x86masm]Assembler}, 
+	label=p8mainCL, caption={\texttt{main()} disassembly of \texttt{prog8.c} compiled with \texttt{cl}}]
+
+		1001dd0    push ebp
+		1001dd1    mov ebp, esp
+		1001dd3    push 0x0
+		1001dd5    push 0x100ee40
+		1001dda    call __setjmp3
+		1001ddf    add esp, 0x8
+		1001de2    test eax, eax
+		1001de4    jnz main+47
+		1001de6    push 0x1
+		1001de8    call .text+5 --> jmp testJmp
+		1001ded    add esp, 0x4
+		1001df0    push 0x100d01c
+		1001df5    call printf
+		1001dfa    add esp, 0x4
+		1001dfd    jmp main+68
+		1001dff    push 0xffffffff
+		1001e01    push 0x182
+		1001e06    push 0x64
+		1001e08    push 0x19
+		1001e0a    push 0x0
+		1001e0c    call .text+5 --> jmp testJmp
+		1001e11    add esp, 0x14
+		1001e14    xor eax, eax
+		1001e16    pop ebp
+		1001e17    ret 
+
+\end{lstlisting}
+
+\noindent
+Instead, the \verb|gcc 4.6| compiler does not use \verb|push| instructions, but
+writes the parameters directly to the \emph{stack red zone} 
+with \verb|mov| instructions as the \cref{p8mainGCC} shows.
+
+\begin{lstlisting}[language={[x86masm]Assembler}, 
+	label=p8mainCL, caption={\texttt{main()} disassembly of \texttt{prog8.c} compiled with 
+
+
 \end{lstlisting}
 
 \section{\emph{Intra-}procedural mode}
