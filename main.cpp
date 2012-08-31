@@ -116,7 +116,7 @@ void insInstrumentation(RTN rtn, INS ins) {
 }
 
 
-VOID BlockTraceInstrumentation(TRACE trace, void *)
+void BlockTraceInstrumentation(TRACE trace, void *)
 {
     
 	RTN rtn;
@@ -124,7 +124,6 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 	INT32 row,col;
 	BasicBlock *bb;
 	ADDRINT blockPtr,funcAddr;
-	map<ADDRINT,BasicBlock*>::iterator it;
 
 	GlobalContext *ctx = globalSharedContext;
 
@@ -153,22 +152,16 @@ VOID BlockTraceInstrumentation(TRACE trace, void *)
 			continue;
 		}
 
-		it = ctx->allBlocks.find(blockPtr);
+		if (ctx->allBlocks.find(blockPtr) != ctx->allBlocks.end())
+			continue;
 
-		if (it == ctx->allBlocks.end()) {
+		INS ins = BBL_InsTail(bbl);
+		ADDRINT lastAddr = INS_Address(ins);
 
-			INS ins = BBL_InsTail(bbl);
-			ADDRINT lastAddr = INS_Address(ins);
+		assert(ctx->allFuncs.find(funcAddr) != ctx->allFuncs.end());
 
-			assert(ctx->allFuncs.find(funcAddr) != ctx->allFuncs.end());
-
-			bb = new BasicBlock(blockPtr, ctx->allFuncs.find(funcAddr)->second, lastAddr, row, col); 
-			ctx->allBlocks[blockPtr]=bb;
-
-		} else {
-				
-			bb = it->second;
-		}
+		bb = new BasicBlock(blockPtr, ctx->allFuncs.find(funcAddr)->second, lastAddr, row, col); 
+		ctx->allBlocks[blockPtr]=bb;
 
 
 		if (ctx->WorkingMode() == WM_InterProcMode)

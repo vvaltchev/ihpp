@@ -25,7 +25,7 @@ using namespace std;
 #define INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()	(treeTop==intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey) && !treeBottom)
 
 
-void intraModeBlockTrace(TracingObject<ADDRINT> *to
+void intraModeBlockTrace(BasicBlock *bb
 
 #if ENABLE_KEEP_STACK_PTR
 	, ADDRINT reg_sp
@@ -37,8 +37,6 @@ void intraModeBlockTrace(TracingObject<ADDRINT> *to
 	IntraModeContext *intraCtx;
 	ihppNode *treeTop;
 	ihppNode *treeBottom;
-
-	BasicBlock *bb = static_cast<BasicBlock *>(to);
 
 	bb->incSimpleCounter();
 

@@ -3266,12 +3266,80 @@ a mode called \verb|insTracing| has been implemented in IHPP which instruments a
 can be build, results are much better than without it and a percentage of correctness 
 about 90-95\% is achieved.    
 
-\section{\emph{Intra-}procedural mode}
-
-\section{\emph{Inter-}procedural mode}
-
 \section{Advanced \emph{function} mode: \emph{insTracing}}
 
+\section{\emph{Intra-}procedural mode}
+
+As explained for the \verb|funcMode|, everything starts with the \emph{instrumentation}:
+as can be seen in \cref{main1}, the instrumentation routine for \verb|IntraMode| and \verb|InterProcMode| is \verb|BlockTraceInstrumentation()|. The main different between the 
+function instrumentation and the BBL instrumentation is that this last one is done
+only when the target program is \emph{already} running because BBLs cannot be 
+identified before. The \cref{BBL_ins} (below) shows a partial implementation of the instrumenting function.
+
+
+\begin{lstlisting}[language=C++, 
+	caption={partial implementation of \texttt{BlockTraceInstrumentation()}}, 
+	label=BBL_ins, frame=leftline, showstringspaces=false]
+void BlockTraceInstrumentation(TRACE trace, void *)
+{
+	//code omitted [...]
+
+    for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl))
+    {
+		PIN_LockClient();
+
+ 		blockPtr = BBL_Address(bbl);
+
+		/* code that stores in funcAddr the address of 
+			the routine that contains the BBL, omitted */
+
+		/* code that checks if the BBL should be traced or not, omitted */
+
+		it = ctx->allBlocks.find(blockPtr);
+
+		if (it == ctx->allBlocks.end()) {
+
+			INS ins = BBL_InsTail(bbl);
+			ADDRINT lastAddr = INS_Address(ins);
+			FunctionObj *fc = ctx->allFuncs.find(funcAddr)->second;
+
+			bb = new BasicBlock(blockPtr, fc, lastAddr, row, col); 
+			ctx->allBlocks[blockPtr]=bb;
+
+		} else {
+				
+			bb = it->second;
+		}
+
+
+		if (ctx->WorkingMode() == WM_InterProcMode)
+			BBL_InsertCall(bbl, 
+								IPOINT_BEFORE, AFUNPTR(interModeBlockTrace), 
+								IARG_PTR, bb, 
+								IARG_END);		
+
+		if (ctx->WorkingMode() == WM_IntraMode)
+			BBL_InsertCall(bbl, 
+								IPOINT_BEFORE, AFUNPTR(intraModeBlockTrace), 
+								IARG_CALL_ORDER, CALL_ORDER_LAST, 
+								IARG_PTR, bb, 
+								/* code about stack ptr check omitted */
+								IARG_END);		
+
+		PIN_UnlockClient();
+    }
+}
+
+\end{lstlisting}
+
+\noindent
+As it can be seen, the instrumentation is not very different from the one
+of \emph{routines} but, this time instead of iterating over \emph{sectors} of an \emph{image} and then over \emph{routines}, 
+there is directly an iteration over BBLs of a 
+\emph{trace}\footnote{A \emph{trace} a one enter point - multiple exit points sequence of instructions.}. Differently from the function instrumentation, it can happen here
+that a more than one trace have the same BBL so, a preliminary check is necessary.
+
+\section{\emph{Inter-}procedural mode}
 \section{Performance of IHPP}
 
 \chapter{Conclusions}
