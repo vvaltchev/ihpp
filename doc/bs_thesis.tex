@@ -2978,17 +2978,19 @@ The \verb|funcMode_ret()| routine implementation is conceptually very simple.
 	label=funcret, frame=leftline]
 void funcMode_ret()
 {
-	GlobalContext *globalCtx = globalSharedContext;
 	ThreadContext *ctx;
-
-	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
+	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
 
 	/* code about forward jump recognition omitted */
 	//other code omitted [...]
 
 	ctx->shadowStack.pop();
 
+	if (globalCtx->WorkingMode() == WM_IntraMode)
+		intraMode_ret();
+
 	//code omitted [...]
+
 	if (ctx->shadowStack.size())
 		ctx->setCurrentFunction(
 			ctx->shadowStack.top().treeTop->getValue()->getKey()
@@ -3031,14 +3033,12 @@ void testJmp(int par) {
 
 	printf("par is zero!\n");
 }
-
 int main(int argc, char ** argv) {
 
 	if (!setjmp(jump_buffer)) {
 
 		testJmp(1);
-		printf("this message will not be printed!\n");
-	
+		printf("this message will not be printed!\n");	
 	} else {
 		testJmp(0);
 	}	
@@ -3087,7 +3087,7 @@ happen so, the solution is to \verb|pop()| the \verb|shadowStack| until a greate
 value of \emph{stack pointer} is found. 
 
 This is implemented in \verb|FunctionObjTrace()| by calling 
-(in point where code is omitted in \cref{functrace})
+(in a point where code is omitted in \cref{functrace})
 an \emph{inline} function shown below:
 
 \begin{lstlisting}[language=C++, 
@@ -3283,11 +3283,11 @@ identified before. The \cref{BBL_ins} (below) shows a partial implementation of 
 void BlockTraceInstrumentation(TRACE trace, void *)
 {
 	//code omitted [...]
+	map<ADDRINT,BasicBlock*>::iterator it;
 
     for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl))
     {
 		PIN_LockClient();
-
  		blockPtr = BBL_Address(bbl);
 
 		/* code that stores in funcAddr the address of 
@@ -3306,11 +3306,9 @@ void BlockTraceInstrumentation(TRACE trace, void *)
 			bb = new BasicBlock(blockPtr, fc, lastAddr, row, col); 
 			ctx->allBlocks[blockPtr]=bb;
 
-		} else {
-				
+		} else {		
 			bb = it->second;
 		}
-
 
 		if (ctx->WorkingMode() == WM_InterProcMode)
 			BBL_InsertCall(bbl, 
@@ -3336,12 +3334,193 @@ void BlockTraceInstrumentation(TRACE trace, void *)
 As it can be seen, the instrumentation is not very different from the one
 of \emph{routines} but, this time instead of iterating over \emph{sectors} of an \emph{image} and then over \emph{routines}, 
 there is directly an iteration over BBLs of a 
-\emph{trace}\footnote{A \emph{trace} a one enter point - multiple exit points sequence of instructions.}. Differently from the function instrumentation, here it can happen 
+\emph{trace}\footnote{A \emph{trace} is a one enter point - multiple exit points sequence of instructions.}. Differently from the function instrumentation, here it can happen 
 that a more than one trace have a BBL on the same address so, 
-a preliminary check is done to avoid creation of 
+a preliminary check is done to avoid the creation of 
 a new \verb|BasicBlock| object \emph{but} the instrumentation of the BBL \emph{must}
 be done again because Pin makes distinction between the same BBL on different traces; 
-technically the logic BBL is the same but the \verb|bbl| object is another.
+technically the logic BBL is the same but the \verb|bbl| object is different.
+
+Another peculiarity that differentiates the \verb|intraMode| from
+ the \verb|funcMode| is that only one \verb|intraMode| routine is instrumented: 
+\verb|intraModeBlockTrace()|; nevertheless, \verb|intraMode| has a \emph{ret} routine
+too but it is not directly instrumented: as already explained, 
+\verb|intraMode| is conceptually a \emph{layer} over \verb|funcMode| so, 
+is this last one that notices \verb|intraMode| routines when a function ``returned''.
+As already seen, the concept of \emph{function return} is a quite ``virtual'': 
+sometimes it is not referred to a \emph{real} \verb|ret| instruction 
+but instead to a \emph{long jump} or something like that. 
+
+\subsection{How \emph{intraModeBlockTrace()} works}
+
+\Cref{intraTrace} (below) shows a partial 
+implementation of \verb|intraModeBlockTrace()|.
+
+
+\begin{lstlisting}[language=C++, 
+	caption={partial implementation of \texttt{intraModeBlockTrace()}}, 
+	label=intraTrace, frame=leftline, numbers=left, showstringspaces=false]
+void intraModeBlockTrace(BasicBlock *bb, /* omitted */) { 
+
+	IntraModeContext *intraCtx;
+	ihppNode *treeTop,*treeBottom;
+
+	ThreadContext *ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
+
+	bb->incSimpleCounter();
+
+	//code omitted [...]
+	//code about stack ptr check omitted
+
+	if ( ctx->getCurrentFunction() && 
+			ctx->getCurrentFunction() != bb->functionAddr() ) 
+	{
+		intraMode_ret();
+		ctx->setCurrentFunction(bb->functionAddr());
+	}
+
+	intraCtx = ctx->getCurrentFunctionCtx();
+
+	if (!bb->isFirstBlock()) {
+
+		//code omitted [...]
+
+		INTRAMODE_LOAD_TOP_BOTTOM();
+
+		//code about stack ptr check omitted
+
+		if (!globalSharedContext->options.rollLoops) {
+
+			traceObject(bb, intraCtx, treeTop, treeBottom);
+
+		} else {
+
+			bool found=false;
+			ihppNode *parent = treeTop->getParentRef();
+
+			while (parent) {
+
+				if (parent->getKey() == bb->getKey()) {
+
+					treeTop=parent; treeBottom=0;
+					found=true;
+					treeTop->incCounter();
+					break;
+				}
+
+				parent = parent->getParentRef();
+			}
+
+			if (!found) {
+				traceObject(bb, intraCtx, treeTop, treeBottom);
+			} 
+		}
+
+		INTRAMODE_REPLACE_TOP_BOTTOM();
+		return;
+	}
+
+	//The first basic block of a function is met: 
+	//it has the same address of the function which belongs to
+	
+	if (!intraCtx->rootKey) {
+
+		//Rootkey is null, so this is the first time 
+		//the function is called (in this thread): everything is very simple.
+
+		treeTop=0; treeBottom=0;
+		traceObject(bb, intraCtx, treeTop, treeBottom);
+
+		//asserts omitted
+
+		INTRAMODE_STORE_TOP_BOTTOM();
+		return;
+	}
+
+	//The BBL is a first block but this is NOT the first time 
+	//this function is called (in this thread)
+
+	INTRAMODE_LOAD_TOP_BOTTOM();
+
+	if (!INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()) 
+	{
+		//Reset top,bottom pointers to root of the function's tree
+		INTRAMODE_SET_TOP_BOTTOM_TO_ROOT();
+
+		//Push them on the shadow stack and increment the root counter
+		INTRAMODE_STORE_TOP_BOTTOM();
+	}
+
+	treeTop->incCounter();
+}
+
+\end{lstlisting}
+
+\noindent
+It is convenient to explain the above routine following the chronological
+order of events. Let be \verb|foo()| the traced function and \verb|th| 
+the only thread in the target program. The first time \verb|foo()| is called
+two IHPP tracing routines are activated: \verb|FunctionObjTrace()| that
+records the event in the \emph{thread context} related to \verb|th| and
+\verb|intraModeBlockTrace()| which have to trace the activation of 
+the first BBL of \verb|foo()|; this happens in this way:
+
+\begin{enumerate}
+\item The current \emph{thread context} is obtained on line 6
+\item The \verb|intraMode| context is obtained by ``asking'' to 
+the \verb|th|-context which is 
+the current running function (set by \verb|funcMode| routines)
+\item The condition on line 22 fails, since \verb|bb| is the first block of \verb|foo()|
+\item The condition on line 64 results true since this is the first time
+\verb|foo()| is called in \verb|th| so, \emph{top} and \emph{bottom}
+pointers are cleared and \verb|traceObject()| routine is called.
+\item The \verb|traceObject()| routine traces the \emph{event} and
+sets the \verb|rootKey| variable
+\item \emph{Top} and \emph{bottom} pointers are stored to the 
+\verb|intraMode| \emph{shadow stack} using a the macro \verb|INTRAMODE_STORE_TOP_BOTTOM()|
+\item The tracing routine returns
+\end{enumerate}
+
+\noindent
+Other BBLs in \verb|foo()| are traced in this other way:
+
+\begin{enumerate}
+\item Contexts are obtained as before
+\item The condition on line 22 becomes true
+\item \emph{Top} and \emph{bottom} pointers are loaded from the \emph{top}
+of \verb|intraCtx.shadowStack| using the \verb|INTRAMODE_LOAD_TOP_BOTTOM()| macro
+\item If \emph{roll loops} option is not enabled:
+\begin{enumerate}
+\item The BBL activation is traced
+\end{enumerate}
+\item Otherwise:
+\begin{enumerate}
+\item The parent node container of the last BBL activated is obtained
+\item A loop iterating over all its ancestors is executed 
+searching for an ancestor with same address as current BBL
+\item If that ancestor is found:
+\begin{enumerate}
+\item \emph{Top} and \emph{bottom}
+pointers are moved to it or, to better say, only the \emph{top} pointer
+is moved since the \emph{bottom} pointer is not used in \emph{roll loops} mode
+because $k$ is infinite
+\item The counter of the \emph{top} pointer
+is incremented without calling the no other routine.
+\end{enumerate}
+\item Else, \verb|traceObject()| is simply called
+\end{enumerate}
+\item The top of the \emph{shadow stack} is \emph{replaced} with the new values 
+of \emph{top} and \emph{bottom} pointers using a macro
+\item The tracing routine returns
+\end{enumerate}
+
+\noindent
+There is still another case: when \verb|foo()| is called for the second time \verb|th|;
+in this situation, the BBL is the first of \verb|foo()| but the \verb|rootKey| 
+is already set (the $k$-slab forest for \verb|foo()| is not empty) so,
+the following operations are done:
+\begin{enumerate}
+\end{enumerate}
 
 \section{\emph{Inter-}procedural mode}
 \section{Performance of IHPP}

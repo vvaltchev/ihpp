@@ -15,11 +15,11 @@ using namespace std;
 #if ENABLE_KEEP_STACK_PTR
 #define INTRAMODE_STORE_TOP_BOTTOM()				intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom,reg_sp));
 #define INTRAMODE_REPLACE_TOP_BOTTOM()				intraCtx->shadowStack.pop(); intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom,oldStackPtr));
+#define TOP_STACKPTR()								(intraCtx->shadowStack.size()?intraCtx->shadowStack.top().stackPtr:(ADDRINT)-1)
 #else
 #define INTRAMODE_STORE_TOP_BOTTOM()				intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom));
 #define INTRAMODE_REPLACE_TOP_BOTTOM()				intraCtx->shadowStack.pop(); intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom));
 #endif
-#define TOP_STACKPTR()								(intraCtx->shadowStack.size()?intraCtx->shadowStack.top().stackPtr:(ADDRINT)-1)
 
 #define INTRAMODE_SET_TOP_BOTTOM_TO_ROOT()			intraCtx->counter=1; treeTop=intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey); treeBottom=0;
 #define INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()	(treeTop==intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey) && !treeBottom)
@@ -137,25 +137,19 @@ void intraModeBlockTrace(BasicBlock *bb
 		return;
 	}
 
-	/*
-	First block of a function is met: it has the SAME address as the function.
-	This happens where there is a RECURSION or a NORMAL CALL of the function (maybe also the first time)
-	*/
+	//The first basic block of a function is met: 
+	//it has the same address of the function which belongs to
 	dbg_intratr_first_block();
-
-
 
 	if (!intraCtx->rootKey) {
 
-		/*
-		Rootkey is null, so this is the first the function is called (in this thread): everything is very simple.
-		*/
+		//Rootkey is null, so this is the first time 
+		//the function is called (in this thread): everything is very simple.
 
 		dbg_intratr_first_call();
 
 		treeTop=0; treeBottom=0;
 
-		//here accumulate was false
 		traceObject(bb, intraCtx, treeTop, treeBottom);
 
 		assert(intraCtx->rootKey);
@@ -166,7 +160,8 @@ void intraModeBlockTrace(BasicBlock *bb
 	}
 
 
-	//This was NOT the first time something called this function.
+	//The BBL is a first block but this is NOT the first time 
+	//this function is called (in this thread)
 
 	INTRAMODE_LOAD_TOP_BOTTOM();
 
