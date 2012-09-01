@@ -487,11 +487,11 @@ For example, the $2$-context of $(r,c,a,b)$ is $\langle c,a,b\rangle$ and its $0
 
 \textbf{Definition 2}: \emph{Path activation}~\cite{kccf}. 
 A path $\pi$ of length $q$ in the call graph of the program is activated by 
-a \texttt{\textbf{call(}}$v$\texttt{\textbf{)}}
-operation if $\pi$ is the $q$-context of $v$ resulting from the \texttt{\textbf{call}} operation.
+a \texttt{call(}$v$\texttt{)}
+operation if $\pi$ is the $q$-context of $v$ resulting from the \texttt{call} operation.
 
 \textbf{Definition 3}: \emph{$k$-calling context profiling}~\cite{kccf}. Given a trace
-of \texttt{\textbf{call}} and \texttt{\textbf{return}} operations, the $k$-(calling) context
+of \texttt{call} and \texttt{return} operations, the $k$-(calling) context
 profiling problem consists of computing, for each activated path $\pi$ of length $q\le k$, the number $c(\pi)$ of times $\pi$ is activated.
 
 The figure~\ref{kctx1} (below) shows, as a clarifying example, all $k$-contexts for $k=0,1,2,3$ of the execution trace illustrated by figure~\ref{callex1}:
@@ -540,10 +540,10 @@ Every procedure called is represented in the tree by a children-node of its call
 The CCT of the execution trace considered until now is shown in figure~\ref{cct1}.
 It is self-evident that the CCT contains all $k$-contexts for all values of $k$ even if 
 it can be not obvious how a CCT is build or how $k$-calling contexts can be extracted from it.\\
-An algorithm for building a CCT is:
+An algorithm for building a CCT is the one in \cref{cct_alg}.
 
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 \begin{center}
 \scalebox{0.9}{
@@ -568,12 +568,14 @@ An algorithm for building a CCT is:
 }
 \end{center}
 
-\caption{The CCT of figure~\ref{callex1}. Nodes are labeled in this way: function name, counter.}
+\caption{The CCT of figure~\ref{callex1}. Nodes are labeled in this way: routine name, counter.}
 \label{cct1}
 
 \end{figure}
-\begin{lstlisting}[language=java, caption=An algorithm for building a CCT, morekeywords={function,then,endif},frame=leftline,framesep=10pt]
 
+\newpage
+
+\begin{lstlisting}[language=java, label={cct_alg}, caption={An algorithm for building a CCT}, morekeywords={function,then,endif},frame=leftline,framesep=10pt]
 node treeRoot=null,currentNode=null
 
 function func_call_event_handler(funcType func):
@@ -3268,7 +3270,7 @@ about 90-95\% is achieved.
 
 \section{Advanced \emph{function} mode: \emph{insTracing}}
 
-\section{\emph{Intra-}procedural mode}
+\section{The \emph{intra-}procedural mode}
 
 As explained for the \verb|funcMode|, everything starts with the \emph{instrumentation}:
 as can be seen in \cref{main1}, the instrumentation routine for \verb|IntraMode| and \verb|InterProcMode| is \verb|BlockTraceInstrumentation()|. The main different between the 
@@ -3597,7 +3599,7 @@ INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT():
 
 \end{lstlisting}
 
-\section{\emph{Inter-}procedural mode}
+\section{The \emph{inter-}procedural mode}
 
 The \verb|intraProcMode| is the simplest working mode implemented in IHPP:
 is consists of only one tracing procedure called \verb|interModeBlockTrace()|
