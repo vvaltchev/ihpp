@@ -163,14 +163,15 @@ void intraModeBlockTrace(BasicBlock *bb
 	//The BBL is a first block but this is NOT the first time 
 	//this function is called (in this thread)
 
-	INTRAMODE_LOAD_TOP_BOTTOM();
+	if (intraCtx->shadowStack.size())
+		INTRAMODE_LOAD_TOP_BOTTOM();
 
 	if (!INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()) 
 	{
-		//Reset top,bottom pointers to root of the function's tree
+		//Move top,bottom pointers to the root of the function's kSF
 		INTRAMODE_SET_TOP_BOTTOM_TO_ROOT();
 
-		//Push them on the shadow stack and increment the root counter
+		//Push them on the shadow stack
 		INTRAMODE_STORE_TOP_BOTTOM();
 	}
 
@@ -223,13 +224,13 @@ void intraMode_ret()
 
 		/*
 		Since now shadow stack is empty, on the next activation of the function
-		top and bottom pointers MUST point to the calling tree's root.
+		top and bottom pointers MUST point to the root of the k slab forest
 		*/
 
-		//Reset top,bottom pointers to root of the function's tree
+		//Move top,bottom pointers to the root of the function's kSF
 		INTRAMODE_SET_TOP_BOTTOM_TO_ROOT();
 
-		//Push them on the shadow stack a increment the root counter
+		//Push them on the shadow stack
 		INTRAMODE_STORE_TOP_BOTTOM();		
 	}
 }

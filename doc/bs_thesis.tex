@@ -3363,8 +3363,8 @@ implementation of \verb|intraModeBlockTrace()|.
 void intraModeBlockTrace(BasicBlock *bb, /* omitted */) { 
 
 	IntraModeContext *intraCtx;
-	ihppNode *treeTop,*treeBottom;
-
+	ihppNode *treeTop=0
+	ihppNode *treeBottom=0;
 	ThreadContext *ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
 
 	bb->incSimpleCounter();
@@ -3440,14 +3440,12 @@ void intraModeBlockTrace(BasicBlock *bb, /* omitted */) {
 	//The BBL is a first block but this is NOT the first time 
 	//this function is called (in this thread)
 
-	INTRAMODE_LOAD_TOP_BOTTOM();
+	if (intraCtx->shadowStack.size())
+		INTRAMODE_LOAD_TOP_BOTTOM();
 
 	if (!INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()) 
 	{
-		//Reset top,bottom pointers to root of the function's tree
 		INTRAMODE_SET_TOP_BOTTOM_TO_ROOT();
-
-		//Push them on the shadow stack and increment the root counter
 		INTRAMODE_STORE_TOP_BOTTOM();
 	}
 
@@ -3514,13 +3512,90 @@ of \emph{top} and \emph{bottom} pointers using a macro
 \item The tracing routine returns
 \end{enumerate}
 
+\subsection{How \emph{intraMode\_ret()} works}
+
+Now, before dealing with the last case of routine in \cref{intraTrace} 
+which starts on line 78, it is useful to understand 
+what happens when \verb|foo()| returns. \Cref{intraRet} shows
+a partial implementation of the \verb|intraMode_ret()| routine.
+
+\begin{lstlisting}[language=C++, 
+	caption={partial implementation of \texttt{intraMode\_ret()}}, 
+	label=intraRet, frame=leftline, numbers=left, showstringspaces=false]
+void intraMode_ret() 
+{
+	ThreadContext *ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
+	IntraModeContext *intraCtx = ctx->getCurrentFunctionCtx();
+	
+	//Win32-specific code omitted [...]
+
+	//code about strange situations omitted [...]
+
+	intraCtx->shadowStack.pop();
+
+	if (!intraCtx->shadowStack.size()) {
+
+		ihppNode *treeTop,*treeBottom;
+
+		//code about stack ptr check omitted
+	
+		INTRAMODE_SET_TOP_BOTTOM_TO_ROOT();
+		INTRAMODE_STORE_TOP_BOTTOM();		
+	}
+}
+
+\end{lstlisting}
+
 \noindent
-There is still another case: when \verb|foo()| is called for the second time \verb|th|;
-in this situation, the BBL is the first of \verb|foo()| but the \verb|rootKey| 
-is already set (the $k$-slab forest for \verb|foo()| is not empty) so,
-the following operations are done:
-\begin{enumerate}
-\end{enumerate}
+As it can be seen, the main purpose of the \verb|intraMode_ret()| routine
+is the statement on line 10 which pops the \emph{shadow stack}.
+When a function like \verb|foo()| returns, if there was no recursion or if it 
+is ended, the \emph{shadow stack} remains empty after the \verb|pop()| on line 10 so,
+the \verb|if| on line 12 checks this case and if true, moves back
+\emph{top} pointer to the \emph{node} in the $k$-SF which 
+has as key (BBL address) the value stored in \verb|intraCtx->rootKey| 
+and sets \emph{bottom} pointer to \emph{zero}. After that, it stores them
+into the \emph{shadow stack}.
+
+Now is possible to explain the last case of routine in \cref{intraTrace}:
+when \verb|foo()| is not called for the first time in the thread \verb|th|.
+In this situation, the BBL is the first of \verb|foo()| but the \verb|rootKey| 
+has been already set (the $k$-slab forest for \verb|foo()| is not empty) also,
+the \emph{shadow stack} should not be \emph{empty} because \verb|intraMode_ret()|
+takes care this to never happen. 
+Therefore, since \emph{strange} situations can happen, \verb|intraModeBlockTrace()|
+tries to load the \emph{top} and \emph{bottom} pointers from the \emph{shadow stack}
+on line 82 and checks again if \verb|treeTop| points to the \emph{root} node 
+and \verb|treeBottom| to zero and, if it is not true, fixes the situation.
+As last and main operation, the counter of the node pointed by \verb|treeTop| 
+is incremented (line 90).
+
+\noindent
+For completeness, definitions of macros used are shown in the listening below:
+
+\begin{lstlisting}[caption={partial implementation of \texttt{intraMode\_ret()}}, 
+	label=intraMacros, frame=leftline, showstringspaces=false]
+INTRAMODE_LOAD_TOP_BOTTOM():
+treeTop = intraCtx->shadowStack.top().treeTop;
+treeBottom = intraCtx->shadowStack.top().treeBottom; 
+
+INTRAMODE_STORE_TOP_BOTTOM():
+intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom));
+
+INTRAMODE_REPLACE_TOP_BOTTOM():
+intraCtx->shadowStack.pop(); 
+intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom));
+
+INTRAMODE_SET_TOP_BOTTOM_TO_ROOT():
+intraCtx->counter=1; 
+treeTop=intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey); 
+treeBottom=0;
+
+INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT():	
+(treeTop==intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey) && !treeBottom)
+
+
+\end{lstlisting}
 
 \section{\emph{Inter-}procedural mode}
 \section{Performance of IHPP}
