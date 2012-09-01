@@ -28,12 +28,12 @@ public:
 	bool showFuncs;
 	bool showBlocks;
 	bool showCalls;
-	//bool purgeFuncs;
 	bool blocksDisasm;
 	bool funcsDisasm;
 	bool kinf;
 	bool xmloutput;
 	bool unrollRec;
+	bool insTracing;
 
 	string startFuncName;
 	string stopFuncName;
@@ -50,12 +50,12 @@ public:
 		showFuncs=false;
 		showBlocks=false;
 		showCalls=false;
-		//purgeFuncs=false;	
 		blocksDisasm=false;
 		funcsDisasm=false;
 		kinf=false;
 		xmloutput=false;
 		unrollRec=false;
+		insTracing=false;
 	}
 
 	void initFromGlobalOptions();
@@ -65,7 +65,6 @@ public:
 	static unsigned int getGlobalKVal();
 	static WorkingModeType getGlobalWM();
 	static const char *getOutfileName();
-	//static vector<string> *splitString(string s, char sep);
 };
 
 

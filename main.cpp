@@ -57,6 +57,9 @@ void insInstrumentation(RTN rtn, INS ins) {
 
 #if ENABLE_INS_TRACING
 
+	if (!globalSharedContext->options.insTracing)
+		return;
+
 	if ((INS_IsBranchOrCall(ins) || INS_IsRet(ins))) {
 		
 		if (INS_IsDirectBranchOrCall(ins)) {

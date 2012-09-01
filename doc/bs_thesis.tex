@@ -3598,6 +3598,61 @@ INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT():
 \end{lstlisting}
 
 \section{\emph{Inter-}procedural mode}
+
+The \verb|intraProcMode| is the simplest working mode implemented in IHPP:
+is consists of only one tracing procedure called \verb|interModeBlockTrace()|
+which is instrumented in the same place where the main \verb|intraMode| routine
+is instrumented as can be seen in \cref{BBL_ins}. Its only procedure 
+is implemented in \verb|interProcMode.cpp| and its partial implementation 
+is show in the \cref{interTrace} below.
+
+\begin{lstlisting}[language=C++, 
+	caption={partial implementation of \texttt{interModeBlockTrace}}, 
+	label=interTrace, frame=leftline, showstringspaces=false]
+void interModeBlockTrace(TracingObject<ADDRINT> *to) { 
+
+	ThreadContext *ctx;
+	BasicBlock *bb = static_cast<BasicBlock*>(to);
+
+	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
+
+	//code omitted [...]
+
+	bb->incSimpleCounter();
+
+	if (!globalSharedContext->options.rollLoops) {
+	
+		traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
+		return;
+	}
+
+	ihppNode *parent = ctx->treeTop->getParentRef();
+
+	while (parent) {
+
+		if (parent->getKey() == bb->getKey()) {
+
+			ctx->treeTop=parent;
+			ctx->treeBottom=0;
+			ctx->treeTop->incCounter();
+			return;
+		}
+
+		parent = parent->getParentRef();
+	}
+
+	//parent NOT found
+	traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
+}
+\end{lstlisting}
+
+\noindent
+As \cref{interTrace} shows, practically the only operation 
+which \verb|interModeBlockTrace()| does is to call \verb|traceObject()|
+using as \emph{top} and \emph{bottom} pointers the ones defined in \verb|ThreadContext|
+and nothing other, when the \emph{roll loops} option is not enabled;
+instead, when it is, a logic identical to the one used \verb|intraMode| is implemented.
+
 \section{Performance of IHPP}
 
 \chapter{Conclusions}

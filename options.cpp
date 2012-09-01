@@ -32,6 +32,7 @@ static KNOB<bool> showBlocks(KNOB_MODE_WRITEONCE, "pintool", "showBlocks", "0", 
 static KNOB<bool> showFuncs(KNOB_MODE_WRITEONCE, "pintool", "showFuncs", "0", "");
 static KNOB<bool> joinThreads(KNOB_MODE_WRITEONCE, "pintool", "joinThreads", "0", "");
 static KNOB<bool> rollLoops(KNOB_MODE_WRITEONCE, "pintool", "rollLoops", "0", "");
+static KNOB<bool> insTracing(KNOB_MODE_WRITEONCE, "pintool", "insTracing", "0", "");
 
 static KNOB<bool> blocksDisasm(KNOB_MODE_WRITEONCE, "pintool", "blocksDisasm", "0", "");
 static KNOB<bool> funcsDisasm(KNOB_MODE_WRITEONCE, "pintool", "funcsDisasm", "0", "");
@@ -94,6 +95,7 @@ void optionsClass::initFromGlobalOptions()
 	xmloutput = ::xmloutput.Value();
 	unrollRec = ::opt_unrollRec.Value();
 	tracingFuncList = ::funcList.Value();
+	insTracing = ::insTracing.Value();
 
 	//automatic option implications
 	if (rollLoops) {
@@ -130,7 +132,8 @@ void optionsClass::showHelp()
 	cout << "\t-xml option produces the output file in xml format" << endl;
 	cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
 	cout << "\t-rollLoops: when building the kSF in intraMode or interMode, \n\t\tloops will be rolled (-kinf is implied)\n" << endl;
-	cout << "\t-unrollSimpleRec: disables the rolling (by default) of \n\t\tsingle-function recursion in funcMode" << endl;
+	cout << "\t-unrollSimpleRec: disables the rolling (by default) of \n\t\tsingle-function recursion in funcMode\n" << endl;
+	cout << "\t-insTracing: enables instruction tracing mode (slow)" << endl;
 
 	cout << endl << endl;
 }
@@ -194,20 +197,25 @@ bool optionsClass::checkOptions()
 		cerr << "Under Windows systems full tracing is an experimental feature:" << endl;
 		cerr << "results MAY BE WRONG. To try it, use -experimental option." << endl;
 		cerr << "Use -funcs <func1>,<func2>,... to do a SELECTIVE tracing (much more reliable).\n" << endl;
-		cerr << "Tip: full tracing combined with -startFunc <func> (es. main)" << endl;
-		cerr << "and -stopFunc <func> (es. exit) may produce better results.\n" << endl;
+		cerr << "Otherwise, enable instruction tracing (-insTracing) and use " << endl;
+		cerr << "options like -startFunc <func> (es. main)" << endl;
+		cerr << "and -stopFunc <func> (es. exit) to produce better results.\n" << endl;
 
 		return false;
 	}
 #endif
 
-/*
-	if (::purge.Value() && ::singleFunctions.NumberOfValues()) {
-	
-		cerr << "Purge option is available only in full tracing mode.\n";
+#if !ENABLE_INS_TRACING
+
+	if (::insTracing.Value()) {
+		
+		cerr << "Error: cannot use -insTracing option because IHPP is not compiled" << endl;
+		cerr << "to support it. Set ENABLE_INS_TRACING=1 in config.h and rebuild IHPP" << endl;
+		
 		return false;
 	}
-*/
+
+#endif
 
 	if (::rollLoops.Value() && ::opt_funcMode.Value()) {
 	
