@@ -2901,6 +2901,9 @@ void insInstrumentation(RTN rtn, INS ins) {
 	}
 
 #if ENABLE_INS_TRACING
+	if (!globalSharedContext->options.insTracing)
+		return;
+	
 	//much code omitted [...]	
 #endif
 }
@@ -3267,10 +3270,6 @@ the next instruction. In order to \emph{partially} solve these problems,
 a mode called \verb|insTracing| has been implemented in IHPP which instruments all machine instructions of the program: even if neither in this way a 100\% correct $k$-SF 
 can be build, results are much better than without it and a percentage of correctness 
 about 90\% is achieved.    
-
-\section{Advanced \emph{function} mode: \emph{insTracing}}
-
-
 
 \section{The \emph{intra-}procedural mode}
 
@@ -3656,6 +3655,133 @@ which \verb|interModeBlockTrace()| does is to call \verb|traceObject()|
 using as \emph{top} and \emph{bottom} pointers the ones defined in \verb|ThreadContext|
 and nothing other, when the \emph{roll loops} option is not enabled;
 instead, when it is, a logic identical to the one used in \verb|intraMode| is implemented.
+
+\section{Advanced \emph{function} mode: \emph{insTracing}}
+
+The \emph{instruction tracing} mode has been implemented manly to
+improve the correctness of $k$-SFs in \verb|funcMode| for Windows 
+programs compiled with the \verb|cl| compiler.
+As already explained, when only a set of \emph{user} functions 
+are instrumented using the \verb|-funcs| option and the \emph{stack pointer check}
+is enabled, $k$-SFs produced are often correct with the exception of the case
+shown in \cref{longjmp2} but, when all routines are instrumented, 
+$k$-SFs produced in that way become wrong because \verb|cl| put in the main image
+of the program various library and system-related routines which sometimes are not
+called using the \verb|call| instruction: in that situations, trying 
+to understand what happened between one routine activation and another
+using the \emph{stack pointer} as a reference point does not make sense
+since it remains unaltered. Therefore, the \emph{insTracing} approach is to
+totally ignore the \emph{stack pointer} value and to reconstruct the 
+\emph{execution trace} analyzing each instruction. 
+
+\begin{paragraph}{The instrumentation}
+When the program is compiled with \emph{insTracing}
+support\footnote{This can be done setting by \texttt{ENABLE\_INS\_TRACING} to 1 in \texttt{config.h}. Under Windows systems, \emph{insTracing} is supported by default.}
+and IHPP is called with the \verb|-insTracing| option, the three \emph{insTracing} 
+routines are instrumented; this is done in the point where code is omitted 
+in \cref{ins}. Briefly, two of them are called before a branch or a call instruction
+is executed (one handles the direct branch (or call) case and the other the indirect one)
+and the third one is called before every other instruction is executed.
+\end{paragraph}
+
+\subsection{A definitive solution to the \emph{long jump} problem}
+
+The first goal of \emph{insTracing} mode was to solve the \emph{long jump} 
+problem in particular situations like the one shown in \cref{longjmp2} 
+at least in the simpler case when only user functions are instrumented. 
+The main idea is: the routine address related to \emph{every} branch (or call) 
+destination address is stored in a variable of the current \emph{thread context}; 
+before every instruction is executed, a routine checks if the instruction
+which is going to be executed belongs or not to the \emph{target routine} 
+previously store in the \emph{thread context}: if it does not, then something
+like a \emph{long jump} is happened using instructions not instrumented so,
+substantially the \verb|funcMode_ret()| routine is invoked. The just described 
+approach is \emph{theoretically} infallible only when one \emph{strong} condition
+is verified: the set of instrumented functions must be an \emph{ihpp-layer}.\\
+An \emph{ihpp-layer} is a set of functions which follow these rules:
+\begin{enumerate}
+\item Every function in the \emph{ihpp-layer} can call every other function in this layer
+\item Every function of above layers can call functions inside the \emph{ihpp-layer}
+\item Every function in the \emph{ihpp-layer} can call \emph{only} other functions
+belonging to below layers which absolutely \emph{never} calls functions
+in the \emph{ihpp-layer}
+\end{enumerate}
+
+\noindent
+A clarifying example: there are three routines, \verb|a()|, \verb|b()| and \verb|c()|.
+The routine \verb|a()| calls \verb|b()| and this one calls \verb|c()|.
+The set $\langle a,c\rangle$ is \emph{not} an \emph{ihpp-layer} because \verb|b()| which should belong to a \emph{below} layer calls \verb|c()| which belongs to the \emph{ihpp-layer}. If a concrete program containing these routines were compiled and IHPP executed
+to analyze it with \verb|-funcs a,c| option, a \emph{false} \emph{long jump} from 
+\verb|a()| to \verb|c()| will be wrongly found.
+
+Technically, the implementation of this approach is more complicated then
+as just explained because programs built with \verb|cl /Wi| uses
+a sort of two-step call system for user routines: 
+a caller uses a \verb|call| instruction which jumps to 
+an area of \verb|.text| section which has a direct \verb|jmp| instruction
+to the destination routine. Therefore, in order to handle this, all
+instructions which belongs to the \emph{no routine area} of \verb|.text| are instrumented
+and two jump target addresses are stored in the \emph{thread context}.
+
+\subsection{The \emph{forward jump recognition} approach}
+
+\begin{lstlisting}[language={[x86masm]Assembler}, 
+	label=prog9, caption={prog9}, frame=leftline, 
+numbers=left, showstringspaces=false, deletekeywords={ah}]
+.model	flat
+INCLUDELIB LIBCMT
+
+_DATA	SEGMENT
+$hello_main		DB	'hello from main()', 0aH, 00H
+$rfoo_called	DB	'real_foo() called', 0aH, 00H
+$foo_base		DB	'foo() base called', 0aH, 00H
+_DATA	ENDS
+
+PUBLIC _main, foo, real_foo, bar
+EXTRN	_printf:PROC
+
+_TEXT	SEGMENT
+real_foo:
+	push OFFSET $rfoo_called
+	call _printf
+	add esp, 4
+	jmp after_foo
+
+foo:
+	push OFFSET $foo_base
+	call _printf
+	add esp, 4
+	jmp real_foo
+
+bar:
+	push ebp
+	mov ebp, esp
+	; do nothing
+	leave
+	ret
+
+_main:	
+	push ebp
+	mov ebp, esp
+
+	jmp foo
+	
+	after_foo:
+
+	push OFFSET $hello_main
+	call _printf
+	add esp, 4
+
+	call bar
+
+	mov eax, 0
+	leave
+	ret
+
+_TEXT	ENDS
+END
+
+\end{lstlisting}
 
 \section{Performance of IHPP}
 

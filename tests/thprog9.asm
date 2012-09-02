@@ -2,12 +2,11 @@
 .model	flat
 
 INCLUDELIB LIBCMT
-;INCLUDELIB OLDNAMES
 
 _DATA	SEGMENT
 
 $hello_main		DB	'hello from main()', 0aH, 00H
-$foo_called		DB	'real_foo() called', 0aH, 00H
+$rfoo_called	DB	'real_foo() called', 0aH, 00H
 $foo_base		DB	'foo() base called', 0aH, 00H
 
 
@@ -21,7 +20,7 @@ _TEXT	SEGMENT
 
 real_foo:
 
-	push OFFSET $foo_called
+	push OFFSET $rfoo_called
 	call _printf
 	add esp, 4
 
