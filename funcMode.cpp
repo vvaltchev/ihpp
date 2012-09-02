@@ -15,6 +15,12 @@ using namespace std;
 #if ENABLE_RELY_ON_SP_CHECK
 inline void funcMode_sp_check(ThreadContext *ctx, ADDRINT reg_sp)
 {
+
+#if ENABLE_INS_TRACING
+	if (globalSharedContext->options.insTracing)
+		return;
+#endif
+	
 	if (reg_sp >= FUNCMODE_TOP_STACKPTR()) {
 
 		dbg_functr_regsp_gt();

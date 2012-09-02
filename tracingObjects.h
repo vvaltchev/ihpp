@@ -26,26 +26,24 @@ public:
 	virtual operator string() const = 0;
 };
 
-
-//In this simple class (more struct-like) char pointers are used instead of std::string objects
-//because in 32 bit archs they have sizeof = 28 bytes, versus the 4 bytes of the char*.
 class insInfo {
 
 public:
 
-	const char *ins_text;
+	string ins_text;
 	ADDRINT targetAddr;
 	ADDRINT targetFuncAddr;
-	const char *externFuncName;
+	char *externFuncName;
 	bool isCall;
 
 	bool isDirectBranchOrCall() { return targetAddr != 0; }
 
 	insInfo() : targetAddr(0), targetFuncAddr(0), externFuncName(0) { }
-	insInfo(const char *ins, ADDRINT tAddr, ADDRINT tfuncAddr, const char *extFuncName=0) : 
+	insInfo(string ins, ADDRINT tAddr, ADDRINT tfuncAddr, char *extFuncName=0) : 
 		ins_text(ins), targetAddr(tAddr), targetFuncAddr(tfuncAddr), externFuncName(extFuncName)
 	{ 
-		isCall = !strncmp(ins_text,"call",4);
+		//isCall = !strncmp(ins_text,"call",4);
+		isCall = (ins_text.substr(0,4) == "call");
 	}
 
 };

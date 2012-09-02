@@ -243,7 +243,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 
 		if (!INS_IsDirectBranchOrCall(ins)) {
 
-			fc->instructions[INS_Address(ins)] = insInfo(duplicate_string(ins_text), 0, 0);
+			fc->instructions[INS_Address(ins)] = insInfo(ins_text, 0, 0);
 			continue;
 		}
 					
@@ -252,15 +252,13 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
 			
 		if (!RTN_Valid(r)) {
 		
-			fc->instructions[INS_Address(ins)] = insInfo(duplicate_string(ins_text), addr, 0);
+			fc->instructions[INS_Address(ins)] = insInfo(ins_text, addr, 0);
 			continue;
 		}
 
 
 		string rname = RTN_Name(r);
-		
-		
-		insInfo insData = insInfo(duplicate_string(ins_text), addr, RTN_Address(r));
+		insInfo insData = insInfo((ins_text), addr, RTN_Address(r));
 
 		RTN r2 = RTN_FindByName(img, rname.c_str());
 
@@ -281,7 +279,7 @@ void ImageLoad(IMG img, void *) {
 
 	RTN rtn2;
 	GlobalContext *ctx = globalSharedContext;
-	
+
 	FunctionObj *fc;
 	map<ADDRINT, FunctionObj*>::iterator it;
 	bool mainImage = IMG_IsMainExecutable(img);
@@ -407,7 +405,7 @@ void ImageLoad(IMG img, void *) {
 int main(int argc, char ** argv) {
 
 	PIN_InitSymbols();
-
+	
 	if (PIN_Init(argc, argv)) {
 	
 		optionsClass::showHelp();

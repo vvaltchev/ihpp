@@ -323,9 +323,6 @@ void blockFuncMode_joinThreads(GlobalContext *globalCtx) {
 	for (unsigned i=1; i < globalCtx->threadContexts.size(); i++) {
 		
 		thCtx2 = globalCtx->threadContexts[i];
-		
-		//using join2
-		//*forest=forest->join(thCtx2->kSlabForest);
 		forest->local_join(thCtx2->kSlabForest);
 
 #if IHPP_BENCHMARK
@@ -363,10 +360,6 @@ void intraMode_joinThreads(GlobalContext *globalCtx) {
 
 			if (it != thCtx2->intraModeContexts.end()) 
 			{
-				
-				//using join2
-				//*forest = forest->join(it->second->kSlabForest);
-
 				forest->local_join(it->second->kSlabForest);
 
 #if IHPP_BENCHMARK
@@ -441,7 +434,7 @@ string makeHumanJump(insInfo &insData) {
 
 				insInfo targetIns = it3->second->instructions[addr];
 				
-				if (strlen(targetIns.ins_text) && targetIns.isDirectBranchOrCall())
+				if (targetIns.ins_text.size() && targetIns.isDirectBranchOrCall())
 					ins += string(" --> ") + makeHumanJump(targetIns);
 
 			}
@@ -488,16 +481,10 @@ void makeHumanDisasm() {
 
 		for (it = (funcIt->second)->instructions.begin(); it != (funcIt->second)->instructions.end(); it++)
 		{
-			string ins = it->second.ins_text;
-			
 			if (!it->second.isDirectBranchOrCall())
 				continue;
 
-			ins = makeHumanJump(it->second);
-
-			//it->second.ins_text=ins;
-			delete[] it->second.ins_text;
-			it->second.ins_text=duplicate_string(ins);
+			it->second.ins_text=makeHumanJump(it->second);
 		}
 	}
 }
@@ -685,7 +672,7 @@ void print_ins(ADDRINT addr, insInfo &info) {
 
 	insInfo targetIns = it2->second->instructions[info.targetAddr];
 
-	if (strlen(targetIns.ins_text) && targetIns.isDirectBranchOrCall()) {
+	if ((targetIns.ins_text).size() && targetIns.isDirectBranchOrCall()) {
 
 		openTag("twoStepCallIns", true);
 		print_ins(info.targetAddr, targetIns);
@@ -938,8 +925,6 @@ void freeMemory() {
 			
 		for (insIt = fc.instructions.begin(); insIt != fc.instructions.end(); insIt++) {
 		
-			delete [] insIt->second.ins_text;
-
 			if (insIt->second.externFuncName)
 				delete [] insIt->second.externFuncName;
 		}

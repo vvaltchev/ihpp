@@ -61,8 +61,11 @@ void intraModeBlockTrace(BasicBlock *bb
 
 	dbg_intratr_begin();
 
-#if ENABLE_RELY_ON_SP_CHECK
+#if ENABLE_RELY_ON_SP_CHECK 
 
+#if ENABLE_INS_TRACING
+	if (!globalCtx->options.insTracing)	
+#endif
 	ctx->setCurrentFunction(bb->functionAddr());
 
 #else
