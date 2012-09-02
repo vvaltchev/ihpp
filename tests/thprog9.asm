@@ -6,8 +6,10 @@ INCLUDELIB LIBCMT
 
 _DATA	SEGMENT
 
-$str1		DB	'hello world', 0aH, 00H
-$foo_called	DB 'foo() called', 0aH, 00H
+$hello_main		DB	'hello from main()', 0aH, 00H
+$foo_called		DB	'real_foo() called', 0aH, 00H
+$foo_base		DB	'foo() base called', 0aH, 00H
+
 
 _DATA	ENDS
 
@@ -17,19 +19,22 @@ EXTRN	_printf:PROC
 
 _TEXT	SEGMENT
 
-foo:
-
-	push ebp
-	mov ebp, esp
-
 real_foo:
 
 	push OFFSET $foo_called
 	call _printf
 	add esp, 4
 
-	leave
-	ret
+	jmp after_foo
+
+foo:
+
+	push OFFSET $foo_base
+	call _printf
+	add esp, 4
+
+	jmp real_foo
+
 
 bar:
 
@@ -44,11 +49,15 @@ _main:
 	push ebp
 	mov ebp, esp
 
-	call foo
-	call bar
+	jmp foo
+	
+	after_foo:
 
-	;push OFFSET $str1
-	;call _printf
+	push OFFSET $hello_main
+	call _printf
+	add esp, 4
+
+	call bar
 
 	mov eax, 0
 	leave

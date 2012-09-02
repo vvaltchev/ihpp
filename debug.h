@@ -39,7 +39,7 @@
 
 #if DEBUG && DEBUG_BRCALL
 
-	#define dbg_brcall_jmp()					if (__dcheck) cerr << "\nINS [cod2]: PROBABLE longjmp from: " << currentFuncName << " a " << targetFuncName << endl;\
+	#define dbg_brcall_jmp()					if (__dcheck) cerr << "\nINS [cod2]: PROBABLE longjmp from: " << currentFuncName << " to " << targetFuncName << endl;\
 												if (__dcheck) cerr << "INS: insCat: " <<  CATEGORY_StringShort((CATEGORY)insCat) << endl;
 
 
@@ -95,6 +95,7 @@
 	#define dbg_functr_regsp_gt()					if (__dcheck) cerr << "FUNC_MODE: reg_sp >= topstackptr [cod4]\n";
 	#define dbg_functr_pop()						if (__dcheck) cerr << "FUNC_MODE: pop()\n";
 	#define dbg_functr_fjmps_set()					if (__dcheck) cerr << "FUNC_MODE: current func has " << ctx->lastfjmps+1 << " fjmps!\n";
+	#define dbg_functr_ssize_after()				if (__dcheck) cerr << "FUNC MODE: after trace, stack size: " << ctx->shadowStack.size() << endl;
 
 #else
 
@@ -103,7 +104,7 @@
 	#define dbg_functr_regsp_gt()					
 	#define dbg_functr_pop()						
 	#define dbg_functr_fjmps_set()
-
+	#define dbg_functr_ssize_after()
 #endif
 
 #if DEBUG && DEBUG_FUNC_RET
@@ -112,7 +113,6 @@
 	#define dbg_funcret_pop_err()					if (__dcheck) cerr << "FUNC_MODE: Can't pop(): stack size() == 1\n";
 	#define dbg_funcret_pop()						if (__dcheck) cerr << "FUNC_MODE: RETURN -> pop()\n";
 	#define dbg_funcret_stack_after_pop()			if (__dcheck) cerr << "FUNC_MODE: stack size after pop() = " << ctx->shadowStack.size() << endl;
-	//#define dbg_funcret_new_call()					if (__dcheck) if (!ctx->shadowStack.size()) cerr << "LAST RETURN, next call will be a NEW CALL\n";
 	#define dbg_funcret_fjmps()						if (__dcheck) if (ctx->shadowStack.top().fjmps) cerr << "FUNC RET: [cod10], fjmps: " << ctx->shadowStack.top().fjmps << endl;
 
 #else
@@ -121,7 +121,6 @@
 	#define dbg_funcret_pop_err()
 	#define dbg_funcret_pop()
 	#define dbg_funcret_stack_after_pop()
-	//#define dbg_funcret_new_call()
 	#define dbg_funcret_fjmps()
 
 #endif

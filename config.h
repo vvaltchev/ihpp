@@ -8,7 +8,7 @@
 
 #define IHPP_BENCHMARK		0
 
-#define DEBUG				0
+#define DEBUG				1
 #define CHECK_ASSERTS		1
 
 
@@ -25,7 +25,7 @@
 #if defined(_WIN32) 
 	#define ENABLE_INS_TRACING									1
 	#define ENABLE_SUBCALL_CHECK								1
-	#define ENABLE_RELY_ON_SP_CHECK								0
+	#define ENABLE_RELY_ON_SP_CHECK								1
 	#define ENABLE_KEEP_STACK_PTR								1
 	#define ENABLE_WIN32_FULLTRACE_TARGET_TRACING_LONGJMP		0
 	#define ENABLE_WIN32_MAIN_ALIGNMENT							1

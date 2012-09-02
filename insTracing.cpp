@@ -166,7 +166,6 @@ void branchOrCall(ADDRINT currentFuncAddr, ADDRINT targetAddr,
 	if (!targetFuncAddr)
 		return;
 
-	//traceTarget = globalSharedContext->hasToTraceByName(targetFuncName, targetFuncAddr);
 	traceTarget = globalSharedContext->hasToTrace(targetFuncAddr);
 
 	/*

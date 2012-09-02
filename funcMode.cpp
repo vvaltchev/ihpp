@@ -121,6 +121,7 @@ void FunctionObjTrace(FunctionObj *fc
 
 #endif
 
+	dbg_functr_ssize_after();
 }
 
 
@@ -128,6 +129,7 @@ void funcMode_ret()
 {
 	GlobalContext *globalCtx = globalSharedContext;
 	ThreadContext *ctx;
+	bool fjmps_happened=false;
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 
@@ -142,18 +144,21 @@ void funcMode_ret()
 
 	dbg_funcret_fjmps();
 
+	if (ctx->shadowStack.top().fjmps)
+		fjmps_happened=true;
+
 	while (ctx->shadowStack.top().fjmps--) 
 	{
 		if (ctx->shadowStack.size() <= 1)
 			break;
 
-		if (ctx->canPopStack()) {
-			ctx->shadowStack.pop();
-			ctx->counter = ctx->counter ? ctx->counter-1 : 0;
-		} else {
+		if (!ctx->canPopStack())
 			break;
-		}
 
+		dbg_functr_pop();
+		ctx->shadowStack.pop();
+		ctx->counter = ctx->counter ? ctx->counter-1 : 0;
+		
 		if (globalCtx->WorkingMode() == WM_IntraMode)
 			intraMode_ret();
 	}
@@ -168,7 +173,9 @@ void funcMode_ret()
 
 	dbg_funcret_pop();
 
-	if (ctx->canPopStack()) {
+	if (ctx->canPopStack() && !fjmps_happened) {
+		
+		dbg_functr_pop();
 		ctx->shadowStack.pop();
 		ctx->counter = ctx->counter ? ctx->counter-1 : 0;
 	}
