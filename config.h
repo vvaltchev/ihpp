@@ -8,7 +8,7 @@
 
 #define IHPP_BENCHMARK		0
 
-#define DEBUG				1
+#define DEBUG				0
 #define CHECK_ASSERTS		1
 
 

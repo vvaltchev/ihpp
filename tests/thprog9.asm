@@ -34,7 +34,6 @@ foo:
 
 	jmp real_foo
 
-
 bar:
 
 	push ebp

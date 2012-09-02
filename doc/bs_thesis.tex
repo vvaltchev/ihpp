@@ -3725,22 +3725,41 @@ and two jump target addresses are stored in the \emph{thread context}.
 
 \subsection{The \emph{forward jump recognition} approach}
 
+In the last section it was described a good approach to the \emph{long jump} problem
+which works for a limited set of routines. As stated many times, when
+all routines of a program compiled with \verb|cl| are instrumented, wrong $k$-SFs
+are often produced because of the presence of built-in routines, indistinguishable
+from the user ones, which sometimes call each other using simply \verb|jmp| instructions.
+Furthermore, \verb|jmp| instructions are used also to return to the ``caller'' 
+since the \emph{instruction pointer} has not been stored on the \emph{stack}
+by a \verb|call|. Thus, when a \verb|jmp| instruction is found, it is not obvious
+if the \verb|jmp| is a sort of \emph{call-jump} or a \emph{ret-jump} instead.
+
+Since the output of any full instrumented program is prohibitively large
+for a paper, an ad-hoc \textbf{masm} assembly program that emulates the behavior 
+of ``evil'' routines has been written\footnote{The program is built using
+the \textbf{Microsoft Macro Assembler} in this way: \texttt{ml /Zi prog9.asm}}; 
+the \cref{prog9} below shows its full code.
+
 \begin{lstlisting}[language={[x86masm]Assembler}, 
-	label=prog9, caption={prog9}, frame=leftline, 
+	label=prog9, caption={prog9.asm, a tricky program}, frame=leftline, 
 numbers=left, showstringspaces=false, deletekeywords={ah}]
 .model	flat
 INCLUDELIB LIBCMT
 
 _DATA	SEGMENT
+
 $hello_main		DB	'hello from main()', 0aH, 00H
 $rfoo_called	DB	'real_foo() called', 0aH, 00H
 $foo_base		DB	'foo() base called', 0aH, 00H
+
 _DATA	ENDS
 
 PUBLIC _main, foo, real_foo, bar
 EXTRN	_printf:PROC
 
 _TEXT	SEGMENT
+
 real_foo:
 	push OFFSET $rfoo_called
 	call _printf
@@ -3783,8 +3802,80 @@ END
 
 \end{lstlisting}
 
-\section{Performance of IHPP}
+\noindent
+It is clear that \verb|foo()| and \verb|real_foo()| are \emph{not} normal routines
+like \verb|_main()| and \verb|bar()|. 
+If they were not \emph{public symbols}, they would be completely transparent to IHPP 
+so there would be no problem but, they are public and there is no way to ignore them.
+Running IHPP analysis on \verb|prog9| with \verb|-funcs| \verb|_main,foo,real_foo,bar,printf| and without the \verb|-insTracing| option, produces the output shown in \cref{prog9out}.
+\begin{lstlisting}[label=prog9out, caption={IHPP output without \emph{insTracing}}, frame=leftline, showstringspaces=false]
+-----------------------------------------------------------------------------
+DUMP of K-SF
+-----------------------------------------------------------------------------
 
+| __root__(),1
+   | _main(),1
+      | foo(),1
+         | printf(),1
+      | real_foo(),1
+         | printf(),2
+         | bar(),1
+\end{lstlisting}
+
+\noindent
+As can be seen, the output in \cref{prog9out} is totally wrong: 
+\verb|real_foo()| was not called by \verb|_main()| and did not called twice \verb|printf()|
+and once \verb|bar()|; instead, \verb|printf()| was called once by \verb|real_foo()|
+and once by \verb|_main()|, which also called \verb|bar()|.
+Using the \verb|-insTracing| option, instead, produces the \emph{correct} output
+shown in \cref{prog9out2}.
+
+\begin{lstlisting}[label=prog9out2, caption={IHPP output with \emph{insTracing}}, frame=leftline, showstringspaces=false]
+-----------------------------------------------------------------------------
+DUMP of K-SF
+-----------------------------------------------------------------------------
+
+| __root__(),1
+   | _main(),1
+      | foo(),1
+         | printf(),1
+         | real_foo(),1
+            | printf(),1
+      | printf(),1
+      | bar(),1
+\end{lstlisting}
+
+\begin{paragraph}{How the \emph{forward jump recognition} works}
+The heart of the idea is to add an integer variable \verb|fjmps| to each
+record of the \emph{shadow stack} and using it in this way:
+every time an \emph{unconditional} branch which target address is outside
+the current routine is found, iterate over the \emph{shadow stack} searching
+for the target routine of the jump: if it is found, assume that the jump is 
+a \emph{ret-jump} and pop the \emph{shadow stack}; otherwise, the jump
+is a \emph{call-jump}, or better a \emph{forward jump}, 
+so set a flag \emph{forward jump happened} in the \emph{thread context}.
+After the jump happened, the \verb|FunctionObjTrace()| routine clears the flag
+and sets the \verb|fjmps| variable related to the current \emph{shadow stack} record
+to the value of \verb|fjmps| on the previous record plus one. 
+Using this logic, when \verb|real_foo()| is traced, \verb|fjmps| variable 
+of the \emph{shadow stack} top record assumes value 2. 
+When on line 22 \verb|real_foo()| jumps back to the label \verb|after_foo| in 
+\verb|_main()|, the \emph{forward jump recognition} code founds the 
+jump-target routine \verb|_main()| into the \emph{shadow stack} and 
+assuming that the jump is a \emph{ret-jump}, pops the \emph{shadow stack} 
+a number of times equals to \verb|fjmps|. 
+\end{paragraph}
+
+\begin{paragraph}{Considerations}
+The approach just explained has no \emph{theoretical} reasons to be valid:
+it makes assumptions that are not in general always true but, it \emph{empirically}
+produces much better results than the \emph{stack pointer check} when the program
+contains ``evil'' routines such as the ones shown in \cref{prog9}.
+
+%Furthermore, the \emph{insTracing} mode
+\end{paragraph}
+
+\section{Performance of IHPP}
 \chapter{Conclusions}
 
 \bibliography{bibliography}{}
