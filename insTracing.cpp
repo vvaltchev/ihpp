@@ -31,6 +31,10 @@ void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr) {
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());	
 
+#if EMPTY_ANALYSIS
+	return;
+#endif
+
 	if (currFuncAddr == ctx->startFuncAddr)
 		ctx->haveToTrace=true;
 
@@ -126,6 +130,9 @@ void branchOrCall(ADDRINT currentFuncAddr, ADDRINT targetAddr,
 	bool traceTarget;
 	ThreadContext *ctx;
 
+#if EMPTY_ANALYSIS
+	return;
+#endif
 
 #if DEBUG 
 

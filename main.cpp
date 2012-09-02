@@ -395,6 +395,7 @@ void ImageLoad(IMG img, void *) {
 		ctx->spAttrs.text_addr=ctx->spAttrs.unnamedImageEntryPoint_addr;
 
 #endif
+
 }
 
 
@@ -472,6 +473,8 @@ int main(int argc, char ** argv) {
 		}
 
 	}
+
+	globalSharedContext->timer = getMilliseconds();
 
     PIN_StartProgram();
     

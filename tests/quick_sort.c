@@ -2,14 +2,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-void print(int v[], int n, char* msg) {
-	int i;
-	printf("%s (n=%d): ", msg, n);
-    for (i=0; i<n; i++) printf("%d ", v[i]);
-	printf("\n");
+#ifdef _WIN32
+
+#include <windows.h>
+
+double getMilliseconds() {
+
+	return (double)GetTickCount();
 }
 
-int partition(int v[], int a, int b) {
+#else
+
+#include <time.h>
+#include <sys/time.h>
+
+double getMilliseconds() {
+
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+
+	return tv.tv_sec*1000.0 + tv.tv_usec/1000.0;
+}
+
+#endif
+
+
+int partition(int *v, int a, int b) {
 	int temp;
 	int pivot = a;
 	for (;;) {
@@ -28,7 +46,7 @@ int partition(int v[], int a, int b) {
 	return b;
 }
 
-void quick_sort_ric(int v[], int a, int b) {
+void quick_sort_ric(int *v, int a, int b) {
     int m;
     if (a >= b) return;
     m = partition(v, a, b);
@@ -40,23 +58,23 @@ void quick_sort(int v[], int n) {
     quick_sort_ric(v, 0, n-1);
 }
 
-int main() {
+int main(void) {
 
 	int i;
+	double timer = getMilliseconds();
 
 	for (i=0; i < 100*1000; i++) {
 		
 		int v[] = { 5, 2, 4, 8, 5, 8, 3, 2, 9, 0, 12, 4, 25, 5, 6};
 		int n = sizeof(v)/sizeof(int);
  
-		//if (!(i%5000))
-		//	printf("%i-%i/100000\n", i, i+5000);
-
 		quick_sort(v, n);
- 
 	}
 
-	printf("finito completamente.\n");
+	timer = getMilliseconds() - timer;
+
+	printf("[ test program ] time elapsed: %.3f sec\n", timer/1000.0);
+
     return 0;
 }
 

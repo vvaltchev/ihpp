@@ -38,6 +38,11 @@ void intraModeBlockTrace(BasicBlock *bb
 	ihppNode *treeTop;
 	ihppNode *treeBottom;
 
+#if EMPTY_ANALYSIS
+	return;
+#endif
+
+
 	bb->incSimpleCounter();
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
@@ -189,11 +194,13 @@ void intraMode_ret()
 {
 	ThreadContext *ctx;
 	IntraModeContext *intraCtx;
-
 	GlobalContext *globalCtx = globalSharedContext;
+	
+#if EMPTY_ANALYSIS
+	return;
+#endif
+	
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
-
-
 	intraCtx = ctx->getCurrentFunctionCtx();
 
 

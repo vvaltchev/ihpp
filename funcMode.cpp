@@ -50,6 +50,10 @@ void FunctionObjTrace(FunctionObj *fc
 	ThreadContext *ctx;
 	GlobalContext *globalCtx = globalSharedContext;
 
+#if EMPTY_ANALYSIS
+	return;
+#endif
+
 #if !ENABLE_KEEP_STACK_PTR
 	const ADDRINT reg_sp = (ADDRINT)-1;
 #endif
@@ -130,6 +134,10 @@ void funcMode_ret()
 	GlobalContext *globalCtx = globalSharedContext;
 	ThreadContext *ctx;
 	bool fjmps_happened=false;
+
+#if EMPTY_ANALYSIS
+	return;
+#endif
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
 

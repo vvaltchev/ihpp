@@ -104,18 +104,6 @@ void traceObject_generic(TracingObject<ADDRINT> *to, GenericTraceContext *ctx,
 		return;
 	}
 
-	if (!k) {
-	
-		n = ctx->kSlabForest.getTreeRef(key);
-
-		if (n) 
-			n->incCounter();
-		else 
-			ctx->kSlabForest.addTreeByVal(ihppNode(key,to,1));
-		
-		return;
-	}
-
 	// For k -> inf, this code runs only first time, when counter=0
 	if (!( (ctx->counter) % k )) {
 

@@ -9,7 +9,7 @@
 #define IHPP_BENCHMARK		0
 
 #define DEBUG				0
-#define CHECK_ASSERTS		1
+#define CHECK_ASSERTS		0
 
 
 #define DEBUG_SINGLE_INST	1
@@ -21,6 +21,8 @@
 #define DEBUG_INTRA_RET		1
 
 #define USE_ALWAYS_64BIT_COUNTER 1
+
+#define EMPTY_ANALYSIS		0
 
 #if defined(_WIN32) 
 	#define ENABLE_INS_TRACING									1

@@ -1,6 +1,109 @@
 
-performance improved.. this file needs to be rewritten
+=====================================================
+quicksort: 0.078
+=====================================================
 
-time ../../../../pin -t kCCF.so -funcMode -f partition -f quick_sort_ric -f main -f quick_sort -ksf -k 1000000000 -- ../tests/quick_sort
+EMPTY ANALYSIS
 
-time ../../../../pin -t kCCF.so -tradMode -f partition -f quick_sort_ric -f main -f quick_sort -ksf -k 1000000000 -rollLoops -- ../tests/quick_sort
+FuncMode:
+
+with insTracing
+
+9.750, 9.781
+
+without insTracing:
+
+0.593, 0.593, 0.594
+
+
+IntraMode:
+
+with insTracing:
+9.781, 9.766, 9.765
+
+without insTracing
+0.657, 0.656, 0.656
+
+InterMode:
+
+0.656, 0.657, 0.656
+
+=======================================================
+
+IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition -insTracing -funcMode:
+
+ins: 0.438 0.469 0.437
+run: 15.969 15.859 16.297
+
+mean ins time: 0.448
+mean run time: 16.04
+
+
+with -k 3 -unrollSimpleRec:
+
+ins time: 0.453
+run time: 16.078
+
+ins time: 0.453
+run time: 16.032
+
+with -k 6 -unrollSimpleRec:
+
+ins time: 0.453
+run time: 16.047
+
+with -k 20 -unrollSimpleRec:
+
+insimte: 0.454
+run time: 16.093
+
+IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
+-funcMode WITHOUT insTracing:
+
+run: 0.875, 0.891, 0.907
+
+IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
+-intraMode -rollLoops WITHOUT insTracing:
+
+ins: 0.484, 0.469, 0.484
+run: 6.672, 6.547, 6.860
+
+IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
+-intraMode -k 3 WITHOUT insTracing:
+
+run: 6.985, 6.5, 6.953
+
+-k 10:
+
+run: 6.765, 6.610, 6.797
+
+
+IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
+-intraMode -rollLoops WITH insTracing:
+
+run: 20.781, 21.188, 20.672
+
+with -k 3: 
+
+21.094, 20.985
+
+with -k 10:
+
+20.750, 21.047
+
+
+
+IHPP with -funcs main,quick_sort,quick_sort_ric,partition -interMode
+
+-k 3:
+
+4.234, 4.235, 4.203
+
+-k 10:
+
+3.578, 4.047, 4.047
+
+
+
+
+

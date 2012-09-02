@@ -937,6 +937,8 @@ void Fini(INT32 code, void *)
 {
 	GlobalContext *ctx = globalSharedContext;
 
+	double diff = getMilliseconds() - ctx->timer;
+	fprintf(stderr, "[ IHPP ] Program running time: %.3f sec\n", diff/1000.0);
 
 	print_outputInit();
 

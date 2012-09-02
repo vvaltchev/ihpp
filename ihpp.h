@@ -85,7 +85,7 @@ public:
 	ADDRINT startFuncAddr;
 	ADDRINT stopFuncAddr;
 
-
+	double timer;
 	
 	GlobalContext(WorkingModeType wm, unsigned kval, optionsClass options);
 	~GlobalContext();

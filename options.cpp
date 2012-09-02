@@ -175,7 +175,11 @@ bool optionsClass::checkOptions()
 		return false;
 	}
 
+	if (::kparameter.Value() <= 0) {
 	
+		cerr << "The value of K must be greater than 0." << endl;
+		return false;
+	}
 
 	if (::funcsDisasm.Value() && !::showFuncs.Value()) {
 		

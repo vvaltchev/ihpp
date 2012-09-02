@@ -10,6 +10,10 @@ void interModeBlockTrace(TracingObject<ADDRINT> *to) {
 	ThreadContext *ctx;
 	BasicBlock *bb = static_cast<BasicBlock*>(to);
 
+#if EMPTY_ANALYSIS
+	return;
+#endif
+
 	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
 
 	if (bb->functionAddr() == ctx->startFuncAddr)

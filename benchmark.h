@@ -4,6 +4,8 @@
 #ifndef __BENCHMARK_MACROS__
 #define __BENCHMARK_MACROS__
 
+double getMilliseconds();
+
 #if IHPP_BENCHMARK 
 
 	extern bool benchmark;

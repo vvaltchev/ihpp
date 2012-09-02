@@ -22,6 +22,15 @@ ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) {
 
 	GetLock(&lock, 1);
 
+	if (!threadContexts.size()) {
+	
+		double tmp = getMilliseconds();
+		double diff = tmp - timer;
+		timer = tmp;
+
+		fprintf(stderr, "[ IHPP ] Instrumentation time: %.3f sec\n", diff/1000.0);
+	}
+
 	for (unsigned i=0; i < threadContexts.size(); i++) {
 		
 		if (threadContexts[i]->getThreadID() == tid) {
