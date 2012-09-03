@@ -118,20 +118,14 @@
 %\pagebreak
 
 \begin{abstract}
-dwehkhjrkweh rlkewrhwe lkrhwek rhwel krhjweklrh welkrh wekrhwe krhwr
-werwerwekr h jwekj rhwk jrhwk rhwl kjrh k kqhe qe wrkjehr r hk rhj
-wlhrwelkjrfh sd hf kjh sdfkh jq ql lkqjhekqj q eqhkjeqkj kjahq 
-erhjwe skafhd lkaerh welrk liwer  iwerh wit wielr qierhu lqr 
-dwehkhjrkweh rlkewrhwe lkrhwek rhwel krhjweklrh welkrh wekrhwe krhwr
-werwerwekr h jwekj rhwk jrhwk rhwl kjrh k kqhe qe wrkjehr r hk rhj
-wlhrwelkjrfh sd hf kjh sdfkh jq ql lkqjhekqj q eqhkjeqkj kjahq 
-erhjwe skafhd lkaerh welrk liwer  iwerh wit wielr qierhu lqr 
-dwehkhjrkweh rlkewrhwe lkrhwek rhwel krhjweklrh welkrh wekrhwe krhwr
-werwerwekr h jwekj rhwk jrhwk rhwl kjrh k kqhe qe wrkjehr r hk rhj
-wlhrwelkjrfh sd hf kjh sdfkh jq ql lkqjhekqj q eqhkjeqkj kjahq 
-erhjwe skafhd lkaerh welrk liwer  iwerh wit wielr qierhu lqr 
-dwehkhjrkweh rlkewrhwe lkrhwek rhwel krhjweklrh welkrh wekrhwe krhwr
-werwerwekr h jwekj rhwk jrhwk rhwl kjrh k kqhe qe wrkjehr r hk rhj
+IHPP is a innovative \emph{context-sensitive} 
+instrumentation profiler written in C++ based on the Intel Pin framework. 
+It allows \emph{arbitrary} context-sensitive 
+profiling at three different levels: at procedure level, 
+at basic blocks inside procedures level and at basic blocks among procedures 
+level. This is achieved using two novel data structures called $k$-slab forest
+and $k$-calling context forest created by four professors 
+at the Sapienza University of Rome.
 
 \end{abstract}
 
@@ -142,7 +136,7 @@ werwerwekr h jwekj rhwk jrhwk rhwl kjrh k kqhe qe wrkjehr r hk rhj
 
 In a world like today's one where computers are everywhere and where
 \mbox{Internet} has more than 2.2 billion users, software has become more
-important than ever. Today's operating systems have to handle much more
+important than ever. Actual operating systems have to handle much many
 processes than in the past and every single process is often much more ``heavy''
 than before due a great deal of reasons including (but not limited to): the
 demand of users for much more complicated tasks (for example the multimedia
@@ -155,7 +149,7 @@ performance of programs is \textbf{profiling}: it consists substantially in
 running the target program in a controlled environment and collecting data about
 its behavior in order to discover possible bottlenecks in software. A basilar
 introduction of program analysis and various profiling techniques can be found
-in chapter 2.
+in the chapter 2.
 
 \section{Actual profilers}
 
@@ -208,7 +202,7 @@ structures and algorithms that \emph{have not been} ideated by the author:
 
 \begin{itemize*}
 \item k-SF \emph{(k-Slab Forest)}
-\item k-SF construction algorithm\footnote{This algorithm is used in the \textbf{traceObject()} function}
+\item k-SF construction algorithm
 \item k-CCF \emph{(k-Calling Context Forest)}
 \item Forest \emph{join} and $inv_k$ operations\footnote{These two operations should
 be intended as \emph{theoretical} operations: in IHPP concrete algorithms have been
@@ -224,7 +218,18 @@ Their work, called \emph{\mbox{k-Calling} \mbox{Context} \mbox{Profiling}}, has
 been accepted for the \emph{27th \mbox{ACM} \mbox{SIGPLAN} Conference on
 Object-Oriented Programming, Systems, Languages and Applications (OOPSLA 2012)}.
 
-\section{Thesis structure}
+\section{The document structure}
+In the chapter 2, the topic of \emph{program analysis} is
+introduced in an encyclopedic form in order to explain
+basic concepts about \emph{profiling} to non-expert readers. 
+The chapter 3 briefly explains the $k$-SF and the $k$-CCF data structures
+and the algorithms for building them. The chapter 4 explains \emph{what} 
+IHPP does showing several example programs and their relative IHPP analysis 
+output. The chapter 5 instead, assuming the reader has perfectly understood 
+what IHPP does, explains \emph{how} it is done showing various
+source code listings but, it also deals with some of the many complications occurred
+during the project developing. Finally, the chapter 6 contains only one
+page with the final work conclusions.
 
 \chapter{Program analysis}
 The short introduction of before used the concept of \emph{profiling} without
@@ -3979,6 +3984,37 @@ the \emph{intra-}procedural profiling is a way to \emph{better understand algori
 \end{paragraph}
 
 \chapter{Conclusions}
+
+IHPP is a new project and even if much work has been done to develop it, 
+an amount of work even bigger should be done to extend and improve it.
+It would need a \emph{graphical user interface} in order to be easily used
+(for this reason XML output support has been also implemented in it);
+also, actually it is totally Pin-dependent and for that reason it is not
+a real GPL program; the \emph{huge} software layer implemented by Pin should 
+be rewritten one day if the project have to be distributed as a Linux program.
+
+Nevertheless, this is a start: IHPP maybe is not something absolutely exceptional
+in the world, but it really offers some \emph{additional} analysis information that
+the greatest part of other profilers (if not almost all) does not actually offer. 
+The \emph{intra-}procedural mode, in particular, is a way for studying new algorithms 
+and improving the actual ones through a deep internal inspection of them 
+which can be, of course, done by hand but that often programmers avoid because of the 
+great deal of time it takes.
+
+Sometimes, due to the considerable gap between the C
+and assembly layer (on which BBLs are defined), 
+the match between the C source code and the $k$-SFs built by \verb|intraMode| analysis
+becomes really hard, but if the assembly code of the procedure is considered instead of
+the C one, everything becomes simpler. 
+Studying algorithms in assembly should not be
+thought as a ``back to the past'' solution, but as a ``back to the basis'' approach
+because where there is the need of performance, a programmer must know what 
+his code is really doing and this can never be done 
+by looking the C or C++ source code of a program. 
+A programmer should never forget that computers do not understand
+ \emph{virtual classes}, \emph{polymorphism} neither \emph{procedures} because 
+they work only with \emph{machine instructions}.
+
 
 \bibliography{bibliography}{}
 \bibliographystyle{plain}
