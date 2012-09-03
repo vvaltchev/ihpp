@@ -3881,25 +3881,37 @@ of the topic.
 
 \section{The performance of IHPP}
 
-%\begin{bchart}[max=220]
-%\bcbar{7.6}
-%\smallskip
-%\bcbar{11}
-%\smallskip
-%\bcbar{125}
-%\smallskip
-%\bcbar{205.6}
-%\end{bchart}
 
 As every other non-statistical profiler, IHPP considerably reduces the execution 
 speed of the \emph{analyzed program}. This speed reduction is caused by two different 
 reasons: the computational cost of the instrumentation itself and the computational
-cost of the analysis routines. The first one depends by the way \textbf{Pin} 
+cost of the analysis routines. The first one depends by the way Pin
 adds additional instructions to the program and can be measured by 
 instrumenting the program's routines (or BBLs) with \emph{empty} analysis routines.
 The second one instead, depends only from the code inside the instrumentation routines
-and is the \emph{net} slowdown caused by IHPP; therefore, the slowdown measured should be
-always compared to the \emph{empty analysis} slowdown.
+and is the \emph{net} slowdown caused by IHPP; therefore, the 
+slowdown\footnote{The \emph{slowdown} is a factor which indicates how many times a program or an algorithm is \emph{slower} than another one}
+measured should be always compared to the \emph{empty analysis} slowdown.
+This last performance indicator depends from the analyzed program type: 
+a program that makes an intensive use of \emph{recursion} has a bigger \verb|funcMode| slowdown than a program which uses mainly loops for heavy tasks.
+
+\begin{figure}[t]
+
+\centering
+
+{\renewcommand{\arraystretch}{1.5}
+\renewcommand{\tabcolsep}{0.2cm}
+\begin{tabular}{l|l|l}
+& insTracing OFF & insTracing ON\\
+\hline
+funcMode & 2.5x - 4.0x & 60x - 110x\\
+intraMode & 15x - 26x & 70x - 120x\\
+interMode & 13x - 24x & (unused)\\
+\end{tabular}}
+
+\caption{Slowdown caused by \emph{empty} analysis routines}
+\end{figure}
+
 
 \chapter{Conclusions}
 
