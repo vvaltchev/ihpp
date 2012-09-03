@@ -3890,28 +3890,93 @@ adds additional instructions to the program and can be measured by
 instrumenting the program's routines (or BBLs) with \emph{empty} analysis routines.
 The second one instead, depends only from the code inside the instrumentation routines
 and is the \emph{net} slowdown caused by IHPP; therefore, the 
-slowdown\footnote{The \emph{slowdown} is a factor which indicates how many times a program or an algorithm is \emph{slower} than another one}
-measured should be always compared to the \emph{empty analysis} slowdown.
-This last performance indicator depends from the analyzed program type: 
-a program that makes an intensive use of \emph{recursion} has a bigger \verb|funcMode| slowdown than a program which uses mainly loops for heavy tasks.
+slowdown measured should be always compared to the \emph{empty analysis} slowdown.
+This last performance indicator strictly depends from the analyzed program type: 
+for example, a program that makes an intensive use 
+of \emph{recursion} has a bigger slowdown in \verb|funcMode|  
+than a program which uses mainly loops for heavy tasks.
+In order to discover the slowdown in IHPP, 
+some timers has been added to it with the purpose to isolate
+the Pin load time, the program and its shared libraries load time 
+and the instrumentation process from the \emph{real} running time of the program
+so, the slowdown factors are calculated dividing the mean net running time 
+of the program (which starts after all libraries has been loaded) by the mean
+net running time of program when profiled with IHPP.
+The \cref{emptyslowdown} (below) shows indicative values of the slowdown 
+caused by an instrumentation with \emph{empty} routines analysis routines, 
+or simply an ``empty instrumentation''.
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 \centering
 
-{\renewcommand{\arraystretch}{1.5}
+{\renewcommand{\arraystretch}{1.2}
 \renewcommand{\tabcolsep}{0.2cm}
-\begin{tabular}{l|l|l}
-& insTracing OFF & insTracing ON\\
+\begin{tabular}{l|l|l|l}
+& insTracing OFF & insTracing ON & relative insTracing slowdown\\
 \hline
-funcMode & 2.5x - 4.0x & 60x - 110x\\
-intraMode & 15x - 26x & 70x - 120x\\
-interMode & 13x - 24x & (unused)\\
+funcMode & 2.5x - 4.0x & 60x - 110x & 15x - 44x\\
+intraMode & 15x - 26x & 70x - 120x & 2.7x - 8x\\
+interMode & 13x - 24x & -- & --\\
 \end{tabular}}
 
+
 \caption{Slowdown caused by \emph{empty} analysis routines}
+\label{emptyslowdown}
 \end{figure}
 
+\noindent
+As can be seen, the only ``empty instrumentation'' of \emph{insTracing} mode 
+seriously reduces the execution speed of the target program since 
+before every single simple instruction like a \verb|mov| there is a \emph{heavy}
+function call. The \cref{totalslowdown} instead, shows the effective slowdown of IHPP
+using actual instrumentation routines.
+
+\begin{figure}[H]
+
+\centering
+
+{\renewcommand{\arraystretch}{1.2}
+\renewcommand{\tabcolsep}{0.2cm}
+\begin{tabular}{l|l|l|l}
+& insTracing OFF & insTracing ON & relative insTracing slowdown\\
+\hline
+funcMode & 9x - 12x & 190x - 206x & 16x - 23x\\
+intraMode & 75x - 87x & 247x - 270x & 2.8x - 3.6x\\
+interMode & 43x - 54x & -- & --\\
+\end{tabular}}
+
+\caption{Effective IHPP slowdown}
+\label{totalslowdown}
+\end{figure}
+
+\noindent
+The results shown in the figure above, are obtained by measuring 
+IHPP performance in various situations (different programs and options).
+Every working mode has been tested using 
+several values for the $k$ parameter and other mode-specific options
+such as the \emph{rollLoops} option in \verb|intraMode|. 
+An interesting result is that the $k$ parameter value has no a
+big influence on the slowdown factor: bigger values of $k$ make
+the profiled program to run a little faster but the gap is under 10\%
+from $k=3$ to $k=10$. Another noticeable result is that 
+the \emph{rollLoops} option in \verb|intraMode| has good performance: 
+it has a slowdown that can be compared to values of $k$ about 7-8; 
+values of $k$ about 10 or higher has some little slowdown improvements compared to it.
+
+\begin{paragraph}{Considerations}
+It is evident that \emph{insTracing} cannot be used to profile 
+interactive programs but is necessary to say that is really needed 
+only in particular conditions under Windows systems; instead,
+in other cases non cpu-intensive interactive programs can be profiled with IHPP
+in \verb|funcMode|. The \verb|intraMode| (like the \verb|interMode|) even without \emph{insTracing} is still slow for profiling GUI interactive programs, 
+but it has an acceptable slowdown for
+many textual tools: this should not be a \emph{real} problem because 
+the goal of the \emph{intra-}procedural profiling is not to analyze big and complex
+GUI programs but instead to analyze small programs that 
+implements various algorithms which the user of IHPP would like to improve;
+the \emph{intra-}procedural profiling is a way to \emph{better understand algorithms}.
+\end{paragraph}
 
 \chapter{Conclusions}
 
