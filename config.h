@@ -22,7 +22,7 @@
 
 #define USE_ALWAYS_64BIT_COUNTER 1
 
-#define EMPTY_ANALYSIS		0
+#define EMPTY_ANALYSIS		1
 
 #if defined(_WIN32) 
 	#define ENABLE_INS_TRACING									1

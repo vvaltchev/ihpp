@@ -117,6 +117,10 @@ void indirect_branchOrCall(ADDRINT currentFuncAddr,
 {
 	ADDRINT targetFuncAddr=0;
 
+#if EMPTY_ANALYSIS
+	return;
+#endif
+
 	getTargetFunc(targetAddr, targetFuncAddr);
 
 	branchOrCall(currentFuncAddr, targetAddr, targetFuncAddr, insCat);
@@ -156,8 +160,6 @@ void branchOrCall(ADDRINT currentFuncAddr, ADDRINT targetAddr,
 	PIN_UnlockClient();		
 
 #endif
-
-
 	
 	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());	
 

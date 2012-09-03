@@ -8,88 +8,83 @@ EMPTY ANALYSIS
 FuncMode:
 
 with insTracing
-
-9.750, 9.781
+8.328 8.672 8.656 --> 8.552 --> 60.6x
 
 without insTracing:
-
-0.593, 0.593, 0.594
+0.375 0.391 0.375 --> 0.380 --> 2.7x
 
 
 IntraMode:
 
 with insTracing:
-9.781, 9.766, 9.765
+10.313 10.281 10.266 --> 10.287 --> 72.96x
 
 without insTracing
-0.657, 0.656, 0.656
+2.156 2.140 2.156 --> 2.151 ---> 15.2x
 
 InterMode:
+1.953 1.937 1.953 --> 1.948 --> 13.8x
 
-0.656, 0.657, 0.656
 
 =======================================================
 
 IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition -insTracing -funcMode:
 
-ins: 0.438 0.469 0.437
-run: 15.969 15.859 16.297
-
-mean ins time: 0.448
-mean run time: 16.04
+ins: 0.438 0.469 0.437 ---> 0.448
+run: 15.969 15.859 16.297 ---> 16.04 --> slowdown: 205.6x
 
 
 with -k 3 -unrollSimpleRec:
 
-ins time: 0.453
-run time: 16.078
+ins time: 0.453 0.453
+run time: 16.078 16.032 --> 16.055 --> slowdown: 205.8x
+
+
+with -k 6 -unrollSimpleRec: 
 
 ins time: 0.453
-run time: 16.032
-
-with -k 6 -unrollSimpleRec:
-
-ins time: 0.453
-run time: 16.047
+run time: 16.047 --> slowdown: 205.7x
 
 with -k 20 -unrollSimpleRec:
 
 insimte: 0.454
-run time: 16.093
+run time: 16.093 ---> slowdown: 206.3x
+
+---------
 
 IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
 -funcMode WITHOUT insTracing:
 
-run: 0.875, 0.891, 0.907
+run: 0.875, 0.891, 0.907 ---> 0.891 --> slowdown: 11.4x
 
 IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
 -intraMode -rollLoops WITHOUT insTracing:
 
 ins: 0.484, 0.469, 0.484
-run: 6.672, 6.547, 6.860
+run: 6.672, 6.547, 6.860 ---> 6.693 --> slowdown: 85.8x
 
 IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
 -intraMode -k 3 WITHOUT insTracing:
 
-run: 6.985, 6.5, 6.953
+run: 6.985, 6.5, 6.953 ---> 6.812 --> slowdown: 87x
 
 -k 10:
 
-run: 6.765, 6.610, 6.797
+run: 6.765, 6.610, 6.797 ---> 6.724 --> slowdown: 86.2x
 
 
 IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
 -intraMode -rollLoops WITH insTracing:
 
-run: 20.781, 21.188, 20.672
+run: 20.781, 21.188, 20.672 ---> 20.880 --> slowdown: 267.7x
 
 with -k 3: 
 
-21.094, 20.985
+21.094, 20.985 ---> 21.04 ---> 269.7x
 
 with -k 10:
 
-20.750, 21.047
+20.750, 21.047 ---> 21.899 ----> 267.9x
 
 
 
@@ -97,11 +92,102 @@ IHPP with -funcs main,quick_sort,quick_sort_ric,partition -interMode
 
 -k 3:
 
-4.234, 4.235, 4.203
+4.234, 4.235, 4.203 ---> 4.224 ---> 54.2x
 
 -k 10:
 
-3.578, 4.047, 4.047
+3.578, 4.047, 4.047 ---> 3.890 --> 49.9x
+
+
+=============================================
+merge sort: 0.141
+=============================================
+
+empty analysis
+----------------
+
+funcMode with insTracing
+14.172 14.282 14.109 ---> 14.188 --> 100.6x
+
+funcMode without insTracing
+0.578 0.563 0.547 --> 0.563 --> 4.0x
+
+intraMode with insTracing
+16.547 17.266 17.266 ---> 17.026 --> 120.7x
+
+intraMode without insTracing
+3.547 3.578 3.578 ---> 3.568 --> 25.3x
+
+
+interProcMode:
+3.312 3.296 3.343 -->  3.317 --> 23.5x
+
+---------------------------------------------------
+
+without insTracing:
+--------------------------
+
+funcMode:
+
+
+funcMode -kinf -funcs main,merge_sort,merge_sort_ric,merge
+
+1.297 1.312 1.281: 1.297 ---> slowdown: 9.2x
+
+k = 3, unrollSimpleRec:
+1.360 1.391 1.390 ---> 1.38 ---> 9.8x
+
+k = 6, unrollSimpleRec:
+1.391 1.406 1.375 --> 1.39 ---> 9.9x
+
+k = 10, unrollSimpleRec:
+1.313 1.344 1.328 --> 1.33 --> 9.42x
+
+IntraMode:
+
+with rollLoops:
+11.234 11.203 10.610 --> 11.016 ---> 78x
+
+k = 3
+10.781 11.297 11.266 ---> 11.115 ---> 78.8x
+
+
+k = 10
+10.516 10.656 10.578 --> 10.583 --> 75x
+
+
+
+WITH insTracing
+----------------------------
+
+funcMode -kinf: 
+26.992 26.438 28.844 ---> 27.425 --> 194.5x
+
+k = 3
+26.796 26.547 26.968 --> 26.770 --> 189.9x
+
+k = 10
+26.953 27.156 26.546 --> 26.885 --> 190.7x
+
+intraMode -rollLoops:
+
+35.109 35.047 35.094 --> 35.083 --> 248.8x
+
+k = 3
+35.422 35.531 35.063 --> 35.339 --> 250.6x
+
+k = 10
+34.812 35.078 34.750 --> 34.88 --> 247.4x
+
+----------------------
+
+InterMode
+
+k = 3
+6.156 6.140 6.140 --> 6.145 --> 43.6x
+
+k = 10
+6.750 6.093 6.031 --> 6.291 --> 44.6x
 
 
 

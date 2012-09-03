@@ -21,10 +21,9 @@
 \usepackage{makecell}
 \usepackage{float}
 
-%\usepackage{bold-extra}
-%\usepackage[lighttt]{lmodern}
-%\usepackage{pxfonts}
 \usepackage[scaled=0.9]{couriers}
+
+\usepackage{bchart}
 
 \addtolength{\textwidth}{1cm}
 \addtolength{\textheight}{2cm}
@@ -2082,10 +2081,10 @@ of the project.
 
 \chapter{The implementation}
 
-Actually, the IHPP project is written in about 4,800 lines of \verb|C++| 
+Actually, the IHPP project is written in about 4,900 lines of \verb|C++| 
 code\footnote{All source code line are included in this calculation, even ones which 
 contain comments and the empty ones.}: 
-even only copying down its full source code will take about 82 pages using
+even only copying down its full source code will take about 84 pages using
 this font. Therefore, the goal of this chapter is not to explain 
 all IHPP source code line by line, but instead is to give to the reader 
 a panoramic overview of the project implementation, showing its architecture, 
@@ -3880,7 +3879,28 @@ of the topic.
 
 \end{paragraph}
 
-\section{Performance of IHPP}
+\section{The performance of IHPP}
+
+%\begin{bchart}[max=220]
+%\bcbar{7.6}
+%\smallskip
+%\bcbar{11}
+%\smallskip
+%\bcbar{125}
+%\smallskip
+%\bcbar{205.6}
+%\end{bchart}
+
+As every other non-statistical profiler, IHPP considerably reduces the execution 
+speed of the \emph{analyzed program}. This speed reduction is caused by two different 
+reasons: the computational cost of the instrumentation itself and the computational
+cost of the analysis routines. The first one depends by the way \textbf{Pin} 
+adds additional instructions to the program and can be measured by 
+instrumenting the program's routines (or BBLs) with \emph{empty} analysis routines.
+The second one instead, depends only from the code inside the instrumentation routines
+and is the \emph{net} slowdown caused by IHPP; therefore, the slowdown measured should be
+always compared to the \emph{empty analysis} slowdown.
+
 \chapter{Conclusions}
 
 \bibliography{bibliography}{}

@@ -19,7 +19,6 @@ string ThreadContext::getCurrentFunctionName() {
 ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) { 
 	
 	ThreadContext *ret;
-
 	GetLock(&lock, 1);
 
 	if (!threadContexts.size()) {
@@ -29,7 +28,20 @@ ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) {
 		timer = tmp;
 
 		fprintf(stderr, "[ IHPP ] Instrumentation time: %.3f sec\n", diff/1000.0);
+
+#if EMPTY_ANALYSIS
+		threadContexts.push_back(new ThreadContext(0, 0, 0));
+#endif
+
 	}
+
+
+#if EMPTY_ANALYSIS
+	ReleaseLock(&lock);
+	return 0;
+#endif
+
+	
 
 	for (unsigned i=0; i < threadContexts.size(); i++) {
 		

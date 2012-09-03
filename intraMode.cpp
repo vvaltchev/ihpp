@@ -38,15 +38,13 @@ void intraModeBlockTrace(BasicBlock *bb
 	ihppNode *treeTop;
 	ihppNode *treeBottom;
 
+	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
+	
 #if EMPTY_ANALYSIS
 	return;
 #endif
-
-
+	
 	bb->incSimpleCounter();
-
-	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
-
 
 	if (!ctx->haveToTrace)
 		return;

@@ -50,15 +50,16 @@ void FunctionObjTrace(FunctionObj *fc
 	ThreadContext *ctx;
 	GlobalContext *globalCtx = globalSharedContext;
 
-#if EMPTY_ANALYSIS
-	return;
-#endif
 
 #if !ENABLE_KEEP_STACK_PTR
 	const ADDRINT reg_sp = (ADDRINT)-1;
 #endif
 
 	ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
+
+#if EMPTY_ANALYSIS
+	return;
+#endif
 
 	if (fc->functionAddress() == ctx->startFuncAddr)
 		ctx->haveToTrace=true;
