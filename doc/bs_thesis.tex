@@ -388,13 +388,13 @@ Machine Profiling Interface)}, while in \textbf{.NET} it is possible to attach a
 profiling agent as COM server to a .NET program using the \emph{Profiling APIs}.
 These profilers are called \emph{event-based} because statements (of the
 relative intermediate language) like function calls (or returns), object
-creations (and many others \ldots) have \emph{traps} handled at low-level by the
+creations (and many others) have \emph{traps} handled at low-level by the
 relative virtual machine which generates \emph{events} and propagates these ones
-to the high-level user event-handlers objects.
+to the high-level user event-handlers.
 
 \item[Statistical profilers] \hfill \\
 This kind of profilers work by \emph{sampling} at regular intervals the
-\emph{instruction pointer} of target program through \emph{software interrupts}.
+\emph{instruction pointer} of the target program through \emph{software interrupts}.
 This approach, of course, produces numerically approximate data, but allows the
 program to run at near full speed. Common profilers of that kind are \textbf{AMD
 CodeAnalyst}, \textbf{Apple Shark}, \textbf{Intel VTune} and \textbf{Intel
@@ -404,23 +404,23 @@ Parallel Amplifier}.
 This kind of profilers are used for \emph{native programs}\footnote{A native
 program is a program written in a compiled language like \textbf{C},
 \textbf{C++}, \textbf{Pascal}: the result of the building is an executable
-containing architecture-specific instructions. Instead, non-native programs (aka
-managed programs) don't contain binary instructions: they contain
+containing architecture-specific instructions. Instead, non-native programs (often called
+managed programs) do not contain binary instructions: they contain
 intermediate-language (IL) instructions which only the relative virtual machine
 (VM) understand. In order to the program to run, their VM runtime compile IL
 instructions into machine specific instructions. \textbf{Java} and \textbf{.NET}
-technologies use intermediate languages called relatively \textbf{Bytecode} and
+technologies use intermediate languages called respectively \textbf{Java Bytecode} and
 \textbf{MSIL}.} and need to add binary instructions to the target program in
 order to ``catch events'' like function calls. Instrumentation profilers can be
 classified by the way they ``add instructions'' to the target program:
 
 \begin{description}
 \item[Manual]
-This approach consists in modifying target program source code adding additional
-statements in certain locations. For example, it is possible to add profiling
+This approach consists in modifying target program source code by adding \emph{manually} 
+additional statements in certain locations. For example, it is possible to add profiling
 statements at the beginning of a set of procedures and before every their
 \verb|return| statement: this method of collecting data allows building function
-call-graphs, call context trees and much more; also, this method can be very
+call-graphs, call context trees and much more. This method can be very
 reliable but it requires a considerable amount of work.
 
 \item[Automatic source level] This approach is very similar to the last one but
@@ -428,7 +428,7 @@ differs from it in the fact that profiling statements are added automatically by
 a tool according to an instrumentation policy.
 
 \item[Compiler assisted] Using a \emph{complier assisted} instrumentation means
-that the source code remains intact and is the compiler the one who adds
+that the source code remains intact and is the compiler the one which adds
 profiling instructions at compile time. A practical example is the \verb|gcc| compiler when
 used with \verb|-pg| option: it produces an executable with profiling
 instructions but (in the specific case of \verb|gcc|) they are executed only when the
@@ -440,15 +440,15 @@ This approach consist of adding instructions to an already compiled binary execu
 
 \item[Runtime instrumentation]
 In this case, the additional instructions are added at runtime after program is
-loaded in memory or really a little before they are going to be executed by the
+loaded in memory or a little before they are going to be executed by the
 cpu. In order to this to happen, another program which has \emph{full control}
 of the target one is needed. This approach is used by tools like
 \textbf{Valgrind} and \textbf{Intel Pin}\footnote{Pin's official page:
-\url{http://www.pintool.org}} which is the tool used for the \textbf{IHPP}
-project, so it will be explained in detail later.
+\url{http://www.pintool.org}}; this last one is the tool used for the IHPP
+project.
 
 \item[Runtime injection] This technique is based on the same idea of the last
-one but it an a more \emph{lightweight} approach: substantially it consists of
+one but it has a more \emph{lightweight} approach: substantially it consists of
 modifying the target program \emph{text} adding unconditional branch
 instructions to helper functions. The tool which does this work does not have the
 \emph{full control} of the target program but only partial. An example of tool
@@ -460,7 +460,7 @@ which belongs to this category is \textbf{DynInst}.
 This type of profilers analyze the target program by executing it with no
 changes in a kind of \emph{virtual machine} which can have also some ad-hoc
 hardware support or it can work by literally emulating every single program
-instruction. This approach is not unusual today. Two historical softwares
+instruction. This approach is not much used today. Two historical softwares
 which adopted this approach were IBM SIMMON and IBM OLIVER.
 
 \end{description}
@@ -503,7 +503,7 @@ return & $\langle$$\rangle$ \\
 \label{callex1}
 \end{center}
 \end{wrapfigure}
-The figure~\ref{callex1} is an execution trace of a very simple imaginary program\footnote{This example, like some other ones in this chapter, was taken, for simplicity, from the article \emph{k-Calling Context Profiling}~\cite{kccf}.}; on its right part a very important information is shown: the current \emph{calling context}. 
+The figure~\ref{callex1} is an execution trace of a very simple imaginary program\footnote{This example, like some other ones in this chapter, was taken, for simplicity, from the original work \emph{k-Calling Context Profiling}~\cite{kccf}.}; on its right part a very important information is shown: the current \emph{calling context}. 
 As mentioned in chapter 1, \emph{vertex profiling} consists of counting the number of calls of a function; context-sensitive profiling instead, consists of counting the number of activations of a \emph{path}. In order to clearly explain this concept, some formal definitions are necessary.
 
 \textbf{Definition 1}: \emph{$k$-calling context}~\cite{kccf}. 
@@ -553,7 +553,7 @@ Note: contexts marketed with (*) are \emph{full} calling contexts.}
 \label{kctx1}
 \end{figure}
 
-As it is possible to see, for various values of the $k$ parameter there are more or less $k$-contexts with different values of $c(\pi)$: for $k=0$ $c(\pi)$ is, simply, the number of times each function is called; for $k=2$ instead, $c(\pi)$ is number of times an unique 3-elements-path like $\langle$r,a,b$\rangle$ is activated. This example is too simple to show that but, in general, as $k$ grows, more context information is added but counter values decrease and, for relatively big values of $k$, information made become too specific for any sort analysis so, it is a profiler's user task to choose the \emph{right} $k$-value.
+As it is possible to see, for various values of the $k$ parameter there are more or less $k$-contexts with different values of $c(\pi)$: for $k=0$ $c(\pi)$ is, simply, the number of times each function is called; for $k=2$ instead, $c(\pi)$ is number of times an unique 3-elements-path like $\langle$r,a,b$\rangle$ is activated. This example is too simple to show that but, in general, as $k$ grows, more context information is added, counter values decrease and, for relatively big values of $k$, information made become too specific for any sort analysis so, it is a profiler's user task to choose the \emph{right} $k$-value.
 
 At this point, the problem is how to get (in terms of algorithms and data
 structures) all $k$-contexts of a program run for a given value of $k$: a solution is to extract the $k$-contexts from a CCT (\emph{Calling Context Tree}) which is build
@@ -561,7 +561,7 @@ structures) all $k$-contexts of a program run for a given value of $k$: a soluti
 
 \section{The Calling Context Tree}
 
-The CCT is the simplest data structure for handling full context-sensitive information: 
+The CCT is a simple data structure for handling full context-sensitive information: 
 it consists of a tree which has as root-node the \emph{enter point} of the target program.
 Every procedure called is represented in the tree by a children-node of its callee. 
 The CCT of the execution trace considered until now is shown in figure~\ref{cct1}.
@@ -631,19 +631,19 @@ function func_ret_event_handler():
 
 The above code should be self-explaining.
 The algorithm for extracting $k$-contexts from a CCT is a little more articulated 
-and its pseudo-code will not be shown here but the idea is: given a CCT and a node $n$ of it, it is possible to get the $k$-context of $n$ taking the first (or at most) $k$ nodes from the path which joins $n$ with the root node; doing this for every node and summing counters of all distinct paths is enough for collecting all $k$-contexts of a CCT.
+and its pseudo-code will not be shown here but the idea is: given a CCT and a node $n$ of it, it is possible to get the $k$-context of $n$ taking the first (or at most) $k+1$ nodes from the path which joins $n$ with the root node; doing this for every node and summing counters of all distinct paths is enough for collecting all $k$-contexts of a CCT.
 
 \section{The $k$-Calling Context Forest}
 
-As told in \emph{k-Calling Context Profiling}~\cite{kccf}, building (and handling) a CCT for a relatively long running program is impractical and often useless.
+As told in \emph{k-Calling Context Profiling}~\cite{kccf}, building (and handling) a CCT for a relatively long running program is unpractical and often useless.
 A much better data structure for handling $k$-contexts is \emph{$k$-CCF}: 
 the idea on which it is based is to have a \emph{forest} formed by 
 a tree (of at most $k$ levels) \emph{for each} function. 
 
-\begin{figure}[h]
+\begin{figure}[H]
 
 \begin{center}
-\scalebox{0.8}{
+\scalebox{0.7}{
 \begin{tikzpicture}[level distance=2.0cm,
   level 1/.style={sibling distance=1.5cm},
   level 2/.style={sibling distance=1.5cm},
@@ -709,13 +709,14 @@ there is always a maximum $k$-value which produces a full context-sensitive info
 
 \textbf{Definition 4} \emph{Tree join}~\cite{kccf}. 
 The join of two labeled trees $T_1$ and $T_2$, denoted as 
-\texttt{\textbf{join(}}$T_1$\texttt{\textbf{,}}$T_2$\texttt{\textbf{)}}, 
+\texttt{join(}$T_1$\texttt{,}$T_2$\texttt{)}, 
 is the minimal labeled forest $F$ such that $F$ contains a root-label path $\pi$ if and 
-only if $T_1$ or $T_2$ contain $\pi$.
+only if $T_1$ or $T_2$ contains $\pi$.
 
 Note: if $T_1$ and $T_2$ have different root labels, 
-formally if $l(r_1)\ne l(r_2)$, then $F$ will be simply a forest with two trees: $T_1$ and $T_2$. In order to deals with weighted trees, the join operation just defined have to be extended in this way: 
-\newpage
+formally if $l(r_1)\ne l(r_2)$, then $F$ will be simply a forest with two trees: $T_1$ and $T_2$. In order to deal with weighted trees, the join operation just defined have to be extended in this way: \\
+
+\noindent
 \textbf{Definition 4*} \emph{Weighted tree join}~\cite{kccf}.
 Let: 
 
@@ -734,12 +735,12 @@ $c(z)$ is defined as sum of all counters $c(v)$ of nodes $v$ in $V_1 \cup V_2$ s
 that the root-path $\pi_z$ that leads to $v$ in $T_1$ or $T_2$ has the same sequence of 
 labels as $\pi_z$.
 
-\begin{figure}[h]
+\begin{figure}[H]
 
 \begin{center}
 \scalebox{0.9}{
 
-\begin{tikzpicture}[level distance=1.5cm,
+\begin{tikzpicture}[level distance=1.3cm,
   level 1/.style={sibling distance=1.5cm},
   level 2/.style={sibling distance=1.5cm},
   main node/.style={circle,draw,font=\small}]
@@ -768,8 +769,8 @@ labels as $\pi_z$.
   }
   child {node[main node] {c,6}};
 
-  \node at (1.5, -4.5) { (a) $T_1$ and $T_2$ };
-  \node at (8, -4.5) { (b) join($T_1$,$T_2$) };
+  \node at (1.5, -3.8) { (a) $T_1$ and $T_2$ };
+  \node at (8, -3.8) { (b) join($T_1$,$T_2$) };
 
 \end{tikzpicture}
 }
@@ -806,8 +807,6 @@ all distinct paths of length a most k+1 activated by the execution\footnote{The 
 
 \subsection{How to build a $k$-CCF}
 
-Until now, only an basilar explanation of \emph{what} is $k$-CCF was provided; 
-now, a first simply way of building it is going to be shown.\\
 As previously stated, the CCT of a program execution contains all $k$-contexts for
 all possible values of $k$ so, should exist a way to build a $k$-CCF from a CCT: in fact, this is true and can be obtained using a particular operation called $k$-inverse forest, formally defined below.\\
 
@@ -818,6 +817,7 @@ Now, a $k$-CCF can be build from a CCT using the following property:
 $k$-CCF $=$ $inv_k$(CCT)
 \end{center}
 
+\noindent
 The problem of this approach, as already stated before, is that building a CCT 
 is \emph{not} space-efficient: it contains all $k$-contexts for every value of $k$ when,
 $k$-CCF needs only information about a specific value of $k$. 
@@ -835,6 +835,7 @@ $T_{v_i}$ be the maximal subtree of the CCT of depth at most $2k-1$ rooted at $v
 The $k$-slab forest, denoted as $k$-SF, is the labeled forest defined by 
 \texttt{join}($T_{v_1}$,\ldots,$T_{v_t}$).\\
 
+\noindent
 The above definition expresses $k$-SF in terms of how it can be build from a CCT.
 In a simpler terminology, considering only nodes of a CCT at levels multiple of $k$ (like 0, k, 2k, ...) and their subtrees (of depth at most $2k-1$), it is possible to obtain a $k$-SF by joining all them.
 
@@ -892,6 +893,8 @@ In a simpler terminology, considering only nodes of a CCT at levels multiple of 
 \label{cct2}
 \end{figure}
 
+Even if it has no practical applications, it is useful to know how to build
+a $k$-SF from a CCT in order to better understand what a $k$-SF is.
 Figure~\ref{cct2} illustrates a CCT and all its 5 subtrees at levels multiple of $k=2$.
 Now, the $2$-SF of this CCT can be obtained by computing \texttt{join}($T_1$,\dots,$T_5$).
 As fig.~\ref{ksf1} shows, the result is a forest with 4 trees: the first one is exactly $T_1$ because no other subtree has $r$ as root-label; the second one is that obtained by \texttt{join}($T_3$,$T_4$) and then last two ones are the one-node trees $T_2$ and $T_5$ which have not been joined because of their unique root-labels.
@@ -959,14 +962,18 @@ As fig.~\ref{ksf1} shows, the result is a forest with 4 trees: the first one is 
 \label{ksf1}
 \end{figure}
 
-Now, $k$-SF has been defined and a way for building it from a CCT is shown but,
-should be clear at this point that this method for building the $k$-SF is useless because
-the $k$-CCF itself can be build directly from the CCT: the goal is to build $k$-SF \emph{without} a CCT and then to build the $k$-CCF from the $k$-SF. 
+%Now, $k$-SF has been defined and a way for building it from a CCT is shown but,
+%should be clear at this point that this method for building the $k$-SF is useless because
+%the $k$-CCF itself can be build directly from the CCT: the goal is to build $k$-SF \emph{without} a CCT and then to build the $k$-CCF from the $k$-SF. 
 
 \subsection{Building a $k$-SF without a CCT}
 
-The algorithm for building \emph{online} the $k$-SF is similar to the one purposed for building CCT but, instead of having 
-one single \verb|currentNode| pointer (and, of course, only one tree), there two are pointers (\verb|top| and \verb|bottom|) that work at the same time on two different regions: \emph{top} region and \emph{bottom} region as shown in fig.~\ref{ksf1}.
+The algorithm for building \emph{online} the $k$-SF is shown in \cref{ksf_alg}; 
+it is similar to the one purposed for building CCT but, instead of having 
+one single \verb|currentNode| pointer (and, of course, only one tree), 
+it uses two pointers (\verb|top| and \verb|bottom|) that work at the same time 
+on two different regions of the $k$-slab forest: 
+the \emph{top} region and the \emph{bottom} region as shown in fig.~\ref{ksf1}.
 Besides the two pointers and the $k$-SF, the algorithm uses:
 
 \begin{itemize}
@@ -975,9 +982,10 @@ Besides the two pointers and the $k$-SF, the algorithm uses:
 \item A shadow stack \verb|S| used for storing $\langle$top,bottom$\rangle$ pairs relative to each routine activation. 
 \end{itemize}
 
+\noindent
 At the algorithm start, \verb|S| contains a special pair of \verb|null| pointers; 
 at the first procedure call, the \verb|if| condition on line 15 is verified:
-the algorithm creates the root-node, makes \verb|top| pointing on it and adds also that pointer in \verb|R|. In the following procedure calls, the \verb|top| pointer is updated exactly as the \verb|currentNode| pointer in the CCT building algorithm (lines 36-46) except when \verb|S.size()-1| is a multiple of $k$: in that case (lines 16-34), \verb|bottom| is moved to \verb|top| and \verb|top| is moved to a (possibly) new tree of the forest; when the ``new'' tree already exists (this information is provided by \verb|R|), \verb|top| is simply moved to its root (line 25). After the first time \verb|top| is moved, the pointer \verb|bottom| is not more \verb|null| and is updated as the \verb|currentNode| pointer in CCT (lines 54-66). 
+the algorithm creates the root-node, makes \verb|top| pointing on it and adds also that pointer in \verb|R|. In the following procedure calls, the \verb|top| pointer is updated exactly as the \verb|currentNode| pointer in the CCT building algorithm (lines 36-46) except when \verb|S.size()-1| is a multiple of $k$: in that case (lines 16-34), \verb|bottom| is moved to \verb|top| and \verb|top| is moved to a (possibly) new tree of the forest; when the ``new'' tree already exists (this information is provided by \verb|R|), \verb|top| is simply moved to its root (line 25). After the first time \verb|top| is moved, the pointer \verb|bottom| is not more \verb|null| and it is updated as the \verb|currentNode| pointer in CCT (lines 54-66). 
 
 \begin{lstlisting}[language=java, label=ksf_alg, caption=An algorithm for building a $k$-SF,
 			morekeywords={function,then,endif},
@@ -1073,15 +1081,17 @@ $k$-CCF $=$ $inv_k$($k$-SF)
 \end{center}
 This means that a $k$-CCF can be obtained from a $k$-SF using the \emph{same} operation
 used on a CCT, as if $k$-SF were a generalization of CCT: this is true and in fact, for $k\rightarrow \infty$, $k$-SF = CCT~\cite{kccf}.
-There is only a problem in using the above property: the $k$-CCF build in that way has \emph{wrong} counters. The cause of that is the intrinsic data duplication in $k$-SF when a new tree is added by moving the \verb|top| pointer: \verb|top| and \verb|bottom| pointers build the same subtree in different places and both increment their counters. Of course, there is a solution: before applying $inv_k$ to $k$-SF, all counters of top regions of $k$-SF, except for the first tree, must be cleared to zero. The figure below shows that operation applied to the $k$-SF on fig.~\ref{ksf1}.
+There is only a problem in using the above property: the $k$-CCF build in that way has \emph{wrong} counters. The cause of that is the intrinsic data duplication in $k$-SF when a new tree is added by moving the \verb|top| pointer: \verb|top| and \verb|bottom| pointers build the same subtree in different places and both increment their counters. Of course, there is a solution: before applying $inv_k$ to $k$-SF, all counters of top regions of $k$-SF, except for the first tree, must be cleared to zero. 
+The \cref{ksf2} shows the $k$-SF on \cref{ksf1} 
+after that operation has been applied on it.
 
 
-\begin{figure}[h]
+\begin{figure}[H]
 
 \begin{center}
 \scalebox{0.8}{
 
-\begin{tikzpicture}[level distance=1.5cm,
+\begin{tikzpicture}[level distance=1.3cm,
   level 1/.style={sibling distance=2.0cm},
   level 2/.style={sibling distance=1.3cm},
   every node/.style={circle,draw,font=\small, radius=1, fill=white},
@@ -1098,8 +1108,8 @@ There is only a problem in using the above property: the $k$-CCF build in that w
 \begin{scope}[on background layer]
 
 \draw [loosely dotted] (-3.7,0) -- (9,0) node [tnode, at start] {level 0};
-\draw [loosely dotted] (-3.7,-3) -- (9,-3) node [tnode, at start]  {level k};
-\draw [loosely dotted] (-3.5,-4.5) -- (9,-4.5) node [tnode, at start] {level 2k-1};
+\draw [loosely dotted] (-3.7,-2.6) -- (9,-2.6) node [tnode, at start]  {level k};
+\draw [loosely dotted] (-3.5,-3.9) -- (9,-3.9) node [tnode, at start] {level 2k-1};
 
 \end{scope}
 %\end{pgfonlayer}
