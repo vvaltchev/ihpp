@@ -118,14 +118,18 @@
 %\pagebreak
 
 \begin{abstract}
-IHPP is a innovative \emph{context-sensitive} 
+IHPP is a innovative 
 instrumentation profiler written in C++ based on the Intel Pin framework. 
 It allows \emph{arbitrary} context-sensitive 
 profiling at three different levels: at procedure level, 
-at basic blocks inside procedures level and at basic blocks among procedures 
-level. This is achieved using two novel data structures called $k$-slab forest
+at basic blocks \emph{inside} procedures level and 
+at basic blocks \emph{among} procedures level. 
+This is achieved using two novel data structures called $k$-slab forest
 and $k$-calling context forest created by four professors 
-at the Sapienza University of Rome.
+at the Sapienza University of Rome. The idea on which are based these data structures
+is to generalize the concepts of \emph{vertex} profiling, \emph{edge} profiling
+and \emph{full} context-sensitive profiling with the introduction of a $k$ parameter
+which allows profiling in all intermediate points between \emph{vertex} ($k=0$) and \emph{full} ($k=\infty$) context-sensitive profiling. 
 
 \end{abstract}
 
@@ -3934,7 +3938,7 @@ interMode & 13x - 24x & -- & --\\
 As can be seen, the only ``empty instrumentation'' of \emph{insTracing} mode 
 seriously reduces the execution speed of the target program since 
 before every single simple instruction like a \verb|mov| there is a \emph{heavy}
-function call. The \cref{totalslowdown} instead, shows the effective slowdown of IHPP
+function call. The \cref{totalslowdown} instead, shows the overall slowdown of IHPP
 using actual instrumentation routines.
 
 \begin{figure}[H]
@@ -3951,7 +3955,7 @@ intraMode & 75x - 87x & 247x - 270x & 2.8x - 3.6x\\
 interMode & 43x - 54x & -- & --\\
 \end{tabular}}
 
-\caption{Effective IHPP slowdown}
+\caption{Overall IHPP slowdown}
 \label{totalslowdown}
 \end{figure}
 
