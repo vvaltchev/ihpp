@@ -118,19 +118,38 @@
 %\pagebreak
 
 \begin{abstract}
-IHPP is a innovative 
-instrumentation profiler written in C++ based on the Intel Pin framework. 
+IHPP stands for \emph{intra-procedural hot path profiler} and 
+it is an innovative instrumentation profiler written in C++ and 
+based on the Intel Pin framework. 
 It allows \emph{arbitrary} context-sensitive 
 profiling at three different levels: at procedure level, 
 at basic blocks \emph{inside} procedures level and 
 at basic blocks \emph{among} procedures level. 
 This is achieved using two novel data structures called $k$-slab forest
 and $k$-calling context forest created by four professors 
-at the Sapienza University of Rome. The idea on which are based these data structures
+at the Sapienza University of Rome~\cite{kccf}. 
+The idea on which are based these data structures
 is to generalize the concepts of \emph{vertex} profiling, \emph{edge} profiling
 and \emph{full} context-sensitive profiling with the introduction of a $k$ parameter
 which allows profiling in all intermediate points between \emph{vertex} ($k=0$) and \emph{full} ($k=\infty$) context-sensitive profiling. 
-
+The profiling at procedure level, called in IHPP \emph{function mode}, 
+allows one to understand which are the \emph{hottest paths} or, in other terms,
+the most frequently activated procedure call chains in a program.
+The profiling of basic blocks \emph{inside} procedures, 
+called \emph{intra-procedural mode}, instead, 
+focus the study of \emph{hot paths} on activations of basic block chains 
+inside each procedure; in that mode the concept of \emph{calling context} of 
+a basic block activation have to be reinterpreted as sequence of basic blocks
+(inside the same procedure) that has been activated before its activation.
+The \emph{intra-}procedural mode has led to noticeable 
+results, specially with the introduction of a \emph{roll loops} option
+which allows full context-sensitive profiling ($k=\infty$) without having
+an unbounded output size since loops inside procedures are automatically 
+recognized; in this way, the \emph{intra-procedural mode} becomes a way
+for studying the behavior of algorithms. 
+The last IHPP profiling level, called \emph{inter-procedural mode}, uses the same
+ideas of the previously one but, this time, completely ignoring the concept of \emph{procedure}: the hole analyzed program is considered as a set of basic blocks
+and their activation paths are built independently from their procedure calling context.
 \end{abstract}
 
 
