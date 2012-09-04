@@ -256,9 +256,8 @@ during the project developing. Finally, the chapter 6 contains only one
 page with the final work conclusions.
 
 \chapter{Program analysis}
-The short introduction of before used the concept of \emph{profiling} without
-too many explanations.
-Instead, the goal of this chapter is to explain a \emph{little more} about
+The short introduction chapter used the concept of \emph{profiling} with 
+no explanations. Instead, the goal of this chapter is to explain a \emph{little more} about
 profiling contextualizing it in the more general concept of program analysis.
 This kind of \emph{scientific background} has an encyclopedic form and
 absolutely has no claim to be a good and an exhaustive coverage about the
@@ -276,7 +275,7 @@ time if possible.
 
 \section{Static analysis}
 
-Static analysis can be done either by hand or by using another program.
+A static analysis of a program can be done either by hand or by using another program.
 Information obtained by static analysis can be used in many ways, from
 highlighting possible coding errors to application of formal methods that
 mathematically prove some required properties of the algorithms used. It is
@@ -284,21 +283,21 @@ necessary to say, even if this is not the right context, that, as the work of
 Alan Turing proved, there is no way to prove the absolute
 correctness of an arbitrary program because of the \emph{halting
 problem}~\cite{Turing01}.
-By the way, there are many methods that give us estimated solutions with a
-good level of reliability. We can mention four ways of doing static program
+Nevertheless, there are many methods that produce estimated solutions with a
+good level of reliability. It is possible to mention four ways of doing static program
 analysis:
-
 
 \begin{description}
 \item[Model checking] considers systems that have finite state or may be reduced to finite state by abstraction
 \item[Data-flow analysis] is a lattice-based technique for gathering information about the possible set of values
 \item[Abstract interpretation] models the effect that every statement has on the
-state of an abstract machine (i.e., it 'executes' the software based on the
+state of an abstract machine (i.e., it ``executes'' the software based on the
 mathematical properties of each statement and declaration)
 \item[Use of assertions] in program code as first suggested by Hoare
 logic~\cite{Hoare01}
 \end{description}
 
+\noindent
 A more in deep explanation of these approaches goes too far away from the purpose of this paper.
 
 \section{Dynamic analysis}
@@ -321,24 +320,24 @@ its goal is, to analyze the performance of a program: the
 instructions, the frequency and/or the time consumption of some
 \emph{procedures} / \emph{basic blocks} inside certain procedures. 
 It is interesting here to focus the attention on the last kind of profilers; 
-they can classified in two ways: according to the type of output and according to the method of data acquisition. Using the first classification rule, the following distinctions can be done:
+they can be classified in two ways: according to the type of output and according to the method of data acquisition. Using the first classification rule, the following distinctions can be done:
 
 \begin{description}
 \item[Flat profilers] \hfill \\
 These profilers count the number of function calls and/or average cpu time used
 by each function without keeping trace of the calling context of the function.
 \item[Call-graph profilers] \hfill \\
-These profilers do the same things flat profilers do but also produce in output
+These profilers do the same things flat profilers do but they also produce in output
 the call-chains involved on the callee, which means that it is possible to know,
-at the end of the execution of the target program, for every function, say it
-$f()$, which functions were called by $f()$, which functions were
-callers of $f()$ and how many times each function called each other. With this
+at the end of the execution of the target program, for every function, let it be
+$f()$, which functions have been called by $f()$, which functions $f()$ have called and how many times each function has called each other. With this
 information, it is possible to draw a
-\emph{call-graph} like the one in figure~\ref{callgraph1}. But, this is
-\emph{not} calling context profiling (which is what \textbf{IHPP} does) because,
-for example, there is information such: $f()$ called $b()$ 8 times and $f()$ was called 20
-times, 5 by $x()$ and 15 by $y()$ but there is \emph{not info} about how many times the
-distinct calling sequence $x()\rightarrow f()\rightarrow b()$ occurred and how
+\emph{call-graph} like the one in figure~\ref{callgraph1}; but, this is
+\emph{not} context-sensitive profiling (which is what IHPP does) because,
+much information is missing. 
+For example, the information produced by a \emph{call-graph} profiler 
+is sometime like this: $f()$ has called $b()$ 8 times and it has been called 20
+times, 5 of them by $x()$ and 15 of them by $y()$; there is \emph{not information} about how many times the distinct calling sequence $x()\rightarrow f()\rightarrow b()$ occurred and how
 many times the other calling sequence $y()\rightarrow f()\rightarrow b()$
 occurred.
 
