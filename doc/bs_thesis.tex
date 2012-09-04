@@ -2105,7 +2105,45 @@ The IHPP-specific XML language is defined in a computer interpretable form too,
 using the \textbf{XML Schema} language. 
 The specific \textbf{XSD} file that contains the output language definition 
 is called \verb|outputschema.xsd| and it is located in the \verb|doc/| directory
-of the project.
+of the project. A short extract from the \verb|outputshema.xsd| document is 
+shown in the \cref{xsd} below.
+
+\begin{lstlisting}[language=XML, frame=leftline, 
+caption={an extract from \texttt{outputschema.xsd}}, label={xsd},
+morekeywords={encoding, xs:schema,xs:element,
+xs:complexType,xs:sequence,xs:attribute}]
+<xs:element name="threads">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="thread" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="id"/>
+            <xs:element name="kSF" type="forest" minOccurs="0"/>
+            <xs:element name="kCCF" type="forest" minOccurs="0"/>
+            <xs:element name="intraMode_ctx" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="func_ctx" maxOccurs="unbounded">
+                    <xs:complexType>
+                      <xs:sequence>
+                        <xs:element name="funcAddr" type="addrType"/>
+                        <xs:element name="kSF" type="forest" minOccurs="0"/>
+                        <xs:element name="kCCF" type="forest" minOccurs="0"/>
+                      </xs:sequence>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+\end{lstlisting}
+
 
 \chapter{The implementation}
 
