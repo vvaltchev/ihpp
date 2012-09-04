@@ -1905,6 +1905,8 @@ int main(int argc, char ** argv) {
 The IHPP analysis of the program in \cref{prog5} with the options\\\verb|-intraMode| \verb|-rollLoops| \verb|-func foo| produces the following output\footnote{A great deal of output lines have been omitted}:
 
 \begin{lstlisting}[label=out11, caption={the output of IHPP analyzing \texttt{prog5}}]
+
+
 =============================================================================
 Thread ID: 4294967296
 =============================================================================
@@ -2014,7 +2016,7 @@ after the BBL on line 5; instead, it is activated at every loop iteration
 after BBL on line 22 (not shown in the \cref{intraJoinThAsm}). 
 The same ``problem'' occurs for BBLs on lines 18 and 25: 
 as already explained, the origin of this unusual concept of BBL is the real-time BBL 
-identification: when the program ran at \verb|foo+13| (included in BBL at \verb|foo+0|),
+identification: when the program was running at \verb|foo+13| (included in BBL at \verb|foo+0|),
 \textbf{Pin} had no way to understand that in the future a BBL at \verb|foo+53| will 
 branch to it.
 
@@ -2026,9 +2028,8 @@ or better, in this particular case, the \emph{tree} join of the two CCTs.
 \section{The \emph{inter}-procedural mode}
 
 When launched with the \verb|-intraMode| option\footnote{The inter-procedural mode is often called internally in IHPP \texttt{interProcMode} instead of \texttt{interMode} to 
-avoid misunderstanding problems correlated with \texttt{intraMode}.}
-, IHPP instruments only BBLs 
-and builds \emph{inter}-procedural $k$-SFs, one for each thread. 
+avoid misunderstanding problems correlated with \texttt{intraMode}.}, 
+IHPP instruments only BBLs and builds \emph{inter}-procedural $k$-SFs, one for each thread. 
 Each $k$-SF, contains BBLs which belong to chosen functions or, eventually, to all 
 functions of the main image of the target program. The below listings show 
 an example program and its relative IHPP analysis output for $k=100$.
@@ -2052,7 +2053,7 @@ void bar(int n) {
 int main(int argc, char ** argv) { foo(); return 0; }
 \end{lstlisting}
 
-\begin{lstlisting}[label=out13, 
+\begin{lstlisting}[label=out13, frame=bottomline,
 caption={partial output of IHPP analysis in \texttt{interProcMode} of \texttt{prog6}}]
 
 | {__root__+0 at 0,0},1
@@ -2070,15 +2071,15 @@ caption={partial output of IHPP analysis in \texttt{interProcMode} of \texttt{pr
 
 \end{lstlisting}
 
-Observing output in \cref{out13} should be enough to understand what the 
+Observing the output in \cref{out13} should be enough to understand what the 
 \emph{inter}-procedural mode does: a $k$-SF is build as if there were no routines at all.
 An important consideration about this IHPP working mode is that even if
-only one produce is instrumented, the output will be different to the one made by 
+only one produce is instrumented, the output will be different from the one made by 
 \verb|intraMode|; a proof for this is given by \cref{out14} which shows
 the IHPP analysis output of program in \cref{prog4}, 
 already analyzed in \verb|intraMode| in the \cref{out8}.
 
-\begin{lstlisting}[label=out14, 
+\begin{lstlisting}[label=out14, frame=bottomline,
 caption={partial output of IHPP analysis in \texttt{interProcMode} of \texttt{prog4}}]
 -----------------------------------------------------------------------------
 DUMP of K-SF
