@@ -161,12 +161,12 @@ In a world like today's one where computers are everywhere and where
 \mbox{Internet} has more than 2.2 billion users, software has become more
 important than ever. Actual operating systems have to handle much many
 processes than in the past and every single process is often much more ``heavy''
-than before due a great deal of reasons including (but not limited to): the
+than before due to many reasons including (but not limited to): the
 demand of users for much more complicated tasks (for example the multimedia
 related ones), the intensive use of software layers by the programmers, the use
-of high-level interpreted languages and many others. Thus, even if performance
+of high-level interpreted languages and many others. Therefore, even if performance
 of hardware is still growing following Moore's law and actual computers are
-thousands times faster than before, they still to be ``slow'' sometimes and
+thousands times faster than in the past, they are still \emph{slow} sometimes and
 software still needs to be analyzed and optimized. One way of analyzing
 performance of programs is \textbf{profiling}: it consists substantially in
 running the target program in a controlled environment and collecting data about
@@ -177,7 +177,7 @@ in the chapter 2.
 \section{Actual profilers}
 
 There are many profiler types today and a discrete number of profilers for
-each category (as readers can see in the next chapter). But, \emph{most of them}
+each category (as readers can see in the next chapter) but, \emph{most of them}
 have two characteristics in common:
 
 \begin{itemize*}
@@ -189,34 +189,35 @@ happened \emph{inside} the procedures which caused, for example, a bottleneck.
 \item Data has almost no \emph{calling context}, for example: it is possible to know that
 a function \verb|a()| was called 10 times in a certain program, but it is not possible to know which were the \emph{callers} of \verb|a()|. Some profilers like \textbf{Valgrind} can
 produce data with 2 levels of context: this means it is possible to know, for
-example, that \verb|a()| was called 10 times, 3 of them by function
-\verb|b()| and 7 of them by function \verb|c()|. This is better, but sometimes
+example, that \verb|a()| was called 10 times, 3 of them by \verb|b()| and 7 of them by  \verb|c()|. This is better, but sometimes
 it is not enough.
 
 \end{itemize*}
 
-Even if it is not too difficult to collect data with full context (infinite
-levels) which is called ``building a CCT'' \emph{(calling context
-tree)}, this often is practically useless because it grows too much specially due to
-functions recursion~\cite{kccf}: the CCT is often too big to be physically stored and copied
-simply and it is too big to be human-analyzable.
-Thus, in the last years a few researches in theoretical computer science 
+\noindent
+Even if it is not too difficult to collect full context-sensitive data, 
+for example by building a \emph{calling context
+tree} (CCT), this is often unpractical because the amount of data collected
+ grows too much specially due to functions recursion~\cite{kccf}: 
+the CCT is often too big to be physically stored and copied
+in a easy way and it is too big to be human-analyzable.
+Therefore, in the last years a few researches in theoretical computer science 
 proposed different approaches for solving this problem and collecting \textbf{not fully context-sensitive} data. IHPP, the project described in this paper, uses one of these approaches called \textbf{$k$-CCF} (after explained).
 
 \section{Motivations}
 
 The aim of creation of IHPP was to make something that allows the study of
-function calls with an arbitrary number of calling contexts but also to go
-beyond the concept of procedure-only profiling: IHPP uses same ideas of
-procedure-profiling to study the execution flow of basic blocks \emph{inside}
- functions. This sometimes can be really useful when there is a bottleneck in
+function calls with an arbitrary size of the calling context but also to go
+beyond the concept of procedure-only profiling: IHPP uses some of the ideas of
+procedure-profiling to analyze the activation of basic blocks chains \emph{inside}
+ procedures. This sometimes can be really useful when there is a bottleneck in
 the algorithm used for solving a problem: the programmer already knows which are
 the \emph{slow functions} but he is still unaware of \emph{where exactly}
-the problem is. Imagine functions with 3 loop levels and many conditional
+the problem is. An example can be a routine with 3 loop levels and many conditional
 statements: it is not trivial to understand where the problem is, neither to
-solve it. But, even if a profiler \emph{will not} tell the programmer \emph{how}
+solve it. Nevertheless, even if a profiler \emph{will not} tell the programmer \emph{how}
 to solve the problem, it will tell \emph{quickly} where is it, which is much
-better than nothing because it can save several hours of programmer's work.
+better than nothing because it can save several human hours of work.
 
 \section{Contributions}
 
