@@ -138,7 +138,7 @@ the most frequently activated procedure call chains in a program.
 The profiling of basic blocks \emph{inside} procedures, 
 called \emph{intra-procedural mode}, instead, 
 focus the study of \emph{hot paths} on activations of basic block chains 
-inside each procedure; in that mode the concept of \emph{calling context} of 
+inside each procedure; in that mode, the concept of \emph{calling context} of 
 a basic block activation have to be reinterpreted as sequence of basic blocks
 (inside the same procedure) that has been activated before its activation.
 The \emph{intra-}procedural mode has led to noticeable 
@@ -3367,10 +3367,10 @@ about 90\% is achieved.
 \section{The \emph{intra-}procedural mode}
 
 As explained for the \verb|funcMode|, everything starts with the \emph{instrumentation}:
-as can be seen in \cref{main1}, the instrumentation routine for \verb|IntraMode| and \verb|InterProcMode| is \verb|BlockTraceInstrumentation()|. The main different between the 
+as can be seen in \cref{main1}, the instrumentation routine for \verb|IntraMode| and \verb|InterProcMode| is \verb|BlockTraceInstrumentation()|. The main difference between the 
 function instrumentation and the BBL instrumentation is that this last one is done
 only when the target program is \emph{already} running because BBLs cannot be 
-identified before. The \cref{BBL_ins} (below) shows a partial implementation of the instrumenting function.
+identified before. The \cref{BBL_ins} (below) shows a partial implementation of the instrumentation function.
 
 
 \begin{lstlisting}[language=C++, 
@@ -3430,7 +3430,7 @@ void BlockTraceInstrumentation(TRACE trace, void *)
 As it can be seen, the instrumentation is not very different from the one
 of \emph{routines} but, this time instead of iterating over \emph{sectors} of an \emph{image} and then over \emph{routines}, 
 there is directly an iteration over BBLs of a 
-\emph{trace}\footnote{A \emph{trace} is a one enter point - multiple exit points sequence of instructions.}. Differently from the function instrumentation, here it can happen 
+\emph{trace}\footnote{A \emph{trace} is a single entrance, multiple exit sequence of instructions.}. Differently from the function instrumentation, here it can happen 
 that a more than one trace have a BBL on the same address so, 
 a preliminary check is done to avoid the creation of 
 a new \verb|BasicBlock| object \emph{but} the instrumentation of the BBL \emph{must}
@@ -3442,7 +3442,7 @@ Another peculiarity that differentiates the \verb|intraMode| from
 \verb|intraModeBlockTrace()|; nevertheless, \verb|intraMode| has a \emph{ret} routine
 too but it is not directly instrumented: as already explained, 
 \verb|intraMode| is conceptually a \emph{layer} over \verb|funcMode| so, 
-is this last one that notices \verb|intraMode| routines when a function ``returned''.
+is this last one that notices \verb|intraMode| routines when a function ``returnes''.
 As already seen, the concept of \emph{function return} is a quite ``virtual'': 
 sometimes it is not referred to a \emph{real} \verb|ret| instruction 
 but instead to a \emph{long jump} or something like that. 
@@ -3571,7 +3571,7 @@ pointers are cleared and \verb|traceObject()| routine is called.
 \item The \verb|traceObject()| routine traces the \emph{event} and
 sets the \verb|rootKey| variable
 \item \emph{Top} and \emph{bottom} pointers are stored to the 
-\verb|intraMode| \emph{shadow stack} using a the macro \verb|INTRAMODE_STORE_TOP_BOTTOM()|
+\verb|intraMode| \emph{shadow stack} using the macro \verb|INTRAMODE_STORE_TOP_BOTTOM()|
 \item The tracing routine returns
 \end{enumerate}
 
@@ -3590,8 +3590,8 @@ of \verb|intraCtx.shadowStack| using the \verb|INTRAMODE_LOAD_TOP_BOTTOM()| macr
 \item Otherwise:
 \begin{enumerate}
 \item The parent node container of the last BBL activated is obtained
-\item A loop iterating over all its ancestors is executed 
-searching for an ancestor with same address as current BBL
+\item A loop iterating over all its ancestors is performed 
+searching for an ancestor with same address as the current BBL's one
 \item If that ancestor is found:
 \begin{enumerate}
 \item \emph{Top} and \emph{bottom}
@@ -3599,7 +3599,7 @@ pointers are moved to it or, to better say, only the \emph{top} pointer
 is moved since the \emph{bottom} pointer is not used in \emph{roll loops} mode
 because $k$ is infinite
 \item The counter of the \emph{top} pointer
-is incremented without calling the no other routine.
+is incremented without calling no other routine.
 \end{enumerate}
 \item Else, \verb|traceObject()| is simply called
 \end{enumerate}
@@ -3645,8 +3645,8 @@ void intraMode_ret()
 \noindent
 As it can be seen, the main purpose of the \verb|intraMode_ret()| routine
 is the statement on line 10 which pops the \emph{shadow stack}.
-When a function like \verb|foo()| returns, if there was no recursion or if it 
-is ended, the \emph{shadow stack} remains empty after the \verb|pop()| on line 10 so,
+When a function like \verb|foo()| returns, if there have been no recursion or if it 
+is has ended, the \emph{shadow stack} remains empty after the \verb|pop()| on line 10 so,
 the \verb|if| on line 12 checks this case and if true, moves back
 \emph{top} pointer to the \emph{node} in the $k$-SF which 
 has as key (BBL address) the value stored in \verb|intraCtx->rootKey| 
@@ -3768,9 +3768,9 @@ totally ignore the \emph{stack pointer} value and to reconstruct the
 \emph{execution trace} analyzing each instruction. 
 
 \begin{paragraph}{The instrumentation}
-When the program is compiled with \emph{insTracing}
+When IHPP is compiled with \emph{insTracing}
 support\footnote{This can be done setting by \texttt{ENABLE\_INS\_TRACING} to 1 in \texttt{config.h}. Under Windows systems, \emph{insTracing} is supported by default.}
-and IHPP is called with the \verb|-insTracing| option, the three \emph{insTracing} 
+and it is is called with the \verb|-insTracing| option, the three \emph{insTracing} 
 routines are instrumented; this is done in the point where code is omitted 
 in \cref{ins}. Briefly, two of them are called before a branch or a call instruction
 is executed (one handles the direct branch (or call) case and the other the indirect one)
@@ -3786,7 +3786,7 @@ The main idea is: the routine address related to \emph{every} branch (or call)
 destination address is stored in a variable of the current \emph{thread context}; 
 before every instruction is executed, a routine checks if the instruction
 which is going to be executed belongs or not to the \emph{target routine} 
-previously store in the \emph{thread context}: if it does not, then something
+previously stored in the \emph{thread context}: if it does not, then something
 like a \emph{long jump} is happened using instructions not instrumented so,
 substantially the \verb|funcMode_ret()| routine is invoked. The just described 
 approach is \emph{theoretically} infallible only when one \emph{strong} condition
@@ -3808,7 +3808,7 @@ to analyze it with \verb|-funcs a,c| option, a \emph{false} \emph{long jump} fro
 \verb|a()| to \verb|c()| will be wrongly found.
 
 Technically, the implementation of this approach is more complicated then
-as just explained because programs built with \verb|cl /Wi| uses
+as just explained because programs built with \verb|cl /Zi| uses
 a sort of two-step call system for user routines: 
 a caller uses a \verb|call| instruction which jumps to 
 an area of \verb|.text| section which has a direct \verb|jmp| instruction
@@ -3829,7 +3829,7 @@ by a \verb|call|. Thus, when a \verb|jmp| instruction is found, it is not obviou
 if the \verb|jmp| is a sort of \emph{call-jump} or a \emph{ret-jump} instead.
 
 Since the output of any full instrumented program is prohibitively large
-for a paper, an ad-hoc \textbf{masm} assembly program that emulates the behavior 
+for this paper, an ad-hoc \textbf{masm} assembly program that emulates the behavior 
 of ``evil'' routines has been written\footnote{The program is built using
 the \textbf{Microsoft Macro Assembler} in this way: \texttt{ml /Zi prog9.asm}}; 
 the \cref{prog9} below shows its full code.
@@ -3917,17 +3917,16 @@ DUMP of K-SF
 
 \noindent
 As can be seen, the output in \cref{prog9out} is totally wrong: 
-\verb|real_foo()| was not called by \verb|_main()| and did not called twice \verb|printf()|
-and once \verb|bar()|; instead, \verb|printf()| was called once by \verb|real_foo()|
-and once by \verb|_main()|, which also called \verb|bar()|.
-Using the \verb|-insTracing| option, instead, produces the \emph{correct} output
-shown in \cref{prog9out2}.
+\verb|real_foo()| was not called by \verb|_main()| and it did not called twice \verb|printf()|
+and once \verb|bar()|; instead, \verb|printf()| has been called once by \verb|real_foo()|
+and once by \verb|_main()|, which also has called \verb|bar()|.
+Using the \verb|-insTracing| option, instead, produces the \emph{correct} output:
+%shown in \cref{prog9out2}.
 
 \begin{lstlisting}[label=prog9out2, caption={IHPP output with \emph{insTracing}}, frame=leftline, showstringspaces=false]
 -----------------------------------------------------------------------------
 DUMP of K-SF
 -----------------------------------------------------------------------------
-
 | __root__(),1
    | _main(),1
       | foo(),1
@@ -3982,7 +3981,7 @@ reasons: the computational cost of the instrumentation itself and the computatio
 cost of the analysis routines. The first one depends by the way Pin
 adds additional instructions to the program and can be measured by 
 instrumenting the program's routines (or BBLs) with \emph{empty} analysis routines.
-The second one instead, depends only from the code inside the instrumentation routines
+The second one instead, depends only from the code inside the analysis routines
 and is the \emph{net} slowdown caused by IHPP; therefore, the 
 slowdown measured should be always compared to the \emph{empty analysis} slowdown.
 This last performance indicator strictly depends from the analyzed program type: 
@@ -4056,7 +4055,8 @@ the profiled program to run a little faster but the gap is under 10\%
 from $k=3$ to $k=10$. Another noticeable result is that 
 the \emph{rollLoops} option in \verb|intraMode| has good performance: 
 it has a slowdown that can be compared to values of $k$ about 7-8; 
-values of $k$ about 10 or higher has some little slowdown improvements compared to it.
+only values of $k$ about 10 or higher produce
+some little slowdown improvements compared to it.
 
 \begin{paragraph}{Considerations}
 It is evident that \emph{insTracing} cannot be used to profile 
@@ -4092,8 +4092,8 @@ great deal of time it takes.
 
 Sometimes, due to the considerable gap between the C
 and assembly layer (on which BBLs are defined), 
-the match between the C source code and the $k$-SFs built by \verb|intraMode| analysis
-becomes really hard, but if the assembly code of the procedure is considered instead of
+the matching between the C source code and the $k$-SFs built by \verb|intraMode| analysis
+becomes really hard to be done, but if the assembly code of the procedure is considered instead of
 the C one, everything becomes simpler. 
 Studying algorithms in assembly should not be
 thought as a ``back to the past'' solution, but as a ``back to the basis'' approach
@@ -4101,8 +4101,7 @@ because where there is the need of performance, a programmer must know what
 his code is really doing and this can never be done 
 by looking the C or C++ source code of a program. 
 A programmer should never forget that computers do not understand
- \emph{virtual classes}, \emph{polymorphism} neither \emph{procedures} because 
-they work only with \emph{machine instructions}.
+ \emph{objects}, \emph{virtual classes}, \emph{polymorphism} and not even the simply \emph{procedures} because they work only with \emph{machine instructions}.
 
 
 \bibliography{bibliography}{}
