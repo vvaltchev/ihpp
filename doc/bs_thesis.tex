@@ -2167,7 +2167,7 @@ xs:complexType,xs:sequence,xs:attribute}]
 \chapter{The implementation}
 
 Actually, the IHPP project is written in about 4,900 lines of \verb|C++| 
-code\footnote{All source code line are included in this calculation, even ones which 
+code\footnote{All source code lines are included in this calculation, even ones which 
 contain comments and the empty ones.}: 
 even only copying down its full source code will take about 84 pages using
 this font. Therefore, the goal of this chapter is not to explain 
@@ -2191,7 +2191,7 @@ a $k$-SF from an execution trace shown in \cref{ksf_alg}:
 when called, it \emph{traces} the activation of a generic \verb|TracingObject<T>| 
 in the given \emph{context}. The \emph{context} depends from the working mode:
 in \verb|funcMode|, for example, the \emph{context} is pointer to a \verb|ThreadContext| object; instead, in \verb|IntraMode| the \emph{context} is 
-a pointer to a \verb|IntraModeContext| object. In order to simply everything, 
+a pointer to a \verb|IntraModeContext| object. In order to simplify everything, 
 \emph{abstraction} is used: 
 both \verb|ThreadContext| and \verb|IntraModeContext| classes
 are specializations of
@@ -2326,7 +2326,7 @@ rounded corners = 10pt, fit = (t1) (n2) (n6) (n7)] {};
 The \verb|traceObject()| function mentioned before, works with basilar objects 
 defined in files of group (1). The first two files in this last group use on their basis
 container classes for \verb|ObjectWithKey<T>| objects defined and implemented 
-in file \verb|dataStructures.h|.
+in the file \verb|dataStructures.h|.
 \verb|ObjectWithKey<T>| is the most abstract class in IHPP since it is a generalization of the abstract class \verb|TracingObject<T>|. 
 Nodes and forests data structures are implemented respectively in \verb|node.h| and \verb|forest.h| files. The concept of \emph{tree} is not explicitly modeled in IHPP, but it is 
 modeled inside the \verb|node<T>| class instead. 
@@ -2341,7 +2341,7 @@ the $k=\infty$ case.
 \end{paragraph}
 
 \Cref{classdiag1} shows an UML-like diagram which summarizes
-some of the relations just explained.
+some of the class relations just explained.
 
 \begin{figure}[h]
 
@@ -2398,27 +2398,29 @@ in the first thread context.
 
 \begin{paragraph}{The \emph{instruction} tracing mode}
 The shortly called \emph{insTracing} mode is a hidden part of IHPP never
-mentioned before. It handles the instrumenting of \emph{all} machine instructions
+mentioned before now. It handles the instrumenting of \emph{all} machine instructions
 contained in chosen functions in order to improve correctness 
 of outputs produced by \verb|funcMode| and \verb|intraMode| 
-in \emph{extreme} conditions, for example when \emph{calling conventions} are not
-respected by the compiler such as a call to routine with a \verb|jmp| instruction 
+in \emph{extreme} conditions, when \emph{calling conventions} are not
+respected by the compiler, for example when a call to a routine is done 
+with a \verb|jmp| instruction 
 instead of a \verb|call| one, or when particular functions like \verb|longjmp()| are used.
 This \emph{feature} consists of a \emph{set} of several approaches to the problem 
 of correctly understanding the execution trace of the program but, 
-since it is really \emph{heavier} than the simply function instrumentation,
-it can be disabled (each approach separately) in the \verb|config.h| file.
+since this is really \emph{heavier} than the simply function instrumentation,
+it is active only when IHPP is launched with the \verb|-insTracing| option.
 \end{paragraph}
 
 \begin{paragraph}{Other features}
 IHPP has implemented in it a tiny benchmark framework which allows 
 to count the number of nodes and forests created and copied (during the 
 target program execution) within each
-thread or even each function in each thread. For that reason,
+thread or even within each function in each thread. For that reason,
 the \verb|GenericTraceContext| class derives from the \verb|BenchmarkObj| class.
-Of course, benchmark is a \emph{heavy} feature too which can be disabled 
-in the \verb|config.h| file. Also, IHPP provides a set \emph{debug} mode
-which writes selective debug info to the \verb|stderr| file stream.
+Of course, benchmark is a \emph{heavy} feature too (disabled by default) which can be enabled 
+in the \verb|config.h| file.
+Also, IHPP provides a \emph{debug} mode
+which writes selective debug information to the \verb|stderr| output stream.
 \end{paragraph}
 
 \section{The context classes}
@@ -2470,17 +2472,16 @@ public:
 
 \noindent
 As told in the chapter introduction, source code will not be explained line by line.
-The most important properties and methods in this case are:
+The most important properties and methods in this case are briefly explained below.
 \begin{description}
-\item[allBlocks] is a \emph{hashmap} of all BBLs (\verb|BasicBlock| objects) indexed by their address (of type \verb|ADDRINT|, a Pin macro that stands for an unsigned integer
-of pointer size).
+\item[allBlocks] is a \emph{hashmap} of all BBLs (\verb|BasicBlock| objects) indexed by their address (of type \verb|ADDRINT|, a Pin macro that stands for a pointer-size unsigned integer)
 \item[allFuncs] is a \emph{hashmap} containing all functions of the main image of the
 program, not only the ones that have to be traced
 \item[funcsAddrsToTrace] is a set of all functions that have to be traced, indexed 
-by their address. When all functions of main image of the program have to be traced,
+by their address. When all functions of the main image of the program have to be traced,
 this set, like the set \verb|funcsToTrace|, will have no elements
 \item[threadContexts] is a vector containing pointers to all \verb|ThreadContext| objects. A \verb|std::vector<T>| is used intentionally instead of a \verb|std::map| because
-usually programs have a small number of threads: iterating all them is better than using a \emph{hashmap} which works in $O(1)$ but has big hidden constants
+usually programs have a small number of threads: iterating over all them is better than using a \emph{hashmap} which works in $O(1)$ but has a big hidden constant
 \item[getThreadCtx(...)] is the fundamental method of this class used in all working modes:
 given the current \emph{thread\_id}, it returns a pointer to its relative thread context object or, if this one does not exists, creates a new thread context object and then returns it.
 \end{description}
@@ -2516,7 +2517,7 @@ public:
 \noindent
 It contains the essential elements explained in chapter 3 for building 
 a couple $k$-SF - $k$-CCF: a $k$-slab forest, a shadowStack and a \verb|rootKey| variable used to identify the first tree of the $k$-SF. 
-The \verb|R| map, explained in chapter 3, is not necessary here because the \verb|forest<T>| class used as \verb|kSlabForest| type\footnote{\texttt{ihppForest} is simply a \texttt{typedef} of \texttt{forest<T>} with \texttt{T = ADDRINT}.} uses itself 
+The \verb|R| map, explained in chapter 3, is not necessary here because the \verb|forest<T>| class used as the type\footnote{\texttt{ihppForest} is simply a \texttt{typedef} of \texttt{forest<T>} with \texttt{T = ADDRINT}.} of \verb|kSlabForest| uses itself 
 a hashmap for tree roots searches. The \verb|counter| variable, instead, is a new concept:
 it is used by the \verb|traceObject()| function as a replacement of the 
 expression \verb|S.size()-1| used in \cref{ksf_alg} on line 15. 
@@ -2553,9 +2554,11 @@ public:
 \subsection{The \emph{ThreadContext} class}
 
 The \verb|ThreadContext| class, as mentioned before, is the main 
-tracing context dedicated to each thread of the target program; it has
-many properties, specially Windows-specific and related to \emph{insTracing} ones,
-but they are not shown in \cref{threadCtx}. 
+tracing context dedicated to each thread of the target program; 
+a partial definition of it is shown in the \cref{threadCtx} below;
+note: this class has many properties, 
+specially Windows-specific and related to \emph{insTracing} ones,
+which are not shown in here. 
 It is a derived class of \verb|GenericTraceContext| because it \emph{is} 
 a tracing context from the \verb|funcMode|'s routines point of view.
 Instead, in \verb|intraMode| it is used properly as a \emph{thread context} 
@@ -2572,8 +2575,8 @@ the current function instance that executes a specific BBL.
 The \verb|treeTop| and \verb|treeBottom| properties are used, as a comment says,
 only by \verb|InterProcMode| routines: as it will be explained later, 
 \verb|InterProcMode| does not need a \emph{shadow stack} 
-but a context that provides only three elements: 
-top and bottom pointers and a $k$-SF object.
+but instead a context that provides only three elements: 
+top and bottom pointers and a $k$-SF object. 
 
 \begin{lstlisting}[language=C++, 
 	caption={partial definition of \texttt{ThreadContext} class}, 
@@ -2624,7 +2627,7 @@ Besides, a \verb|node<keyT>| object is identified among other nodes by a
 \emph{key} of type \verb|keyT|, a \emph{template} parameter. 
 In IHPP, \verb|keyT| is always \verb|ADDRINT| which is, as already told, a Pin macro
 that stands for a pointer size unsigned integer, even if, \verb|keyT| can be 
-any type, for example \verb|std::string|.
+any type, for example also a \verb|std::string|.
 
 The relationship between \verb|TracingObject<keyT>| and \verb|node<keyT>| classes is
 that the first ones are always used as node \emph{values}, thus practically 
@@ -2721,13 +2724,12 @@ the ones in \verb|node<keyT>| class, are \emph{implicit inline} methods with
 \subsection{The \emph{forest} class}
 
 The \verb|forest<keyT>| class is very similar to \verb|node<keyT>|, with
-the main difference that is not identified by a key, neither transports
+the main difference that it is not identified by a key, neither transports
 an object pointer as value. It is substantially a container 
-for nodes and can use exactly the same children nodes containers. Actually
-it uses \verb|ihppNodeChildrenContainerMap| as container because for small values
+for nodes and can use exactly the same children nodes containers used by \verb|node<keyT>|. Actually, it uses \verb|ihppNodeChildrenContainerMap| as container because for small values
 of $k$ in \verb|funcMode|, a forest can have hundreds trees and a hashmap will have
 better performance then a linked list. 
-\Cref{forestClass} shows a partial definition of \verb|forest<keyT>| class.
+\Cref{forestClass} (below) shows a partial definition of the \verb|forest<keyT>| class.
 
 \begin{lstlisting}[language=C++, 
 	caption={partial definition of \texttt{forest<keyT>} class}, 
@@ -2777,8 +2779,10 @@ public:
 \subsection{The $inv_k$ operation}
 
 The $inv_k$ operation described in chapter 3 is implemented
-in the \verb|inverseK()| method which uses the $join$ operation implemented in 
-the \verb|local_join()| method. Listings \ref{joinop} and \ref{invk}
+in the \verb|inverseK()| method of the \verb|forest<keyT>| class 
+and uses the $join$ operation implemented in 
+the \verb|local_join()| method which belongs to the same class too. 
+Listings \ref{joinop} and \ref{invk}
 shows full code of \emph{join} and $inv_k$ operations with no  
 explanations. Only a remark: \verb|kpathR()| method of \verb|node| class
 returns a \emph{degenerated} tree (a list) made by the first (or at most) $k$ 
@@ -2891,12 +2895,10 @@ void ImageLoad(IMG img, void *) {
 	
 	//code omitted [...]
 
-	for (SEC sec = IMG_SecHead(img); 
-				SEC_Valid(sec); sec = SEC_Next(sec)) 
+	for (SEC sec = IMG_SecHead(img); SEC_Valid(sec); sec = SEC_Next(sec)) 
 	{
 
-		for (RTN rtn = SEC_RtnHead(sec); 
-				RTN_Valid(rtn); rtn = RTN_Next(rtn)) 
+		for (RTN rtn = SEC_RtnHead(sec); RTN_Valid(rtn); rtn = RTN_Next(rtn)) 
 		{
 		
 			ADDRINT funcAddr = RTN_Address(rtn);
@@ -2937,7 +2939,7 @@ void ImageLoad(IMG img, void *) {
 
 \noindent
 The \emph{instrumentation} of the function on address \verb|funcAddr| is achieved 
-calling the Pin \verb|RTN_InsertCall()| routine. 
+by calling the Pin \verb|RTN_InsertCall()| routine. 
 As it is clearly evident, a \verb|FunctionObj| object pointer is also passed as
 argument to the \verb|RTN_InsertCall()| routine. 
 Now, after the end of \verb|ImageLoad()|, every time the target program
@@ -3053,7 +3055,7 @@ is incremented\footnote{This counter is
 a sort of ``absolutely reliable'' counter variable contained in each \texttt{TracingObject}:
 it has the benefit to be totally independent from $k$-SFs, $k$-CCFs and their join
 operations.}; then \emph{top} and \emph{bottom} pointers are loaded from the 
-\emph{shadow stack} if it not empty and then finally the fundamental \verb|traceObject()|
+\emph{shadow stack} if it is not empty and then finally the fundamental \verb|traceObject()|
 function is called passing to it all strictly necessary parameters: 
 the pointer to the \verb|FunctionObj| to be traced, the current context and the
 two \emph{top} and \emph{bottom} pointers. After that, the \emph{top} and \emph{bottom} pointers are stored to the \emph{shadow stack}. 
@@ -3102,10 +3104,10 @@ which is just going to be explained.
 The \verb|ANSI C| standard library provides a couple of functions called 
 \verb|setjmp()| and \verb|longjmp()| that allows to change the program \emph{context}:
 they are used mainly for handling exceptions because the \verb|C| language 
-has no a build-in method for doing this. 
+has no a built-in method for doing this. 
 When a \emph{long jump} occurs, the \emph{context} saved by \verb|setjmp()| is restored
 and the program continues its execution from the point on which \verb|setjmp()| was called.
-\Cref{longjmp1} show an example program that uses \emph{long jumps}.
+\Cref{longjmp1} shows an example program that uses \emph{long jumps}.
 
 \begin{lstlisting}[language=C++, 
 	caption={source code of \texttt{prog7.c}}, 
@@ -3136,14 +3138,16 @@ int main(int argc, char ** argv) {
 \end{lstlisting}
 
 \noindent
-The first time in \verb|main()| the \verb|jump_buffer| is set and \verb|setjmp()| 
-returns \verb|0|; then \verb|testJmp(1)| is called which makes a \emph{long jump} 
+At the beginning, the \verb|jump_buffer| is set in \verb|main()| by \verb|setjmp()| 
+which returns \verb|0| (the first time); 
+then \verb|testJmp(1)| is called which makes a \emph{long jump} 
 again to the \verb|if| condition in \verb|main()| but, this time \verb|setjmp()| returns
 \verb|1| since a \emph{jump} is happened and the code in \verb|else| statement 
 is executed. The second call of \verb|testJmp()| is a normal function call.
-So, practically \verb|main()| function called \verb|testJmp()| twice but, since
-no \verb|ret| instruction is executed by \verb|testJmp()| when \verb|par=1|, 
-the \verb|funcMode| as described since now will produce in output this:
+Therefore, the \verb|main()| function has called \verb|testJmp()| twice but, 
+since no \verb|ret| instruction has been executed by \verb|testJmp()| when \verb|par| 
+was one, if run the \verb|funcMode| analysis as described since now, it will produce 
+in output this:
 
 \begin{lstlisting}[label=longjmp_ex_1, caption={an example of the \emph{longjmp} problem}]
 -----------------------------------------------------------------------------
@@ -3157,7 +3161,7 @@ DUMP of K-SF
 \end{lstlisting}
 
 \noindent
-The profiler assumed \emph{wrongly} that since no \verb|ret| instruction 
+The profiler has assumed \emph{wrongly} that since no \verb|ret| instruction 
 has been executed by \verb|testJmp()|, the second call is a recursion of it.
 Results like this one can be obtained with IHPP using \verb|-unrollSingleRec| option 
 after rebuilding it with all advanced checks in \verb|config.h| disabled.
@@ -3263,13 +3267,18 @@ find nothing strange and the situation is equivalent (from the point of view of 
 This would not have happened if \verb|testJmp()| was also called the first time with 
 the same number of arguments because in that case, the two \emph{stack pointer} values
 would have been equals and the \emph{shadow stack} would had been popped 
-by \verb|funcMode_sp_check()|.
+by \verb|funcMode_sp_check()|. Note: even if this situation can happen also
+on x86-64 architectures, it is more improbable because the standard calling convention
+used on these architectures is to pass the first six arguments through registers
+and only the seventh argument and the following ones on the stack; this means
+that \emph{variadic} routines called with less than seven arguments move
+the \emph{stack pointer} only by 8 bytes and this problem does not occur.
 
 An interesting consideration related to this problem is that, as told before,
 the problem occurs when the compiler follows the \verb|cdecl| 
 convention for \emph{variadic} functions:
 the \verb|cl| compiler included with the software package 
-\emph{Microsoft Visual Studio 2010} which often uses particular optimizations (also in debug mode) for build-in routines, compiles (in debug mode, with no other options) 
+\emph{Microsoft Visual Studio 2010} which often uses particular optimizations (also in debug mode) for built-in routines, compiles (in debug mode, with no other options) 
 user functions in the \verb|prog8.c| exactly as one expects using \verb|push| instructions
 and so the problem just shown occurs. The below listing shows the \verb|main()| routine
 compiled by \verb|cl|.
@@ -3338,7 +3347,7 @@ with \verb|mov| instructions as the \cref{p8mainGCC} shows.
 \noindent
 Paradoxically, in this situation the \emph{stack pointer check} method works
 great because the \emph{stack pointer} value is the same in both times \verb|testJmp()|
-is called: this means that the second \verb|testJmp()| call cannot be done by \verb|testJmp()| itself so, a \verb|long jump| has occurred.
+is called: this means that the second \verb|testJmp()| call cannot had be done by \verb|testJmp()| itself so, a \verb|long jump| has occurred.
 
 \subsubsection{Conclusions}
 It is possible to say that the \emph{stack pointer check} is
@@ -3346,7 +3355,7 @@ a good and \emph{light} method for catching particular events such as \emph{long
 and that actually it \emph{should} always work for programs compiled with \verb|gcc|.
 Instead, it could produce wrong results with Windows programs compiled with \verb|cl|
 in rare situations (such as the one just shown) when only user routines are instrumented but, when \emph{all} routines of a program compiled with \verb|cl| are instrumented (IHPP called without the \verb|-funcs| option) this method produces \emph{totally} wrong results:
-the reason is that, as will be explained later, build-in routines in \verb|cl|-compiled programs calls each other sometimes using simply the \verb|jmp| instruction and also 
+the reason is that, as will be explained later, built-in routines in \verb|cl|-compiled programs calls each other sometimes using simply the \verb|jmp| instruction and also 
 \verb|ret| instructions can be replaced with unconditional jumps; in addition to
 all this, there are cases of fall-though in routines which means that the program 
 enters in a routine \emph{without} any form of \emph{branch}, by simply executing 
