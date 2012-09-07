@@ -3442,7 +3442,7 @@ Another peculiarity that differentiates the \verb|intraMode| from
 \verb|intraModeBlockTrace()|; nevertheless, \verb|intraMode| has a \emph{ret} routine
 too but it is not directly instrumented: as already explained, 
 \verb|intraMode| is conceptually a \emph{layer} over \verb|funcMode| so, 
-is this last one that notices \verb|intraMode| routines when a function ``returnes''.
+is this last one that notices \verb|intraMode| routines when a function ``returns''.
 As already seen, the concept of \emph{function return} is a quite ``virtual'': 
 sometimes it is not referred to a \emph{real} \verb|ret| instruction 
 but instead to a \emph{long jump} or something like that. 
@@ -3818,7 +3818,7 @@ and two jump target addresses are stored in the \emph{thread context}.
 
 \subsection{The \emph{forward jump recognition} approach}
 
-In the last section it was described a good approach to the \emph{long jump} problem
+In the section 5.4 has been described a good approach to the \emph{long jump} problem
 which works for a limited set of routines. As stated many times, when
 all routines of a program compiled with \verb|cl| are instrumented, wrong $k$-SFs
 are often produced because of the presence of built-in routines, indistinguishable
