@@ -103,8 +103,13 @@ void traceObject_generic(TracingObject<ADDRINT> *to, GenericTraceContext *ctx,
 		return;
 	}
 
+	bool mod0 = !(ctx->counter % k);
+
+	if (dynamic_cast<FunctionObj*>(to))
+		mod0 = !(ctx->shadowStack.size() % k);
+
 	// For k -> inf, this code runs only first time, when counter=0
-	if (!( (ctx->counter) % k )) {
+	if (mod0) {
 
 		treeBottom=treeTop;
 

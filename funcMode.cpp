@@ -167,17 +167,17 @@ void funcMode_ret()
 		dbg_functr_pop();
 		ctx->shadowStack.pop();
 		
-		if (globalCtx->options.unrollRec) {
-			
-			ctx->counter = ctx->counter ? ctx->counter-1 : 0;
-		
-		} else {
-		
-			if (ctx->shadowStack.size() > 1)
-				if (ctx->shadowStack.top().treeTop->getKey() != 
-							ctx->shadowStack.top(1).treeTop->getKey())
-					ctx->counter--;
-		}
+		//if (globalCtx->options.unrollRec) {
+		//	
+		//	ctx->counter = ctx->counter ? ctx->counter-1 : 0;
+		//
+		//} else {
+		//
+		//	if (ctx->shadowStack.size() > 1)
+		//		if (ctx->shadowStack.top().treeTop->getKey() != 
+		//					ctx->shadowStack.top(1).treeTop->getKey())
+		//			ctx->counter--;
+		//}
 
 		if (globalCtx->WorkingMode() == WM_IntraMode)
 			intraMode_ret();
@@ -198,17 +198,17 @@ void funcMode_ret()
 		dbg_functr_pop();
 		ctx->shadowStack.pop();
 
-		if (globalCtx->options.unrollRec) {
-			
-			ctx->counter = ctx->counter ? ctx->counter-1 : 0;
-		
-		} else {
-		
-			if (ctx->shadowStack.size() > 1)
-				if (ctx->shadowStack.top().treeTop->getKey() != 
-							ctx->shadowStack.top(1).treeTop->getKey())
-					ctx->counter--;
-		}
+		//if (globalCtx->options.unrollRec) {
+		//	
+		//	ctx->counter = ctx->counter ? ctx->counter-1 : 0;
+		//
+		//} else {
+		//
+		//	if (ctx->shadowStack.size() > 1)
+		//		if (ctx->shadowStack.top().treeTop->getKey() != 
+		//					ctx->shadowStack.top(1).treeTop->getKey())
+		//			ctx->counter--;
+		//}
 	}
 
 	dbg_funcret_stack_after_pop();
