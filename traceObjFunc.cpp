@@ -52,8 +52,7 @@ void traceObject_generic(TracingObject<ADDRINT> *to, GenericTraceContext *ctx,
 	ADDRINT key = to->getKey();
 	unsigned int k = globalSharedContext->kval();
 
-	bool accumulate = !globalSharedContext->options.unrollRec; //&& 
-						//globalSharedContext->WorkingMode() != WM_InterProcMode;
+	bool accumulate = !globalSharedContext->options.unrollRec; 
 
 	if (!treeTop && !treeBottom) {
 	
@@ -113,7 +112,7 @@ void traceObject_generic(TracingObject<ADDRINT> *to, GenericTraceContext *ctx,
 
 		if (!n)
 			n = ctx->kSlabForest.addTreeByVal(ihppNode(key,to,0));
-		
+
 		treeTop = n;
 
 	} else {

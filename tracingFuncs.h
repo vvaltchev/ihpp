@@ -13,7 +13,7 @@ void FunctionObjTrace(FunctionObj *fc, ADDRINT reg_sp);
 void intraModeBlockTrace(BasicBlock *bb, ADDRINT reg_sp);
 #else
 void FunctionObjTrace(FunctionObj *fc);
-void intraModeBlockTrace(TracingObject<ADDRINT> *to);
+void intraModeBlockTrace(BasicBlock *bb);
 #endif
 
 void intraMode_ret();
