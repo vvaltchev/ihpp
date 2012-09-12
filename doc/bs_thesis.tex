@@ -2520,12 +2520,12 @@ a couple $k$-SF - $k$-CCF: a $k$-slab forest, a shadowStack and a \verb|rootKey|
 The \verb|R| map, explained in chapter 3, is not necessary here because the \verb|forest<T>| class used as the type\footnote{\texttt{ihppForest} is simply a \texttt{typedef} of \texttt{forest<T>} with \texttt{T = ADDRINT}.} of \verb|kSlabForest| uses itself 
 a hashmap for tree roots searches. The \verb|counter| variable, instead, is a new concept:
 it is used by the \verb|traceObject()| function as a replacement of the 
-expression \verb|S.size()-1| used in \cref{ksf_alg} on line 15. 
+expression \verb|S.size()-1| used in \cref{ksf_alg} on line 15 
+when \verb|BasicBlock| objects have to traced. 
 The reason of \verb|counter| is that the \verb|shadowStack| size does not grow 
 neither in \verb|intraMode| nor in \verb|interMode| when new BBLs are activated but
 the algorithm needs a growing variable. Actually, \verb|counter| is always incremented
-by every \verb|traceObject()| invocation; also \verb|funcMode| uses this counter
-instead of \verb|shadowStack.size()| but, its value is decreased on stack \verb|pop()| actions.
+by every \verb|traceObject()| invocation even if, when tracing \verb|FunctionObj| objects, \verb|traceObject()| uses \verb|shadowStack.size()|.
 
 \subsection{The \emph{IntraModeContext} class}
 
