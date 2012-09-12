@@ -5,10 +5,9 @@
 #include "benchmark.h"
 #include "tracingFuncs.h"
 
-void interModeBlockTrace(TracingObject<ADDRINT> *to) { 
+void interModeBlockTrace(BasicBlock *bb) { 
 
 	ThreadContext *ctx;
-	BasicBlock *bb = static_cast<BasicBlock*>(to);
 	
 	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
 

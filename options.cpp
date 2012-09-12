@@ -165,7 +165,7 @@ bool optionsClass::checkOptions()
 
 	if (::opt_unrollRec.Value() && !::opt_funcMode.Value()) {
 	
-		cerr << "-unrollRec option can be used only in funcMode." << endl;
+		cerr << "-unrollSimpleRec option can be used only in funcMode." << endl;
 		return false;
 	}
 

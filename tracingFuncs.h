@@ -21,7 +21,7 @@ void funcMode_ret();
 
 //InterProcMode tracing functions
 
-void interModeBlockTrace(TracingObject<ADDRINT> *to);
+void interModeBlockTrace(BasicBlock *bb);
 
 //Instruction-tracing functions
 
@@ -40,14 +40,22 @@ void indirect_branchOrCall(ADDRINT currentFuncAddr,
 
 //The main traceObject function
 
-void traceObject_generic(TracingObject<ADDRINT> *to, 
+
+void traceObject_classic_roll(TracingObject<ADDRINT> *to, 
 										GenericTraceContext *ctx, ihppNode* &treeTop, 
 										ihppNode* &treeBottom);
 
-void traceObject_acc_kinf(TracingObject<ADDRINT> *to, 
+void traceObject_classic_no_roll(TracingObject<ADDRINT> *to, 
 										GenericTraceContext *ctx, ihppNode* &treeTop, 
 										ihppNode* &treeBottom);
 
+void traceObject_kinf_roll(TracingObject<ADDRINT> *to, 
+										GenericTraceContext *ctx, ihppNode* &treeTop, 
+										ihppNode* &treeBottom);
+
+void traceObject_kinf_no_roll(TracingObject<ADDRINT> *to, 
+										GenericTraceContext *ctx, ihppNode* &treeTop, 
+										ihppNode* &treeBottom);
 
 extern void (*traceObject)(TracingObject<ADDRINT> *to, 
 										GenericTraceContext *ctx, ihppNode* &treeTop, 

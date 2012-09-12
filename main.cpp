@@ -119,7 +119,7 @@ void insInstrumentation(RTN rtn, INS ins) {
 }
 
 
-VOID BlockTraceInstrumentation(TRACE trace, void *)
+void BlockTraceInstrumentation(TRACE trace, void *)
 {
     
 	RTN rtn;
@@ -450,14 +450,21 @@ int main(int argc, char ** argv) {
 
     PIN_AddFiniFunction(Fini, 0);
 
-	if (options.kinf && !options.unrollRec) {
+	if (options.kinf) {
 	
-		traceObject = traceObject_acc_kinf;
+		if (!options.unrollRec)
+			traceObject = traceObject_kinf_roll;
+		else
+			traceObject = traceObject_kinf_no_roll;
 	
 	} else {
-		
-		traceObject = traceObject_generic;
+	
+		if (!options.unrollRec)
+			traceObject = traceObject_classic_roll;
+		else
+			traceObject = traceObject_classic_no_roll;
 	}
+
 
 	//add a fake __root__ function
 	if (globalSharedContext->funcsToTrace.size()) {
