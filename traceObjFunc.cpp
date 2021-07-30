@@ -5,197 +5,203 @@
 #include "benchmark.h"
 
 
-void (*traceObject)(TracingObject<ADDRINT> *to, GenericTraceContext *ctx, 
-										ihppNode* &treeTop, ihppNode* &treeBottom)=0;
+void (*traceObject)(TracingObject<ADDRINT> *to,
+                    GenericTraceContext *ctx,
+                    ihppNode* &treeTop,
+                    ihppNode* &treeBottom) = 0;
 
-void traceObject_kinf_roll(TracingObject<ADDRINT> *to, GenericTraceContext *ctx, 
-										ihppNode* &treeTop, ihppNode* &treeBottom)
+void traceObject_kinf_roll(TracingObject<ADDRINT> *to,
+                           GenericTraceContext *ctx,
+                           ihppNode* &treeTop,
+                           ihppNode* &treeBottom)
 {
-	ihppNode *n;
-	ADDRINT key = to->getKey();
+    ihppNode *n;
+    ADDRINT key = to->getKey();
 
 
-	if (!treeTop) {
-			
-		treeTop = ctx->kSlabForest.addTreeByVal(ihppNode(key, to, 1));
-		
-		if (!ctx->rootKey)
-			ctx->rootKey=key;
+    if (!treeTop) {
 
-	} else {
+        treeTop = ctx->kSlabForest.addTreeByVal(ihppNode(key, to, 1));
 
-		//roll simple rec
-		if (to == treeTop->getValue()) {
-	
-			treeTop->incCounter();
-			return;
-		}
+        if (!ctx->rootKey)
+            ctx->rootKey=key;
 
-		n = treeTop->getChildRef(key);
-			
-		if (!n)
-			n = treeTop->addChildByVal(ihppNode(key, to, 1));
-		else
-			n->incCounter();
+    } else {
 
-		treeTop=n;
-	}
+        //roll simple rec
+        if (to == treeTop->getValue()) {
+
+            treeTop->incCounter();
+            return;
+        }
+
+        n = treeTop->getChildRef(key);
+
+        if (!n)
+            n = treeTop->addChildByVal(ihppNode(key, to, 1));
+        else
+            n->incCounter();
+
+        treeTop=n;
+    }
 
 }
 
-void traceObject_kinf_no_roll(TracingObject<ADDRINT> *to, GenericTraceContext *ctx, 
-										ihppNode* &treeTop, ihppNode* &treeBottom)
+void traceObject_kinf_no_roll(TracingObject<ADDRINT> *to,
+                              GenericTraceContext *ctx,
+                              ihppNode* &treeTop,
+                              ihppNode* &treeBottom)
 {
-	ihppNode *n;
-	ADDRINT key = to->getKey();
+    ihppNode *n;
+    ADDRINT key = to->getKey();
 
-	if (!treeTop) {
-			
-		treeTop = ctx->kSlabForest.addTreeByVal(ihppNode(key, to, 1));
-				
-		if (!ctx->rootKey)
-			ctx->rootKey=key;
+    if (!treeTop) {
 
-	} else {
+        treeTop = ctx->kSlabForest.addTreeByVal(ihppNode(key, to, 1));
 
-		n = treeTop->getChildRef(key);
-			
-		if (!n)
-			n = treeTop->addChildByVal(ihppNode(key, to, 1));
-		else
-			n->incCounter();
+        if (!ctx->rootKey)
+            ctx->rootKey=key;
 
-		treeTop=n;
-	}
+    } else {
+
+        n = treeTop->getChildRef(key);
+
+        if (!n)
+            n = treeTop->addChildByVal(ihppNode(key, to, 1));
+        else
+            n->incCounter();
+
+        treeTop=n;
+    }
 
 }
 
-void traceObject_classic_roll(TracingObject<ADDRINT> *to, GenericTraceContext *ctx, 
-										ihppNode* &treeTop, ihppNode* &treeBottom) 
+void traceObject_classic_roll(TracingObject<ADDRINT> *to,
+                              GenericTraceContext *ctx,
+                              ihppNode* &treeTop,
+                              ihppNode* &treeBottom)
 {
 
-	ihppNode *n;
-	ihppNodeMap::iterator it;
-	ADDRINT key = to->getKey();
-	unsigned int k = globalSharedContext->kval();
+    ihppNode *n;
+    ihppNodeMap::iterator it;
+    ADDRINT key = to->getKey();
+    unsigned int k = globalSharedContext->kval();
+
+    //roll simple rec
+    if (treeTop && to == treeTop->getValue()) {
+
+        treeTop->incCounter();
+        return;
+    }
+
+    bool mod0 = !(ctx->counter % k);
+
+    if (to->getType() == TracingObjType::Func)
+        mod0 = !(ctx->shadowStack.size() % k);
+
+    // For k -> inf, this code runs only first time, when counter=0
+    if (mod0) {
+
+        if (!treeTop && !treeBottom)
+            ctx->rootKey=key;
+
+        treeBottom=treeTop;
+
+        n = ctx->kSlabForest.getTreeRef(key);
+
+        if (!n)
+            n = ctx->kSlabForest.addTreeByVal(ihppNode(key,to,0));
+
+        treeTop = n;
+
+    } else {
+
+        //For k -> inf, only this code runs
+
+        n = treeTop->getChildRef(key);
+
+        if (!n)
+            n = treeTop->addChildByVal(ihppNode(key, to, 0));
+
+        treeTop=n;
+    }
 
 
+    treeTop->incCounter();
 
-	//roll simple rec	
-	if (treeTop && to == treeTop->getValue()) {
-	
-		treeTop->incCounter();
-		return;
-	}
+    //For k -> inf, this NEVER runs
+    if (treeBottom) {
 
-	bool mod0 = !(ctx->counter % k);
+        n = treeBottom->getChildRef(key);
 
-	if (dynamic_cast<FunctionObj*>(to))
-		mod0 = !(ctx->shadowStack.size() % k);
+        if (!n)
+            n = treeBottom->addChildByVal(ihppNode(key, to, 0));
 
-	// For k -> inf, this code runs only first time, when counter=0
-	if (mod0) {
-	
-		if (!treeTop && !treeBottom)
-			ctx->rootKey=key;
+        treeBottom=n;
+        treeBottom->incCounter();
+    }
 
-		treeBottom=treeTop;
-
-		n = ctx->kSlabForest.getTreeRef(key);
-
-		if (!n)
-			n = ctx->kSlabForest.addTreeByVal(ihppNode(key,to,0));
-
-		treeTop = n;
-
-	} else {
-		
-		//For k -> inf, only this code runs
-
-		n = treeTop->getChildRef(key);
-
-		if (!n)
-			n = treeTop->addChildByVal(ihppNode(key, to, 0));
-		
-		treeTop=n;
-	}
-	
-
-	treeTop->incCounter();
-
-	//For k -> inf, this NEVER runs
-	if (treeBottom) {
-	
-		n = treeBottom->getChildRef(key);
-
-		if (!n)
-			n = treeBottom->addChildByVal(ihppNode(key, to, 0));
-		
-		treeBottom=n;
-		treeBottom->incCounter();
-	}
-
-	
-	ctx->counter++;
+    ctx->counter++;
 }
 
-void traceObject_classic_no_roll(TracingObject<ADDRINT> *to, GenericTraceContext *ctx, 
-										ihppNode* &treeTop, ihppNode* &treeBottom) 
+void traceObject_classic_no_roll(TracingObject<ADDRINT> *to,
+                                 GenericTraceContext *ctx,
+                                 ihppNode* &treeTop,
+                                 ihppNode* &treeBottom)
 {
+    ihppNode *n;
+    ihppNodeMap::iterator it;
+    ADDRINT key = to->getKey();
+    unsigned int k = globalSharedContext->kval();
 
-	ihppNode *n;
-	ihppNodeMap::iterator it;
-	ADDRINT key = to->getKey();
-	unsigned int k = globalSharedContext->kval();
+    bool mod0 = !(ctx->counter % k);
 
-	bool mod0 = !(ctx->counter % k);
+    if (to->getType() == TracingObjType::Func)
+        mod0 = !(ctx->shadowStack.size() % k);
 
-	if (dynamic_cast<FunctionObj*>(to))
-		mod0 = !(ctx->shadowStack.size() % k);
+    // For k -> inf, this code runs only first time, when counter=0
+    if (mod0) {
 
-	// For k -> inf, this code runs only first time, when counter=0
-	if (mod0) {
+        if (!treeTop && !treeBottom)
+            ctx->rootKey=key;
 
-		if (!treeTop && !treeBottom)
-			ctx->rootKey=key;
+        treeBottom=treeTop;
 
-		treeBottom=treeTop;
+        n = ctx->kSlabForest.getTreeRef(key);
 
-		n = ctx->kSlabForest.getTreeRef(key);
+        if (!n)
+            n = ctx->kSlabForest.addTreeByVal(ihppNode(key,to,0));
 
-		if (!n)
-			n = ctx->kSlabForest.addTreeByVal(ihppNode(key,to,0));
+        treeTop = n;
 
-		treeTop = n;
+    } else {
 
-	} else {
-		
-		//For k -> inf, only this code runs
+        //For k -> inf, only this code runs
 
-		n = treeTop->getChildRef(key);
+        n = treeTop->getChildRef(key);
 
-		if (!n)
-			n = treeTop->addChildByVal(ihppNode(key, to, 0));
-		
-		treeTop=n;
-	}
-	
+        if (!n)
+            n = treeTop->addChildByVal(ihppNode(key, to, 0));
 
-	treeTop->incCounter();
+        treeTop=n;
+    }
 
-	//For k -> inf, this NEVER runs
-	if (treeBottom) {
-	
-		n = treeBottom->getChildRef(key);
 
-		if (!n)
-			n = treeBottom->addChildByVal(ihppNode(key, to, 0));
-		
-		treeBottom=n;
-		treeBottom->incCounter();
-	}
+    treeTop->incCounter();
 
-	
-	ctx->counter++;
+    //For k -> inf, this NEVER runs
+    if (treeBottom) {
+
+        n = treeBottom->getChildRef(key);
+
+        if (!n)
+            n = treeBottom->addChildByVal(ihppNode(key, to, 0));
+
+        treeBottom=n;
+        treeBottom->incCounter();
+    }
+
+
+    ctx->counter++;
 }
 

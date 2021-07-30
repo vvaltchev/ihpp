@@ -4,8 +4,8 @@ void foo(); void bar();
 
 void recFunc(int n) {
 
-	if (!n) { bar(); return; }
-	recFunc(n-1);
+    if (!n) { bar(); return; }
+    recFunc(n-1);
 }
 
 void foo() { recFunc(5); }

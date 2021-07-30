@@ -1,48 +1,18 @@
 #include "util.h"
 
-vector<string> *splitString(string s, char sep) {
+vector<string> splitString(const string& s, char sep)
+{
+    vector<string> res;
 
-	vector<string> *res = new vector<string>();
-	size_t len = s.length();
-	size_t j;
+    size_t last = 0;
+    size_t next = 0;
 
-	char *buf; 
+    while ((next = s.find(sep, last)) != string::npos) {
+        res.push_back(s.substr(last, next-last));
+        last = next + 1;
+    }
 
-	if (!len)
-		return res;
-
-	buf = new char[len+1];
-	memset(buf, 0, len+1);
-
-	j=0;
-
-	for (size_t i=0; i < len; i++) {
-
-		if (s[i] == sep) {
-		
-			if (!j) {
-			
-				delete [] buf;
-				delete res;
-				return 0;
-			}
-				
-			buf[j]=0;
-			res->push_back(string(buf));
-			j=0;
-			continue;
-		}
-
-		buf[j++]=s[i];
-	}
-
-	if (j) {
-	
-		buf[j]=0;
-		res->push_back(string(buf));
-	}
-
-	delete [] buf;
-	return res;
+    res.push_back(s.substr(last));
+    return res;
 }
 

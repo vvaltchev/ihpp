@@ -50,184 +50,184 @@ static KNOB<string> stopFunc(KNOB_MODE_WRITEONCE, "pintool", "stopFunc", "--", "
 
 
 const char *optionsClass::getOutfileName() { 
-	
-	if (::outFileName.Value() == "out.txt" && ::xmloutput.Value())
-		return "out.xml";
+    
+    if (::outFileName.Value() == "out.txt" && ::xmloutput.Value())
+        return "out.xml";
 
-	return outFileName.Value().c_str(); 
+    return outFileName.Value().c_str(); 
 }
 
 
 unsigned int optionsClass::getGlobalKVal() {
-	
-	return ::kparameter.Value();
+    
+    return ::kparameter.Value();
 }
 
 WorkingModeType optionsClass::getGlobalWM() {
 
-	if (::opt_intraMode.Value())
-		return WM_IntraMode;
+    if (::opt_intraMode.Value())
+        return WM_IntraMode;
 
-	if (::opt_interProcMode.Value())
-		return WM_InterProcMode;
+    if (::opt_interProcMode.Value())
+        return WM_InterProcMode;
 
-	return WM_FuncMode;
+    return WM_FuncMode;
 }
 
 void optionsClass::initFromGlobalOptions() 
 {
 
-	startFuncName = ::startFunc.Value();
-	stopFuncName = ::stopFunc.Value();
+    startFuncName = ::startFunc.Value();
+    stopFuncName = ::stopFunc.Value();
 
-	joinThreads = ::joinThreads.Value();
-	rollLoops = ::rollLoops.Value();
+    joinThreads = ::joinThreads.Value();
+    rollLoops = ::rollLoops.Value();
 
-	showkSF = ::showkSF.Value();
-	showkSF2 = ::showkSF2.Value();
-	showkCCF = ::showkCCF.Value();
-	showFuncs = ::showFuncs.Value();
-	showBlocks = ::showBlocks.Value();
-	showCalls = ::showCalls.Value();
-	blocksDisasm = ::blocksDisasm.Value();
-	funcsDisasm = ::funcsDisasm.Value();
-	kinf = ::kinf.Value();
-	xmloutput = ::xmloutput.Value();
-	unrollRec = ::opt_unrollRec.Value();
-	tracingFuncList = ::funcList.Value();
-	insTracing = ::insTracing.Value();
+    showkSF = ::showkSF.Value();
+    showkSF2 = ::showkSF2.Value();
+    showkCCF = ::showkCCF.Value();
+    showFuncs = ::showFuncs.Value();
+    showBlocks = ::showBlocks.Value();
+    showCalls = ::showCalls.Value();
+    blocksDisasm = ::blocksDisasm.Value();
+    funcsDisasm = ::funcsDisasm.Value();
+    kinf = ::kinf.Value();
+    xmloutput = ::xmloutput.Value();
+    unrollRec = ::opt_unrollRec.Value();
+    tracingFuncList = ::funcList.Value();
+    insTracing = ::insTracing.Value();
 
-	//automatic option implications
-	if (rollLoops) {
-		kinf = true;
-	}
+    //automatic option implications
+    if (rollLoops) {
+        kinf = true;
+    }
 }
 
 
 
 void optionsClass::showHelp()
 {
-	
-	cout << endl << endl;
-	cout << "IHPP: An Intraprocedural Hot Path Profiler\n" << endl;
-	cout << "-------------------------------------------\n" << endl;
-	cout << "Syntax: <PIN> -t " << KCCF_LIB_FILE << " <WORKING MODE> [ -funcs <func1>,<func2>,... ]\n"; 
-	cout << "\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] [ -xml ]" << endl;
-	cout << "\t<SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
-	
-	cout << "\nWorking modes: " << endl;
-	cout << "\t -funcMode : procedure-level profiling [ default mode ]" << endl;
-	cout << "\t -intraMode : intra-procedural basic block profiling" << endl;
-	cout << "\t -interMode : inter-procedural basic block profiling" << endl;
-	
-	cout << "\nShow options:\n";
-	cout << "\t-ksf: shows the k-Slab Forest" << endl;
-	cout << "\t-kccf: shows the k-Calling Context Forest" << endl;
-	cout << "\t-showFuncs: shows function's list" << endl;
-	cout << "\t-showBlocks: shows basic block's list" << endl;
-	cout << "\t-blocksDisasm: shows disassembly in the section 'All basic blocks'" << endl;
-	cout << "\t-funcsDisasm: shows disassembly in the section 'All functions'" << endl;
+    
+    cout << endl << endl;
+    cout << "IHPP: An Intraprocedural Hot Path Profiler\n" << endl;
+    cout << "-------------------------------------------\n" << endl;
+    cout << "Syntax: <PIN> -t " << KCCF_LIB_FILE << " <WORKING MODE> [ -funcs <func1>,<func2>,... ]\n"; 
+    cout << "\t[ -k <K_VALUE> | -kinf ] [-outfile <FILE>] [ -xml ]" << endl;
+    cout << "\t<SHOW OPTIONS> <OTHER OPTIONS>" << endl << endl; 
+    
+    cout << "\nWorking modes: " << endl;
+    cout << "\t -funcMode : procedure-level profiling [ default mode ]" << endl;
+    cout << "\t -intraMode : intra-procedural basic block profiling" << endl;
+    cout << "\t -interMode : inter-procedural basic block profiling" << endl;
+    
+    cout << "\nShow options:\n";
+    cout << "\t-ksf: shows the k-Slab Forest" << endl;
+    cout << "\t-kccf: shows the k-Calling Context Forest" << endl;
+    cout << "\t-showFuncs: shows function's list" << endl;
+    cout << "\t-showBlocks: shows basic block's list" << endl;
+    cout << "\t-blocksDisasm: shows disassembly in the section 'All basic blocks'" << endl;
+    cout << "\t-funcsDisasm: shows disassembly in the section 'All functions'" << endl;
 
-	cout << "\nOther options:\n";
-	cout << "\t-xml option produces the output file in xml format" << endl;
-	cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
-	cout << "\t-rollLoops: when building the kSF in intraMode or interMode, \n\t\tloops will be rolled (-kinf is implied)\n" << endl;
-	cout << "\t-unrollSimpleRec: disables the rolling (by default) of \n\t\tsingle-function recursion in funcMode\n" << endl;
-	cout << "\t-insTracing: enables instruction tracing mode (slow)" << endl;
+    cout << "\nOther options:\n";
+    cout << "\t-xml option produces the output file in xml format" << endl;
+    cout << "\t-joinThreads: k Slab Forests of all thread will be joined" << endl;
+    cout << "\t-rollLoops: when building the kSF in intraMode or interMode, \n\t\tloops will be rolled (-kinf is implied)\n" << endl;
+    cout << "\t-unrollSimpleRec: disables the rolling (by default) of \n\t\tsingle-function recursion in funcMode\n" << endl;
+    cout << "\t-insTracing: enables instruction tracing mode (slow)" << endl;
 
-	cout << endl << endl;
+    cout << endl << endl;
 }
 
 bool optionsClass::checkOptions() 
 {
 
-	if ((  opt_funcMode.Value() && (opt_interProcMode.Value() || opt_intraMode.Value())  ) ||
-		(  opt_interProcMode.Value() && (opt_funcMode.Value() || opt_intraMode.Value())  ) ||
-		(  opt_intraMode.Value() && (opt_interProcMode.Value() || opt_funcMode.Value())  )) 
-	{
+    if ((  opt_funcMode.Value() && (opt_interProcMode.Value() || opt_intraMode.Value())  ) ||
+        (  opt_interProcMode.Value() && (opt_funcMode.Value() || opt_intraMode.Value())  ) ||
+        (  opt_intraMode.Value() && (opt_interProcMode.Value() || opt_funcMode.Value())  )) 
+    {
 
-		optionsClass::showHelp();
-		return false;
-	}
+        optionsClass::showHelp();
+        return false;
+    }
 
-	if (!::showkSF.Value() && !::showkSF2.Value() && !::showkCCF.Value() && 
-		!::showCalls.Value() && !::showFuncs.Value() && !::showBlocks.Value()) {
-	
-		optionsClass::showHelp();
-		return false;
-	} 
+    if (!::showkSF.Value() && !::showkSF2.Value() && !::showkCCF.Value() && 
+        !::showCalls.Value() && !::showFuncs.Value() && !::showBlocks.Value()) {
+    
+        optionsClass::showHelp();
+        return false;
+    } 
 
-	if (::showBlocks.Value() && opt_funcMode.Value()) {
-	
-		cerr << "-showBlocks can't be used in funcMode." << endl;
-		return false;
-	}
+    if (::showBlocks.Value() && opt_funcMode.Value()) {
+    
+        cerr << "-showBlocks can't be used in funcMode." << endl;
+        return false;
+    }
 
-	if (::opt_unrollRec.Value() && !::opt_funcMode.Value()) {
-	
-		cerr << "-unrollSimpleRec option can be used only in funcMode." << endl;
-		return false;
-	}
+    if (::opt_unrollRec.Value() && !::opt_funcMode.Value()) {
+    
+        cerr << "-unrollSimpleRec option can be used only in funcMode." << endl;
+        return false;
+    }
 
-	if (::blocksDisasm.Value() && !::showBlocks.Value()) {
-	
-		cerr << "-blocksDisasm option only applicable with -showBlocks option." << endl;
-		return false;
-	}
+    if (::blocksDisasm.Value() && !::showBlocks.Value()) {
+    
+        cerr << "-blocksDisasm option only applicable with -showBlocks option." << endl;
+        return false;
+    }
 
-	if (::kparameter.Value() <= 0) {
-	
-		cerr << "The value of K must be greater than 0." << endl;
-		return false;
-	}
+    if (::kparameter.Value() <= 0) {
+    
+        cerr << "The value of K must be greater than 0." << endl;
+        return false;
+    }
 
-	if (::funcsDisasm.Value() && !::showFuncs.Value()) {
-		
-		cerr << "-funcsDisasm option only applicable with -showFuncs option." << endl;
-		return false;	
-	}
+    if (::funcsDisasm.Value() && !::showFuncs.Value()) {
+        
+        cerr << "-funcsDisasm option only applicable with -showFuncs option." << endl;
+        return false;    
+    }
 
-	if (::kinf.Value() && !::rollLoops.Value() && !::opt_funcMode.Value()) {
-	
-		cerr << "It's an error to use k = infinite (-kinf) without -rollLoops option in intraMode/interMode.\n";
-		return false;
-	}
+    if (::kinf.Value() && !::rollLoops.Value() && !::opt_funcMode.Value()) {
+    
+        cerr << "It's an error to use k = infinite (-kinf) without -rollLoops option in intraMode/interMode.\n";
+        return false;
+    }
 
 
 #ifdef _WIN32
-	
-	if ( !funcList.Value().length() && !experimental.Value() ) {
-	
-		cerr << "Under Windows systems full tracing is an experimental feature:" << endl;
-		cerr << "results MAY BE WRONG. To try it, use -experimental option." << endl;
-		cerr << "Use -funcs <func1>,<func2>,... to do a SELECTIVE tracing (much more reliable).\n" << endl;
-		cerr << "Otherwise, enable instruction tracing (-insTracing) and use " << endl;
-		cerr << "options like -startFunc <func> (es. main)" << endl;
-		cerr << "and -stopFunc <func> (es. exit) to produce better results.\n" << endl;
+    
+    if ( !funcList.Value().length() && !experimental.Value() ) {
+    
+        cerr << "Under Windows systems full tracing is an experimental feature:" << endl;
+        cerr << "results MAY BE WRONG. To try it, use -experimental option." << endl;
+        cerr << "Use -funcs <func1>,<func2>,... to do a SELECTIVE tracing (much more reliable).\n" << endl;
+        cerr << "Otherwise, enable instruction tracing (-insTracing) and use " << endl;
+        cerr << "options like -startFunc <func> (es. main)" << endl;
+        cerr << "and -stopFunc <func> (es. exit) to produce better results.\n" << endl;
 
-		return false;
-	}
+        return false;
+    }
 #endif
 
 #if !ENABLE_INS_TRACING
 
-	if (::insTracing.Value()) {
-		
-		cerr << "Error: cannot use -insTracing option because IHPP is not compiled" << endl;
-		cerr << "to support it. Set ENABLE_INS_TRACING=1 in config.h and rebuild IHPP" << endl;
-		
-		return false;
-	}
+    if (::insTracing.Value()) {
+        
+        cerr << "Error: cannot use -insTracing option because IHPP is not compiled" << endl;
+        cerr << "to support it. Set ENABLE_INS_TRACING=1 in config.h and rebuild IHPP" << endl;
+        
+        return false;
+    }
 
 #endif
 
-	if (::rollLoops.Value() && ::opt_funcMode.Value()) {
-	
-		cerr << "-rollLoops option can't be used in funcMode.\n";
-		return false;
-	}
+    if (::rollLoops.Value() && ::opt_funcMode.Value()) {
+    
+        cerr << "-rollLoops option can't be used in funcMode.\n";
+        return false;
+    }
 
 
-	return true;
+    return true;
 }
 

@@ -9,59 +9,58 @@ class ShadowStackItemType {
 
 public:
 
-	ihppNode *treeTop;
-	ihppNode *treeBottom;
+    ihppNode *treeTop;
+    ihppNode *treeBottom;
 
 #if ENABLE_KEEP_STACK_PTR
-	ADDRINT stackPtr;
+    ADDRINT stackPtr;
 #endif
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
-	unsigned int fjmps;
+    unsigned int fjmps;
 #endif
 
 #if ENABLE_KEEP_STACK_PTR
-	ShadowStackItemType(ihppNode *t, ihppNode *b, ADDRINT ptr) : treeTop(t), treeBottom(b), stackPtr(ptr) 
+    ShadowStackItemType(ihppNode *t, ihppNode *b, ADDRINT ptr) : treeTop(t), treeBottom(b), stackPtr(ptr)
 #else
-	ShadowStackItemType(ihppNode *t, ihppNode *b) : treeTop(t), treeBottom(b)
+    ShadowStackItemType(ihppNode *t, ihppNode *b) : treeTop(t), treeBottom(b)
 #endif
-	{ 
+    {
 
 #if ENABLE_INS_FORWARD_JMP_RECOGNITION
-		fjmps=0;
+        fjmps=0;
 #endif
-
-	}
-
-
+    }
 };
 
 class GenericTraceContext: public BenchmarkObj {
 
 public:
 
-	ADDRINT rootKey;
-	ihppForest kSlabForest;
-	unsigned int counter;
+    ADDRINT rootKey;
+    ihppForest kSlabForest;
+    unsigned int counter;
 
-	ihppStack<ShadowStackItemType> shadowStack;
+    ihppStack<ShadowStackItemType> shadowStack;
 
-	GenericTraceContext() : rootKey(0), counter(0) 
-	{ 
-		BENCHMARK_INIT_VARS
-	}
-
+    GenericTraceContext() : rootKey(0), counter(0)
+    {
+        BENCHMARK_INIT_VARS
+    }
 };
 
 class IntraModeContext : public GenericTraceContext {
 
-	ADDRINT funcAddr;
+    ADDRINT funcAddr;
 
 public:
 
-	IntraModeContext(ADDRINT functionAddr) : GenericTraceContext(), funcAddr(functionAddr) { }
+    IntraModeContext(ADDRINT functionAddr)
+        : GenericTraceContext()
+        , funcAddr(functionAddr)
+    { }
 
-	ADDRINT getFunctionAddr() { return funcAddr; }
+    ADDRINT getFunctionAddr() { return funcAddr; }
 };
 
 #endif

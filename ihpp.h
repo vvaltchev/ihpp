@@ -28,75 +28,75 @@ public:
 
 #if defined(_WIN32)
 
-	ADDRINT _NLG_Notify_addr;
-	ADDRINT _NLG_Notify1_addr;
-	ADDRINT __NLG_Dispatch_addr;
-	ADDRINT __tmainCRTStartup_addr;
-	ADDRINT wWinMain_addr;
-	ADDRINT unnamedImageEntryPoint_addr;
+    ADDRINT _NLG_Notify_addr;
+    ADDRINT _NLG_Notify1_addr;
+    ADDRINT __NLG_Dispatch_addr;
+    ADDRINT __tmainCRTStartup_addr;
+    ADDRINT wWinMain_addr;
+    ADDRINT unnamedImageEntryPoint_addr;
 
 #endif
 
-	ADDRINT main_addr;
-	ADDRINT exit_addr;
+    ADDRINT main_addr;
+    ADDRINT exit_addr;
 
-	ADDRINT text_addr;
-	
+    ADDRINT text_addr;
+    
 
-	specialAttrs() :
+    specialAttrs() :
 
 #if defined(_WIN32)
-					_NLG_Notify_addr(0), _NLG_Notify1_addr(0), 
-					__NLG_Dispatch_addr(0), __tmainCRTStartup_addr(0), 
-					wWinMain_addr(0), unnamedImageEntryPoint_addr(0), 
+                    _NLG_Notify_addr(0), _NLG_Notify1_addr(0), 
+                    __NLG_Dispatch_addr(0), __tmainCRTStartup_addr(0), 
+                    wWinMain_addr(0), unnamedImageEntryPoint_addr(0), 
 #endif
-					main_addr(0), exit_addr(0), text_addr(0)
-	{ }
+                    main_addr(0), exit_addr(0), text_addr(0)
+    { }
 };
 
 
 
 class GlobalContext {
 
-	PIN_LOCK lock;
-	unsigned int _K_CCF_VAL;
-	WorkingModeType _WorkingMode;
+    PIN_LOCK lock;
+    unsigned int _K_CCF_VAL;
+    WorkingModeType _WorkingMode;
 
 public:
 
-	ofstream OutFile;
+    ofstream OutFile;
 
-	set<string> funcsToTrace;
-	set<ADDRINT> funcAddrsToTrace;
+    set<string> funcsToTrace;
+    set<ADDRINT> funcAddrsToTrace;
 
-	BlocksMap allBlocks;
-	FuncsMap allFuncs;
-	vector<ThreadContext*> threadContexts;
+    BlocksMap allBlocks;
+    FuncsMap allFuncs;
+    vector<ThreadContext*> threadContexts;
 
-	bool exitPassed;
-	
+    bool exitPassed;
+    
 #if DEBUG
-	bool showDebug;
+    bool showDebug;
 #endif
 
-	optionsClass options;
-	specialAttrs spAttrs;
+    optionsClass options;
+    specialAttrs spAttrs;
 
-	ADDRINT startFuncAddr;
-	ADDRINT stopFuncAddr;
+    ADDRINT startFuncAddr;
+    ADDRINT stopFuncAddr;
 
-	double timer;
-	
-	GlobalContext(WorkingModeType wm, unsigned kval, optionsClass options);
-	~GlobalContext();
+    double timer;
+    
+    GlobalContext(WorkingModeType wm, unsigned kval, optionsClass options);
+    ~GlobalContext();
 
-	ThreadContext *getThreadCtx(PIN_THREAD_UID tid);
-	
-	WorkingModeType WorkingMode() { return _WorkingMode; }
-	unsigned int kval() { return _K_CCF_VAL; }
+    ThreadContext *getThreadCtx(PIN_THREAD_UID tid);
+    
+    WorkingModeType WorkingMode() { return _WorkingMode; }
+    unsigned int kval() { return _K_CCF_VAL; }
 
-	inline bool hasToTraceByName(string funcName, ADDRINT funcAddr);
-	inline bool hasToTrace(ADDRINT funcAddr);
+    inline bool hasToTraceByName(string funcName, ADDRINT funcAddr);
+    inline bool hasToTrace(ADDRINT funcAddr);
 };
 
 #ifdef MAIN_IHPP_MODULE
@@ -112,31 +112,31 @@ extern GlobalContext *globalSharedContext;
 
 inline bool GlobalContext::hasToTraceByName(string funcName, ADDRINT funcAddr) 
 {
-	if (funcsToTrace.size()) 
-		return funcsToTrace.find(funcName) != funcsToTrace.end();
+    if (funcsToTrace.size()) 
+        return funcsToTrace.find(funcName) != funcsToTrace.end();
 
-	return allFuncs.find(funcAddr) != allFuncs.end();
+    return allFuncs.find(funcAddr) != allFuncs.end();
 }
 
 
 inline bool GlobalContext::hasToTrace(ADDRINT funcAddr)
 {
-	return funcAddrsToTrace.find(funcAddr) != funcAddrsToTrace.end();
+    return funcAddrsToTrace.find(funcAddr) != funcAddrsToTrace.end();
 }
 
 template <typename keyT>
 void kSlabForestKLevelCountersClear(forest<keyT> &f, keyT &rootKey, unsigned int k) {
 
-	typename forest<keyT>::treesIterator it = f.getTreesIteratorBegin();
-	typename forest<keyT>::treesIterator end = f.getTreesIteratorEnd();
+    typename forest<keyT>::treesIterator it = f.getTreesIteratorBegin();
+    typename forest<keyT>::treesIterator end = f.getTreesIteratorEnd();
 
-	while (it != end) {
-	
-		if (it->getKey() != rootKey)
-			it->clearLevelKCounters(k);
+    while (it != end) {
+    
+        if (it->getKey() != rootKey)
+            it->clearLevelKCounters(k);
 
-		it++;
-	}
+        it++;
+    }
 }
 
 

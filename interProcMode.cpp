@@ -7,52 +7,52 @@
 
 void interModeBlockTrace(BasicBlock *bb) { 
 
-	ThreadContext *ctx;
-	
-	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
+    ThreadContext *ctx;
+    
+    ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
 
 #if EMPTY_ANALYSIS
-	return;
+    return;
 #endif
 
-	if (bb->functionAddr() == ctx->startFuncAddr)
-		ctx->haveToTrace=true;
+    if (bb->functionAddr() == ctx->startFuncAddr)
+        ctx->haveToTrace=true;
 
-	if (!ctx->haveToTrace)
-		return;	
+    if (!ctx->haveToTrace)
+        return;    
 
-	if (bb->functionAddr() == ctx->stopFuncAddr)
-		ctx->haveToTrace=false;
-
-
-	bb->incSimpleCounter();
-
-	if (!globalSharedContext->options.rollLoops) {
-	
-		traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
-		return;
-
-	}
-
-	//rollLoops ON
-		
-	ihppNode *parent = ctx->treeTop->getParentRef();
-
-	while (parent) {
+    if (bb->functionAddr() == ctx->stopFuncAddr)
+        ctx->haveToTrace=false;
 
 
-		if (parent->getKey() == bb->getKey()) {
+    bb->incSimpleCounter();
 
-			ctx->treeTop=parent;
-			ctx->treeBottom=0;
-			ctx->treeTop->incCounter();
-			return;
-		}
+    if (!globalSharedContext->options.rollLoops) {
+    
+        traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
+        return;
 
-		parent = parent->getParentRef();
-	}
+    }
 
-	//parent NOT found
-	
-	traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
+    //rollLoops ON
+        
+    ihppNode *parent = ctx->treeTop->getParentRef();
+
+    while (parent) {
+
+
+        if (parent->getKey() == bb->getKey()) {
+
+            ctx->treeTop=parent;
+            ctx->treeBottom=0;
+            ctx->treeTop->incCounter();
+            return;
+        }
+
+        parent = parent->getParentRef();
+    }
+
+    //parent NOT found
+    
+    traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
 }

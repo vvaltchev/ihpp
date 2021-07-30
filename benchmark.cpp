@@ -15,12 +15,12 @@ ADDRINT __benchmarkFunc=0;
 #if USING_WINDOWS
 
 namespace win {
-	#include <windows.h>
+    #include <windows.h>
 }
 
 double getMilliseconds() {
 
-	return (double)win::GetTickCount();
+    return (double)win::GetTickCount();
 }
 
 #else
@@ -30,10 +30,10 @@ double getMilliseconds() {
 
 double getMilliseconds() {
 
-	timeval tv;
-	gettimeofday(&tv, NULL);
+    timeval tv;
+    gettimeofday(&tv, NULL);
 
-	return tv.tv_sec*1000.0 + tv.tv_usec/1000.0;
+    return tv.tv_sec*1000.0 + tv.tv_usec/1000.0;
 }
 
 #endif

@@ -40,7 +40,7 @@ ins time: 0.453 0.453
 run time: 16.078 16.032 --> 16.055 --> slowdown: 205.8x
 
 
-with -k 6 -unrollSimpleRec: 
+with -k 6 -unrollSimpleRec:
 
 ins time: 0.453
 run time: 16.047 --> slowdown: 205.7x
@@ -52,18 +52,18 @@ run time: 16.093 ---> slowdown: 206.3x
 
 ---------
 
-IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
+IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition
 -funcMode WITHOUT insTracing:
 
 run: 0.875, 0.891, 0.907 ---> 0.891 --> slowdown: 11.4x
 
-IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
+IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition
 -intraMode -rollLoops WITHOUT insTracing:
 
 ins: 0.484, 0.469, 0.484
 run: 6.672, 6.547, 6.860 ---> 6.693 --> slowdown: 85.8x
 
-IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
+IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition
 -intraMode -k 3 WITHOUT insTracing:
 
 run: 6.985, 6.5, 6.953 ---> 6.812 --> slowdown: 87x
@@ -73,12 +73,12 @@ run: 6.985, 6.5, 6.953 ---> 6.812 --> slowdown: 87x
 run: 6.765, 6.610, 6.797 ---> 6.724 --> slowdown: 86.2x
 
 
-IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition 
+IHPP with -kinf -funcs main,quick_sort,quick_sort_ric,partition
 -intraMode -rollLoops WITH insTracing:
 
 run: 20.781, 21.188, 20.672 ---> 20.880 --> slowdown: 267.7x
 
-with -k 3: 
+with -k 3:
 
 21.094, 20.985 ---> 21.04 ---> 269.7x
 
@@ -160,7 +160,7 @@ k = 10
 WITH insTracing
 ----------------------------
 
-funcMode -kinf: 
+funcMode -kinf:
 26.992 26.438 28.844 ---> 27.425 --> 194.5x
 
 k = 3

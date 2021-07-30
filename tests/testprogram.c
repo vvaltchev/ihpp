@@ -4,69 +4,69 @@
 
 void foo() {
 
-	printf("foo(), line 5\n");
+    printf("foo(), line 5\n");
 }
 
 int factorial(int n) {
 
-	int r;
+    int r;
 
-	printf("factorial, n=%i\n", n);
+    printf("factorial, n=%i\n", n);
 
-	if (n == 1)
-		return 1;
+    if (n == 1)
+        return 1;
 
-	r = n*factorial(n-1);
+    r = n*factorial(n-1);
 
-	printf("factorial r*5(n=%i): %i\n", n, r*5);
+    printf("factorial r*5(n=%i): %i\n", n, r*5);
 
-	if (r*5 > 100) {
+    if (r*5 > 100) {
 
-		printf("5r > 100\n");
-	} else {
-	
-		printf("5r < 100\n");
-	}
+        printf("5r > 100\n");
+    } else {
+    
+        printf("5r < 100\n");
+    }
 
 
-	return r;
+    return r;
 }
 
 int varfunc(int num, ...) {
 
-	if (!num)
-		goto end;
+    if (!num)
+        goto end;
 
-	varfunc(num-1, 0, 0);
-	
-	end:
-	return 23;
+    varfunc(num-1, 0, 0);
+    
+    end:
+    return 23;
 }
 
 jmp_buf jump_buffer;
 
 void testJmp(int par, ...) {
 
-	//printf("begin testJmp\n");
+    //printf("begin testJmp\n");
 
-	if (par) 
-		longjmp(jump_buffer, 1);
+    if (par) 
+        longjmp(jump_buffer, 1);
 
-	//printf("end testjmp\n");
+    //printf("end testjmp\n");
 }
 
 void c() {
-	printf("c\n");
+    printf("c\n");
 }
 
 void b() {
-	printf("b\n");
-	c();
+    printf("b\n");
+    c();
 }
 
 void a() {
-	printf("a\n");
-	b();
+    printf("a\n");
+    b();
 }
 
 int main(int argc, char ** argv) {
@@ -92,8 +92,8 @@ a();
 
 
 for (i=1; i <= 3; i++) {
-	printf("x=%i\n",x);
-	x+=i;
+    printf("x=%i\n",x);
+    x+=i;
 }
 //exceptionFunc();
 //exceptionFunc();
@@ -102,17 +102,17 @@ for (i=1; i <= 3; i++) {
 
 if (!setjmp(jump_buffer)) {
 
-	//printf("main, before testJmp(1)\n");
-	testJmp(1);
-	//printf("main, AFTER testJmp(1)\n");
+    //printf("main, before testJmp(1)\n");
+    testJmp(1);
+    //printf("main, AFTER testJmp(1)\n");
 
 } else {
 
-	//printf("main, LONG JUMP avvenuto\n");
+    //printf("main, LONG JUMP avvenuto\n");
 
-	//printf("main, before testJmp(0)\n");
-	testJmp(0, 434, 24324, 23411);
-	//printf("main, AFTER testJmp(0)\n");
+    //printf("main, before testJmp(0)\n");
+    testJmp(0, 434, 24324, 23411);
+    //printf("main, AFTER testJmp(0)\n");
 
 }
 
@@ -121,7 +121,7 @@ if (!setjmp(jump_buffer)) {
 printf("4\n");
 
 //for (int i=0; i < 10; i++)
-//	foo();
+//    foo();
 
 return 0;
 }

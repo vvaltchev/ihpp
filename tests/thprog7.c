@@ -5,23 +5,23 @@ jmp_buf jump_buffer;
 
 void testJmp(int par) {
 
-	if (par) 
-		longjmp(jump_buffer, 1);
+    if (par) 
+        longjmp(jump_buffer, 1);
 
-	printf("par is zero!\n");
+    printf("par is zero!\n");
 }
 
 int main(int argc, char ** argv) {
 
-	if (!setjmp(jump_buffer)) {
+    if (!setjmp(jump_buffer)) {
 
-		testJmp(1);
-		printf("this message will not be printed!\n");
-	
-	} else {
+        testJmp(1);
+        printf("this message will not be printed!\n");
+    
+    } else {
 
-		testJmp(0);
-	}	
+        testJmp(0);
+    }    
 
-	return 0;
+    return 0;
 }
