@@ -1,9 +1,5 @@
-
-#ifndef __FOREST_H__
-#define __FOREST_H__
-
+#pragma once
 #include "node.h"
-
 
 template <typename keyT>
 class forest {
@@ -16,7 +12,7 @@ public:
     static forest<keyT> join(node<keyT> &t1, node<keyT> &t2);
     static forest<keyT> join(forest<keyT> &f1, node<keyT> &t2);
     static forest<keyT> join(forest<keyT> &f1, forest<keyT> &f2);
-    
+
     typedef typename ihppNodeChildrenContainerMap< keyT, node<keyT>  >::iterator treesIterator;
 
     forest();
@@ -31,7 +27,7 @@ public:
 
     treesIterator getTreesIteratorBegin() { return treesIterator(trees.begin()); }
     treesIterator getTreesIteratorEnd() { return treesIterator(trees.end()); }
-    
+
     size_t treesCount() { return trees.size(); }
     size_t recursiveAllNodesCount();
 
@@ -44,7 +40,7 @@ public:
 
     void local_joinByVal(node<keyT> t2) { local_join(t2); }
     void local_joinByVal(forest<keyT> f2) { local_join(f2); }
-    
+
     inline forest<keyT> &operator=(forest<keyT> f);
 };
 
@@ -53,16 +49,16 @@ template <typename keyT>
 inline forest<keyT>::forest() { }
 
 template <typename keyT>
-inline forest<keyT>::forest(const forest<keyT> &f) { 
+inline forest<keyT>::forest(const forest<keyT> &f) {
 
     trees = f.trees;
     BM_inc_forests_copied();
 }
 
 template <typename keyT>
-inline forest<keyT>::forest(node<keyT>  n) { 
+inline forest<keyT>::forest(node<keyT>  n) {
 
-    addTree(n); 
+    addTree(n);
 
     BM_inc_forests_copied();
 }
@@ -79,11 +75,11 @@ inline forest<keyT> &forest<keyT>::operator=(forest<keyT> f) {
 
 
 template <typename keyT>
-inline node<keyT>* forest<keyT>::addTree(node<keyT>  &n) { 
+inline node<keyT>* forest<keyT>::addTree(node<keyT>  &n) {
 
     assert(!getTreeRef(n.getKey()));
-    
-    return &trees.insert(n.getKey(), n); 
+
+    return &trees.insert(n.getKey(), n);
 }
 
 template <typename keyT>
@@ -123,7 +119,7 @@ template <typename keyT>
 void forest<keyT>::autoSetParents() {
 
     treesIterator it;
-    
+
     for (it=getTreesIteratorBegin(); it != getTreesIteratorEnd(); it++)
         if (!it->getParentRef())
             it->autoSetParents();
@@ -139,13 +135,13 @@ void forest<keyT>::joinSubtrees(node<keyT> &t1, node<keyT> &t2) {
     t1.setCounter(t1.getCounter() + t2.getCounter());
 
     for (it = t2.getNodesIteratorBegin(); it != t2.getNodesIteratorEnd(); it++) {
-    
+
         t = t1.getChildRef(it->getKey());
 
         if (!t)
             t1.addChild(*it);
         else
-            joinSubtrees(*t, *it); 
+            joinSubtrees(*t, *it);
     }
 }
 
@@ -156,7 +152,7 @@ forest<keyT> forest<keyT>::join(node<keyT> &t1, node<keyT> &t2) {
     node<keyT> *n1;
 
     if (t1.getKey() != t2.getKey()) {
-    
+
         res.addTree(t1);
         res.addTree(t2);
         return res;
@@ -218,11 +214,11 @@ forest<keyT> forest<keyT>::inverseK(unsigned int k) {
     forest<keyT> res;
     vector< node<keyT> * > tmp;
     typename vector< node<keyT> * >::iterator it2;
-    
+
     for (it = getTreesIteratorBegin(); it != getTreesIteratorEnd(); it++) {
-    
+
         it->autoSetParents();
-        
+
         tmp = it->getAllTreeNodesRef();
 
         for (it2 = tmp.begin(); it2 != tmp.end(); it2++)
@@ -231,6 +227,3 @@ forest<keyT> forest<keyT>::inverseK(unsigned int k) {
 
     return res;
 }
-
-
-#endif

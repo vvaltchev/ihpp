@@ -1,6 +1,4 @@
-
-#ifndef __TRACING_FUNCS__
-#define __TRACING_FUNCS__
+#pragma once
 
 #include "pin.H"
 #include "tracingObjects.h"
@@ -63,6 +61,3 @@ void traceObject_kinf_no_roll(TracingObject<ADDRINT> *to,
 extern void (*traceObject)(TracingObject<ADDRINT> *to,
                            GenericTraceContext *ctx, ihppNode* &treeTop,
                            ihppNode* &treeBottom);
-
-
-#endif

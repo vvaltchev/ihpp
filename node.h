@@ -1,5 +1,4 @@
-#ifndef __NODE_HEADER__
-#define __NODE_HEADER__
+#pragma once
 
 #include <map>
 #include <stack>
@@ -303,7 +302,3 @@ void node<keyT>::autoSetParents() {
         it->autoSetParents();
     }
 }
-
-
-
-#endif

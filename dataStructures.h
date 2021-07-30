@@ -1,6 +1,4 @@
-
-#ifndef __DATA_STR_HEADER__
-#define __DATA_STR_HEADER__
+#pragma once
 
 #include <vector>
 #include <stack>
@@ -302,5 +300,3 @@ public:
 };
 
 #define ihppNodeChildrenContainer ihppNodeChildrenContainerList1
-
-#endif

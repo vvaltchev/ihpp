@@ -1,9 +1,7 @@
+#pragma once
 
 #include "specialfuncs.h"
 #include "dataStructures.h"
-
-#ifndef __INTRAMODE_CTX_HEADER__
-#define __INTRAMODE_CTX_HEADER__
 
 class ShadowStackItemType {
 
@@ -62,5 +60,3 @@ public:
 
     ADDRINT getFunctionAddr() { return funcAddr; }
 };
-
-#endif

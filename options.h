@@ -1,6 +1,4 @@
-
-#ifndef __KCCF_OPTIONS_HEADER__
-#define __KCCF_OPTIONS_HEADER__
+#pragma once
 
 #include "pin.H"
 
@@ -66,5 +64,3 @@ public:
     static WorkingModeType getGlobalWM();
     static const char *getOutfileName();
 };
-
-#endif

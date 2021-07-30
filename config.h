@@ -1,6 +1,4 @@
-
-#ifndef __IHPP_CONFIG__
-#define __IHPP_CONFIG__
+#pragma once
 
 #if !defined(_WIN32) && !defined(__unix__)
 #error This tool builds only on Win32 and Unix-like systems
@@ -40,6 +38,4 @@
     #define ENABLE_WIN32_MAIN_ALIGNMENT                           0
     #define ENABLE_INS_FORWARD_JMP_RECOGNITION                    0
     #define USING_WINDOWS                                         0
-#endif
-
 #endif

@@ -1,9 +1,7 @@
-
-#ifndef __TRACING_OBJECTS__
-#define __TRACING_OBJECTS__
+#pragma once
 
 #include <sstream>
-#include <string.h>
+#include <cstring>
 
 #include "dataStructures.h"
 #include "util.h"
@@ -184,7 +182,3 @@ inline ostream& operator << (ostream& s, ihppNode *n) {
 
     return s << "(null)";
 }
-
-
-
-#endif
