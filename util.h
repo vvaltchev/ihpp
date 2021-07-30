@@ -14,17 +14,9 @@
 
 vector<string> splitString(const string& s, char sep);
 
-inline string operator+(const string& str, long long n) {
-
-    stringstream ss;
-    ss << str;
-    ss << n;
-
-    return ss.str();
-}
-
-inline char *duplicate_string(const string& s) {
-
+// TODO: consider re-implemeting this with strdup()
+inline char *duplicate_string(const string& s)
+{
     char *ptr = new char [s.size()+1];
     strcpy(ptr, s.c_str());
     return ptr;

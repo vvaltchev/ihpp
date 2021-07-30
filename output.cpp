@@ -19,6 +19,15 @@ using namespace std;
 
 #define TSP "        "
 
+// TODO: drop this to_string() once Intel PIN starts supporting C++11
+template <class T>
+static inline string to_string(const T& val)
+{
+    stringstream ss;
+    ss << val;
+    return ss.str();
+}
+
 inline void openTag(const char *tag, bool ret=false, ostream &s = globalSharedContext->OutFile) {
 
     s << "<" << tag << (ret ? ">\n" : ">");
@@ -421,7 +430,7 @@ string makeHumanJump(insInfo &insData) {
         string diffStr;
 
         if (diff > 0)
-            diffStr = string()+diff;
+            diffStr = to_string(diff);
 
         ins = ins_name + string(" ") + string(insData.externFuncName) + string("+") + diffStr;
 
@@ -444,7 +453,7 @@ string makeHumanJump(insInfo &insData) {
 
                 ADDRINT diff = addr - insData.targetFuncAddr;
 
-                ins = ins_name + string(" ") + it3->second->functionName() + string("+") + diff;
+                ins = ins_name + string(" ") + it3->second->functionName() + string("+") + to_string(diff);
 
                 insInfo targetIns = it3->second->instructions[addr];
 
@@ -475,7 +484,7 @@ string makeHumanJump(insInfo &insData) {
             ADDRINT diff = insData.targetAddr - insData.targetFuncAddr;
 
             if (it3 != globalCtx->allFuncs.end())
-                ins = ins_name + string(" ") + it3->second->functionName() + string("+") + diff;
+                ins = ins_name + string(" ") + it3->second->functionName() + string("+") + to_string(diff);
 
         }
     }
