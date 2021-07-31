@@ -1,8 +1,6 @@
 
+#pragma once
 #include "debug.h"
-
-#ifndef __SPECIAL_FUNCS_MACROS__
-#define __SPECIAL_FUNCS_MACROS__
 
 
 #if defined(_WIN32) && ENABLE_WIN32_MAIN_ALIGNMENT
@@ -48,12 +46,6 @@
 
 #endif
 
-#endif
-
-
-#ifdef __THREAD_CTX_HEADER__
-
-
 #ifdef _WIN32
 
     #define IS_WIN32_NLG_NOTIFY(func)                                         \
@@ -75,64 +67,3 @@
     #define FUNC_IS_TEXT_N(func)                ((func) == ".text")
 
 #endif
-
-#ifdef _WIN32
-
-#if ENABLE_WIN32_MAIN_ALIGNMENT
-inline void win32_main_alignment(ThreadContext *ctx, FunctionObj *fc)
-{
-    if (fc->functionAddress() == globalSharedContext->spAttrs.__tmainCRTStartup_addr)
-        ctx->__tmainCRTStartup_stack_size = ctx->shadowStack.size();
-
-    if (ctx->__tmainCRTStartup_stack_size == -1)
-        return;
-
-    if (fc->functionAddress() == globalSharedContext->spAttrs.wWinMain_addr ||
-        fc->functionAddress() == globalSharedContext->spAttrs.main_addr) {
-
-        if (ctx->shadowStack.size() > ctx->__tmainCRTStartup_stack_size+1) {
-
-            cerr << "WARNING: artifical main() alignment\n";
-        }
-
-        while (ctx->shadowStack.size() > ctx->__tmainCRTStartup_stack_size+1)
-            ctx->popShadowStack();
-    }
-}
-#endif
-
-#if ENABLE_INS_TRACING
-inline bool win32_check_nlg_notify(ThreadContext *ctx, ADDRINT currFuncAddr)
-{
-
-    if (IS_WIN32_NLG_NOTIFY(currFuncAddr)) {
-        ctx->jumpTargetFuncAddr=currFuncAddr;
-        ctx->haveToJump=true;
-        return true;
-    }
-
-    return false;
-}
-#endif
-
-#endif
-
-#if ENABLE_SUBCALL_CHECK && ENABLE_INS_TRACING
-
-inline bool subcall_false_jmp_check(ThreadContext *ctx, ADDRINT currFuncAddr)
-{
-    if (ctx->subcallcount <= 2) {
-
-        dbg_single_inst_false_jmp();
-        ctx->subcallcount=0;
-        ctx->jumpTargetFuncAddr = currFuncAddr;
-        return true;
-    }
-
-    return false;
-}
-
-#endif
-
-#endif
-

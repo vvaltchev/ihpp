@@ -6,8 +6,27 @@
 using namespace std;
 
 #include "tracingFuncs.h"
+#include "win32_hacks.h"
 
 #if ENABLE_INS_TRACING
+
+#if ENABLE_SUBCALL_CHECK
+
+inline bool subcall_false_jmp_check(ThreadContext *ctx, ADDRINT currFuncAddr)
+{
+    if (ctx->subcallcount <= 2) {
+
+        dbg_single_inst_false_jmp();
+        ctx->subcallcount=0;
+        ctx->jumpTargetFuncAddr = currFuncAddr;
+        return true;
+    }
+
+    return false;
+}
+
+#endif
+
 
 static void getTargetFunc(ADDRINT& targetAddr, ADDRINT& targetFuncAddr)
 {

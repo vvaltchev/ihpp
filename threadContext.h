@@ -1,11 +1,9 @@
+#pragma once
 
 #include "specialfuncs.h"
 #include "dataStructures.h"
 #include "intraModeContext.h"
 #include "tracingFuncs.h"
-
-#ifndef __THREAD_CTX_HEADER__
-#define __THREAD_CTX_HEADER__
 
 class ThreadContext : public GenericTraceContext {
 
@@ -144,5 +142,3 @@ inline IntraModeContext *ThreadContext::getFunctionCtx(ADDRINT funcAddr)
 
     return it->second;
 }
-
-#endif

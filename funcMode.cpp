@@ -7,8 +7,8 @@ using namespace std;
 
 #include "benchmark.h"
 #include "output.h"
-
 #include "tracingFuncs.h"
+#include "win32_hacks.h"
 
 #define FUNCMODE_TOP_STACKPTR()  \
     (ctx->shadowStack.size() ?ctx->shadowStack.top().stackPtr : (ADDRINT)-1)
