@@ -75,13 +75,13 @@
 #if DEBUG && DEBUG_IMGLOAD
 
     #define dbg_imgload_imgname()                    if (__dcheck) cerr << "Image: " << IMG_Name(img) << endl;
-    #define dbg_imgload_sectorname()                 if (__dcheck) cerr << "Sector: " << SEC_Name(sec) << endl;
+    #define dbg_imgload_sectionname()                if (__dcheck) cerr << "Section: " << SEC_Name(sec) << endl;
     #define dbg_imgload_funcname()                   if (__dcheck) cerr << "Function: " << funcName << "(0x" << hex \
                                                         << (void*)funcAddr << dec << (trace?"): TRACING\n": "): SKIPPED\n");
 
 #else
     #define dbg_imgload_imgname()
-    #define dbg_imgload_sectorname()
+    #define dbg_imgload_sectionname()
     #define dbg_imgload_funcname()
 #endif
 
