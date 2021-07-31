@@ -29,8 +29,6 @@
 
 */
 
-#define MAIN_IHPP_MODULE
-
 #include <iostream>
 using namespace std;
 
@@ -41,6 +39,8 @@ using namespace std;
 #include "output.h"
 
 #include "tracingFuncs.h"
+
+GlobalContext *globalSharedContext = nullptr;
 
 void insInstrumentation(RTN rtn, INS ins) {
 
@@ -121,7 +121,6 @@ void insInstrumentation(RTN rtn, INS ins) {
 
 void BlockTraceInstrumentation(TRACE trace, void *)
 {
-
     RTN rtn;
     string file;
     INT32 row,col;
@@ -133,7 +132,6 @@ void BlockTraceInstrumentation(TRACE trace, void *)
 
     for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl))
     {
-
         PIN_LockClient();
 
         blockPtr = BBL_Address(bbl);
@@ -270,14 +268,14 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
     RTN_Close(rtn);
 }
 
-void ImageLoad(IMG img, void *) {
-
+void ImageLoad(IMG img, void *)
+{
     RTN rtn2;
     GlobalContext *ctx = globalSharedContext;
 
     FunctionObj *fc;
     map<ADDRINT, FunctionObj*>::iterator it;
-    bool mainImage = IMG_IsMainExecutable(img);
+    const bool mainImage = IMG_IsMainExecutable(img);
 
     dbg_imgload_imgname();
 
@@ -319,15 +317,11 @@ void ImageLoad(IMG img, void *) {
             fc = new FunctionObj(funcAddr, funcName, fileName);
             ctx->allFuncs[funcAddr]=fc;
 
-
-            bool trace = ctx->hasToTraceByName(funcName, funcAddr);
+            const bool trace = ctx->hasToTraceByName(funcName, funcAddr);
 
             dbg_imgload_funcname();
 
-
-
             if (trace || FUNC_IS_TEXT_N(funcName)) {
-
                 imageLoad_doInsInstrumentation(img, rtn, fc);
             }
 
@@ -348,7 +342,6 @@ void ImageLoad(IMG img, void *) {
                                     IARG_END);
                 RTN_Close(rtn);
             }
-
         }
     }
 
@@ -363,7 +356,7 @@ void ImageLoad(IMG img, void *) {
                  << ctx->options.startFuncName
                  << "' not found.\n";
 
-            exit(0);
+            PIN_ExitProcess(1);
         }
 
         ctx->startFuncAddr = RTN_Address(rtn2);
@@ -380,7 +373,7 @@ void ImageLoad(IMG img, void *) {
                  << ctx->options.stopFuncName
                  << "' not found.\n";
 
-            exit(0);
+            PIN_ExitProcess(1);
         }
 
         ctx->stopFuncAddr = RTN_Address(rtn2);

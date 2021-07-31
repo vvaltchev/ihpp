@@ -101,15 +101,7 @@ public:
     inline bool hasToTrace(ADDRINT funcAddr);
 };
 
-#ifdef MAIN_IHPP_MODULE
-
-GlobalContext *globalSharedContext=0;
-
-#else
-
 extern GlobalContext *globalSharedContext;
-
-#endif
 
 
 inline bool GlobalContext::hasToTraceByName(string funcName, ADDRINT funcAddr)
