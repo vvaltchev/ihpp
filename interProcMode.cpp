@@ -31,8 +31,7 @@ void interModeBlockTrace(BasicBlock *bb)
     }
 
     //rollLoops ON
-
-    ihppNode *parent = ctx->treeTop->getParentRef();
+    ihppNode *parent = ctx->treeTop ? ctx->treeTop->getParentRef() : nullptr;
 
     while (parent) {
 

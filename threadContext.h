@@ -23,6 +23,10 @@ public:
 
     //WM_FuncMode properties
 
+    ADDRINT startFuncAddr;
+    ADDRINT stopFuncAddr;
+    bool haveToTrace;
+
 #if ENABLE_INS_TRACING
     ADDRINT jumpTargetFuncAddr;
     ADDRINT lastJumpTargetFuncAddr;
@@ -43,11 +47,6 @@ public:
     unsigned int lastfjmps;
     ADDRINT fjmpsFuncAddr;
 #endif
-
-    bool haveToTrace;
-
-    ADDRINT startFuncAddr;
-    ADDRINT stopFuncAddr;
 
     //WM_IntraMode properties
     map<ADDRINT, IntraModeContext*> intraModeContexts;
@@ -98,7 +97,14 @@ inline bool ThreadContext::popShadowStack()
 }
 
 inline ThreadContext::ThreadContext(PIN_THREAD_UID tid, ADDRINT startFuncAddr, ADDRINT stopFuncAddr)
-     :  GenericTraceContext(),  currentFunction(0), threadID(tid)
+     :  GenericTraceContext()
+     ,  currentFunction(0)
+     , threadID(tid)
+     , treeTop(nullptr)
+     , treeBottom(nullptr)
+     , startFuncAddr(startFuncAddr)
+     , stopFuncAddr(stopFuncAddr)
+     , haveToTrace(!startFuncAddr)
     {
         INIT_SUBCALL_CHECK_VARS();
         INIT_THREAD_CTX_W32_VARS();
@@ -114,14 +120,6 @@ inline ThreadContext::ThreadContext(PIN_THREAD_UID tid, ADDRINT startFuncAddr, A
         lastfjmps=0;
         fjmpsFuncAddr=0;
 #endif
-
-        ThreadContext::startFuncAddr = startFuncAddr;
-        ThreadContext::stopFuncAddr = stopFuncAddr;
-
-        if (startFuncAddr)
-            haveToTrace = false;
-        else
-            haveToTrace = true;
     }
 
 inline ADDRINT ThreadContext::getCurrentFunction()
