@@ -105,36 +105,9 @@ class ihppNodeChildrenContainer {
 
 public:
 
-    class iterator {
+    typedef typename std::list<valueT>::iterator iterator;
 
-        friend class ihppNodeChildrenContainer<keyT, valueT>;
-
-        bool valid;
-
-        typename std::list< valueT >::iterator _it;
-        iterator(typename std::list< valueT >::iterator baseIt) { _it=baseIt; valid=true; }
-
-    public:
-
-        iterator() { valid=false; }
-        bool isValid() { return valid; }
-        valueT &operator *() { return *_it; }
-        valueT *operator->() { return &(*_it); }
-
-        void operator++() { ++_it; }
-        void operator--() { --_it; }
-        void operator++(int dummy) {  _it++; }
-        void operator--(int dummy) {  _it--; }
-
-        bool operator==(iterator _it2) { return _it==_it2._it; }
-        bool operator!=(iterator _it2) { return _it!=_it2._it; }
-        bool operator<(iterator _it2) {  return _it<_it2._it; }
-        bool operator>(iterator _it2) { return _it>_it2._it; }
-        bool operator<=(iterator _it2) { return _it <= _it2._it; }
-        bool operator>=(iterator _it2) { return _it >= _it2._it; }
-    };
-
-    size_t size() { return _data.size(); }
+    size_t size() const { return _data.size(); }
     iterator begin() { return iterator(_data.begin()); }
     iterator end() { return iterator(_data.end()); }
 
@@ -148,7 +121,6 @@ public:
 
         return end();
     }
-
 
     valueT& insert(keyT key, valueT val) {
 

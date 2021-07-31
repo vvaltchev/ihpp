@@ -137,7 +137,7 @@ inline void print_func_name(GlobalContext *ctx, T str)
     ctx->OutFile << OUTPUT_LINE;
 }
 
-bool isStringPrintable(const char *str) {
+static bool isStringPrintable(const char *str) {
 
     const char *ptr = str;
 
@@ -151,10 +151,9 @@ bool isStringPrintable(const char *str) {
     return true;
 }
 
-void dumpXmlNode(ihppNode &n, int ident=0) {
+static void dumpXmlNode(ihppNode &n, int ident=0) {
 
     ostream &o = globalSharedContext->OutFile;
-
 
     openTag("objAddr");
     o << "0x" << hex << (size_t)n.getKey() << dec;
@@ -168,33 +167,27 @@ void dumpXmlNode(ihppNode &n, int ident=0) {
 
         openTag("children",true);
 
-        ihppNode::nodesIterator it;
-
-        for (it = n.getNodesIteratorBegin(); it != n.getNodesIteratorEnd(); it++) {
+        for (auto& child : n) {
 
             openTag("child",true);
-            dumpXmlNode(*it,ident+1);
+            dumpXmlNode(child, ident+1);
             closeTag("child");
         }
 
         closeTag("children");
     }
-
 }
 
-void dumpXmlForest(ihppForest &f) {
+static void dumpXmlForest(ihppForest& forest) {
 
-    ihppForest::treesIterator it;
-
-    for (it = f.getTreesIteratorBegin(); it != f.getTreesIteratorEnd(); it++) {
-
+    for (auto& tree : forest) {
         openTag("tree",true);
-        dumpXmlNode(*it);
+        dumpXmlNode(tree);
         closeTag("tree");
     }
 }
 
-void printContextInfo(GlobalContext *globalCtx, GenericTraceContext *ctx) {
+static void printContextInfo(GlobalContext *globalCtx, GenericTraceContext *ctx) {
 
     ihppForest kccf;
     ihppForest *kSFCopy = 0;
@@ -284,7 +277,7 @@ void printContextInfo(GlobalContext *globalCtx, GenericTraceContext *ctx) {
     }
 }
 
-void printThreadContextInfo(GlobalContext *globalCtx, ThreadContext *ctx)
+static void printThreadContextInfo(GlobalContext *globalCtx, ThreadContext *ctx)
 {
     if (globalCtx->WorkingMode() == WM_FuncMode || globalCtx->WorkingMode() == WM_InterProcMode) {
 
@@ -327,7 +320,7 @@ void printThreadContextInfo(GlobalContext *globalCtx, ThreadContext *ctx)
         closeTag("intraMode_ctx");
 }
 
-void blockFuncMode_joinThreads(GlobalContext *globalCtx) {
+static void blockFuncMode_joinThreads(GlobalContext *globalCtx) {
 
     ThreadContext *thCtx = globalCtx->threadContexts[0];
     ThreadContext *thCtx2;
@@ -352,7 +345,7 @@ void blockFuncMode_joinThreads(GlobalContext *globalCtx) {
     }
 }
 
-void intraMode_joinThreads(GlobalContext *globalCtx) {
+static void intraMode_joinThreads(GlobalContext *globalCtx) {
 
     ThreadContext *th0Ctx = globalCtx->threadContexts[0];
     ThreadContext *thCtx2;
@@ -768,7 +761,7 @@ static void print_showBlocks(size_t maxFuncLen) {
                 openTag("instructions",true);
             }
 
-            map<ADDRINT,insInfo>::iterator insIt;
+            map<ADDRINT, insInfo>::iterator insIt;
 
             for (insIt = bb.functionPtr->instructions.begin(); insIt != bb.functionPtr->instructions.end(); insIt++)
                 if (insIt->first == bb.blockAddress())

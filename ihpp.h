@@ -119,22 +119,14 @@ inline bool GlobalContext::hasToTrace(ADDRINT funcAddr)
 }
 
 template <typename keyT>
-void kSlabForestKLevelCountersClear(forest<keyT> &f, keyT &rootKey, unsigned int k) {
+void kSlabForestKLevelCountersClear(forest<keyT> &f, keyT &rootKey, unsigned int k)
+{
+    for (auto& tree : f) {
 
-    typename forest<keyT>::treesIterator it = f.getTreesIteratorBegin();
-    typename forest<keyT>::treesIterator end = f.getTreesIteratorEnd();
-
-    while (it != end) {
-
-        if (it->getKey() != rootKey)
-            it->clearLevelKCounters(k);
-
-        it++;
+        if (tree.getKey() != rootKey)
+            tree.clearLevelKCounters(k);
     }
 }
 
-
-
 #include "specialfuncs.h"
-
 #endif

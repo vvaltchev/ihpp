@@ -118,11 +118,11 @@ GlobalContext::~GlobalContext() {
 
     PIN_DeleteThreadDataKey(_tls_key);
 
-    for (BlocksMapIt it = allBlocks.begin(); it != allBlocks.end(); it++)
-        delete it->second;
+    for (auto& p : allBlocks)
+        delete p.second;
 
-    for (FuncsMapIt it = allFuncs.begin(); it != allFuncs.end(); it++)
-        delete it->second;
+    for (auto& p : allFuncs)
+        delete p.second;
 }
 
 

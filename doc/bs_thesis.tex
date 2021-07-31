@@ -2641,7 +2641,7 @@ public:
 
 	typedef typename
 	ihppNodeChildrenContainer< keyT,
-							node<keyT> >::iterator nodesIterator;
+							node<keyT> >::iterator iterator;
 
 	//code omitted [...]
 
@@ -2661,8 +2661,8 @@ public:
 	keyT getKey() { /* omitted */ }
 	ObjectWithKey<keyT> * getValue() { /* omitted */ }
 
-	nodesIterator getNodesIteratorBegin() { /* omitted */ }
-	nodesIterator getNodesIteratorEnd() { /* omitted */ }
+	iterator begin() { /* omitted */ }
+	iterator end() { /* omitted */ }
 
 	void incCounter() { counter++; }
 	obj_counter_t getCounter() { return counter; }
@@ -2725,7 +2725,7 @@ public:
 	//code omitted [...]
 
 	typedef typename ihppNodeChildrenContainerMap< keyT,
-						node<keyT>  >::iterator treesIterator;
+						node<keyT>  >::iterator iterator;
 
 	forest();
 	forest(const forest &f);
@@ -2738,8 +2738,8 @@ public:
 	inline node<keyT> * addTree(node<keyT> &n);
 
 	//code omitted [...]
-	treesIterator getTreesIteratorBegin() { /* omitted */ }
-	treesIterator getTreesIteratorEnd() { /* omitted */ }
+	iterator begin() { /* omitted */ }
+	iterator end() { /* omitted */ }
 
 	//code omitted [...]
 
@@ -2776,12 +2776,12 @@ template <typename keyT>
 void forest<keyT>::joinSubtrees(node<keyT> &t1, node<keyT> &t2) {
 
 	node<keyT> *t;
-	typename node<keyT>::nodesIterator it;
+	typename node<keyT>::iterator it;
 
 	t1.setCounter(t1.getCounter() + t2.getCounter());
 
-	for (it = t2.getNodesIteratorBegin();
-			it != t2.getNodesIteratorEnd(); it++)
+	for (it = t2.begin();
+			it != t2.end(); it++)
 	{
 
 		t = t1.getChildRef(it->getKey());
@@ -2813,13 +2813,13 @@ void forest<keyT>::local_join(node<keyT> &t2) {
 template <typename keyT>
 forest<keyT> forest<keyT>::inverseK(unsigned int k) {
 
-	treesIterator it;
+	iterator it;
 	forest<keyT> res;
 	vector< node<keyT> * > tmp;
 	typename vector< node<keyT> * >::iterator it2;
 
-	for (it = getTreesIteratorBegin();
-			it != getTreesIteratorEnd(); it++)
+	for (it = begin();
+			it != end(); it++)
 	{
 		it->autoSetParents();
 		tmp = it->getAllTreeNodesRef();

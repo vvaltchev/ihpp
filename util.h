@@ -26,18 +26,17 @@ void dump(node<keyT> &n, ostream& out=cerr, int ident=0) {
 
     out << "| " << n << "," << n.getCounter() << endl;
 
-    for (auto it = n.getNodesIteratorBegin(); it != n.getNodesIteratorEnd(); it++) {
-        dump(*it, out, ident+1);
-    }
+    for (auto& child : n)
+        dump(child, out, ident+1);
 }
 
 template <typename keyT>
-void dump(forest<keyT> &f, ostream& out=cerr) {
+void dump(forest<keyT> &forest, ostream& out=cerr) {
 
-    for (auto it = f.getTreesIteratorBegin(); it != f.getTreesIteratorEnd(); it++) {
+    for (auto& tree : forest) {
 
-        if (!it->getParentRef())
-            dump(*it, out, 0);
+        if (!tree.getParentRef())
+            dump(tree, out, 0);
 
         out << endl << endl;
     }
@@ -54,7 +53,7 @@ void nodeDump(node<keyT> n, ostream& out) {
     if (ptr->getParentRef()) {
 
         out << *ptr->getParentRef();
-        ptr=ptr->getParentRef();
+        ptr = ptr->getParentRef();
 
         while (ptr->getParentRef()) {
 

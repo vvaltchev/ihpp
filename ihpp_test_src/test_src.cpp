@@ -47,19 +47,16 @@ void ret_handler() {
 template <typename keyT>
 void joinchildren2(node<keyT> &t1, node<keyT> &t2) {
 
-    node<keyT> *t;
-    typename node<keyT>::nodesIterator it;
-
     t1.setCounter(t1.getCounter() + t2.getCounter());
 
-    for (it = t2.getNodesIteratorBegin(); it != t2.getNodesIteratorEnd(); it++) {
+    for (auto& t2_child : t2) {
 
-        t = t1.getChildRef(it->getKey());
+        node<keyT> *t = t1.getChildRef(t2_child.getKey());
 
         if (!t)
-            t1.addChild(*it);
+            t1.addChild(t2_child);
         else
-            joinchildren2(*t, *it);
+            joinchildren2(*t, t2_child);
     }
 }
 
