@@ -2640,13 +2640,14 @@ protected:
 public:
 
 	typedef typename
-	ihppNodeChildrenContainer< keyT,
-							node<keyT> >::iterator iterator;
+	ihppNodeChildrenContainer< 
+		keyT,
+        node<keyT> 
+    >::iterator iterator;
 
 	//code omitted [...]
 
-	node(keyT key, ObjectWithKey<keyT>* val,
-								obj_counter_t counter=0);
+	node(keyT key, ObjectWithKey<keyT>* val, obj_counter_t counter=0);
 
 	node<keyT>* getChildRef(keyT k);
 	node<keyT>* addChild(node<keyT> &n);
@@ -2710,6 +2711,7 @@ for nodes and can use exactly the same children nodes containers used by \verb|n
 of $k$ in \verb|funcMode|, a forest can have hundreds trees and a hashmap will have
 better performance then a linked list.
 \Cref{forestClass} (below) shows a partial definition of the \verb|forest<keyT>| class.
+\vspace{0.5cm}
 
 \begin{lstlisting}[language=C++,
 	caption={partial definition of \texttt{forest<keyT>} class},
@@ -2724,8 +2726,11 @@ public:
 
 	//code omitted [...]
 
-	typedef typename ihppNodeChildrenContainerMap< keyT,
-						node<keyT>  >::iterator iterator;
+	typedef typename
+	ihppNodeChildrenContainerMap<
+		keyT,
+		node<keyT>
+	>::iterator iterator;
 
 	forest();
 	forest(const forest &f);
@@ -2775,29 +2780,23 @@ ancestors of the node on which the method is called.
 template <typename keyT>
 void forest<keyT>::joinSubtrees(node<keyT> &t1, node<keyT> &t2) {
 
-	node<keyT> *t;
-	typename node<keyT>::iterator it;
+    t1.setCounter(t1.getCounter() + t2.getCounter());
 
-	t1.setCounter(t1.getCounter() + t2.getCounter());
-
-	for (it = t2.begin();
-			it != t2.end(); it++)
-	{
-
-		t = t1.getChildRef(it->getKey());
-
+	for (auto& t2_child : t2) {
+	
+		node<keyT> *t = t1.getChildRef(t2_child.getKey());
+	
 		if (!t)
-			t1.addChild(*it);
+			t1.addChild(t2_child);
 		else
-			joinSubtrees(*t, *it);
+			joinSubtrees(*t, t2_child);
 	}
 }
 
 template <typename keyT>
 void forest<keyT>::local_join(node<keyT> &t2) {
 
-	node<keyT> *t;
-	t = getTreeRef(t2.getKey());
+	node<keyT> *t = getTreeRef(t2.getKey());
 
 	if (t)
 		joinSubtrees(*t, t2);
@@ -2813,21 +2812,17 @@ void forest<keyT>::local_join(node<keyT> &t2) {
 template <typename keyT>
 forest<keyT> forest<keyT>::inverseK(unsigned int k) {
 
-	iterator it;
-	forest<keyT> res;
-	vector< node<keyT> * > tmp;
-	typename vector< node<keyT> * >::iterator it2;
+    forest<keyT> res;
 
-	for (it = begin();
-			it != end(); it++)
-	{
-		it->autoSetParents();
-		tmp = it->getAllTreeNodesRef();
-
-		for (it2 = tmp.begin(); it2 != tmp.end(); it2++)
-			res.local_joinByVal((*it2)->kpathR(k));
+	for (auto& tree : *this) {
+	
+		tree.autoSetParents();
+		const vector< node<keyT> * >& tmp = tree.getAllTreeNodesRef();
+	
+		for (node<keyT> *other_tree : tmp)
+			res.local_joinByVal(other_tree->kpathR(k));
 	}
-
+	
 	return res;
 }
 \end{lstlisting}
@@ -2850,9 +2845,10 @@ int main(int argc, char ** argv) {
 	if (globalSharedContext->WorkingMode() != WM_FuncMode) {
 		TRACE_AddInstrumentFunction(BlockTraceInstrumentation, 0);
 	}
-
+	
+	
 	IMG_AddInstrumentFunction(ImageLoad, 0);
-
+	
 	//much code omitted [...]
 }
 
@@ -2877,10 +2873,8 @@ void ImageLoad(IMG img, void *) {
 
 	for (SEC sec = IMG_SecHead(img); SEC_Valid(sec); sec = SEC_Next(sec))
 	{
-
 		for (RTN rtn = SEC_RtnHead(sec); RTN_Valid(rtn); rtn = RTN_Next(rtn))
 		{
-
 			ADDRINT funcAddr = RTN_Address(rtn);
 			string funcName = RTN_Name(rtn);
 
@@ -2933,17 +2927,16 @@ to do this.
 	caption={a fragment of \texttt{imageLoad\_doInsInstrumentation()} routine},
 	label=doIns, frame=leftline]
 
-void imageLoad_doInsInstrumentation(IMG &img,
-							RTN &rtn, FunctionObj *fc)
+void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc)
 {
 	//code omitted [...]
 	RTN_Open(rtn);
-	for( INS ins = RTN_InsHead(rtn);
-			INS_Valid(ins); ins = INS_Next(ins) )
+	for( INS ins = RTN_InsHead(rtn); INS_Valid(ins); ins = INS_Next(ins) )
 	{
-		if (ctx->WorkingMode() != WM_InterProcMode)
+		if (ctx->WorkingMode() != WM_InterProcMode) {
 			insInstrumentation(rtn, ins);
-
+		}
+		
 		//much code omitted [...]
 	}
 	RTN_Close(rtn);
@@ -2962,8 +2955,9 @@ void insInstrumentation(RTN rtn, INS ins) {
 	if (INS_IsRet(ins) && !FUNC_IS_TEXT(RTN_Address(rtn))) {
 
 		INS_InsertPredicatedCall(ins,
-				IPOINT_BEFORE, (AFUNPTR)funcMode_ret,
-				IARG_CALL_ORDER, CALL_ORDER_FIRST, IARG_END);
+				                 IPOINT_BEFORE, (AFUNPTR)funcMode_ret,
+				                 IARG_CALL_ORDER, CALL_ORDER_FIRST,
+				                 IARG_END);
 	}
 
 #if ENABLE_INS_TRACING
@@ -3062,10 +3056,11 @@ void funcMode_ret()
 
 	//code omitted [...]
 
-	if (ctx->shadowStack.size())
+	if (ctx->shadowStack.size()) {
 		ctx->setCurrentFunction(
 			ctx->shadowStack.top().treeTop->getValue()->getKey()
 		);
+	}
 }
 \end{lstlisting}
 
@@ -3702,7 +3697,7 @@ void interModeBlockTrace(TracingObject<ADDRINT> *to) {
 		return;
 	}
 
-	ihppNode *parent = ctx->treeTop->getParentRef();
+	ihppNode *parent = parent ? ctx->treeTop->getParentRef() : 0;
 
 	while (parent) {
 
