@@ -1,20 +1,16 @@
-
-#ifndef __UTIL_H__
-#define __UTIL_H__
+#pragma once
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
-
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 #include "forest.h"
 
 vector<string> splitString(const string& s, char sep);
 
-// TODO: consider re-implemeting this with strdup()
 inline char *duplicate_string(const string& s)
 {
     char *ptr = new char [s.size()+1];
@@ -30,34 +26,22 @@ void dump(node<keyT> &n, ostream& out=cerr, int ident=0) {
 
     out << "| " << n << "," << n.getCounter() << endl;
 
-    typename node<keyT>::nodesIterator it = n.getNodesIteratorBegin();
-    typename node<keyT>::nodesIterator end = n.getNodesIteratorEnd();
-
-
-    while (it != end) {
-
+    for (auto it = n.getNodesIteratorBegin(); it != n.getNodesIteratorEnd(); it++) {
         dump(*it, out, ident+1);
-        it++;
     }
 }
 
 template <typename keyT>
 void dump(forest<keyT> &f, ostream& out=cerr) {
 
-    typename forest<keyT>::treesIterator it = f.getTreesIteratorBegin();
-    typename forest<keyT>::treesIterator end = f.getTreesIteratorEnd();
-
-
-    while (it != end) {
+    for (auto it = f.getTreesIteratorBegin(); it != f.getTreesIteratorEnd(); it++) {
 
         if (!it->getParentRef())
             dump(*it, out, 0);
 
         out << endl << endl;
-        it++;
     }
 }
-
 
 template <typename keyT>
 void nodeDump(node<keyT> n, ostream& out) {
@@ -87,6 +71,3 @@ void nodeDump(node<keyT> n, ostream& out) {
     out << ") ";
     out << "\"";
 }
-
-
-#endif
