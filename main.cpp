@@ -194,7 +194,8 @@ void BlockTraceInstrumentation(TRACE trace, void *)
     }
 }
 
-inline void imageload_specialfunc(ADDRINT &funcAddr, string &funcName) {
+static void imageload_specialfunc(ADDRINT& funcAddr, const string& funcName)
+{
 
 #if defined(_WIN32)
 
@@ -233,7 +234,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
         if (!ctx->options.blocksDisasm && !ctx->options.funcsDisasm)
             continue;
 
-        string ins_text = INS_Disassemble(ins);
+        const string& ins_text = INS_Disassemble(ins);
 
         if (!INS_IsDirectControlFlow(ins)) {
 
@@ -251,7 +252,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc) {
         }
 
 
-        string rname = RTN_Name(r);
+        const string& rname = RTN_Name(r);
         insInfo insData = insInfo((ins_text), addr, RTN_Address(r));
 
         RTN r2 = RTN_FindByName(img, rname.c_str());
@@ -299,7 +300,7 @@ void ImageLoad(IMG img, void *) {
 
 
             ADDRINT funcAddr = RTN_Address(rtn);
-            string funcName = RTN_Name(rtn);
+            const string& funcName = RTN_Name(rtn);
             string fileName;
 
             PIN_GetSourceLocation(funcAddr, 0, 0, &fileName);

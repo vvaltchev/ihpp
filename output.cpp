@@ -414,10 +414,8 @@ string getInsName(string ins) {
 string makeHumanJump(insInfo &insData) {
 
     GlobalContext *globalCtx = globalSharedContext;
-
     string ins = insData.ins_text;
-
-    string ins_name = getInsName(ins);
+    const string& ins_name = getInsName(ins);
 
     if (!ins_name.size())
         return ins;
@@ -796,9 +794,8 @@ void print_showBlocks(size_t maxFuncLen) {
                     break;
 
                 if (!ctx->options.xmloutput) {
-                    string ins = insIt->second.ins_text;
+                    const string& ins = insIt->second.ins_text;
                     ctx->OutFile.width(maxLen+12);
-                    //ctx->OutFile << "\t\t\t\t\t\t\t\t";
                     ctx->OutFile << TSP << TSP << TSP << TSP;
                     ctx->OutFile << TSP << TSP << TSP << TSP;
                     ctx->OutFile << ins << endl;
