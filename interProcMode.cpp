@@ -5,11 +5,9 @@
 #include "benchmark.h"
 #include "tracingFuncs.h"
 
-void interModeBlockTrace(BasicBlock *bb) { 
-
-    ThreadContext *ctx;
-    
-    ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
+void interModeBlockTrace(BasicBlock *bb)
+{
+    ThreadContext *ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
 
 #if EMPTY_ANALYSIS
     return;
@@ -19,7 +17,7 @@ void interModeBlockTrace(BasicBlock *bb) {
         ctx->haveToTrace=true;
 
     if (!ctx->haveToTrace)
-        return;    
+        return;
 
     if (bb->functionAddr() == ctx->stopFuncAddr)
         ctx->haveToTrace=false;
@@ -28,14 +26,12 @@ void interModeBlockTrace(BasicBlock *bb) {
     bb->incSimpleCounter();
 
     if (!globalSharedContext->options.rollLoops) {
-    
         traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
         return;
-
     }
 
     //rollLoops ON
-        
+
     ihppNode *parent = ctx->treeTop->getParentRef();
 
     while (parent) {
@@ -53,6 +49,6 @@ void interModeBlockTrace(BasicBlock *bb) {
     }
 
     //parent NOT found
-    
+
     traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
 }

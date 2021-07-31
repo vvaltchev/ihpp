@@ -7,25 +7,23 @@ using namespace std;
 
 #include "tracingFuncs.h"
 
-inline void getTargetFunc(ADDRINT &targetAddr, ADDRINT &targetFuncAddr)
+#if ENABLE_INS_TRACING
+
+static void getTargetFunc(ADDRINT& targetAddr, ADDRINT& targetFuncAddr)
 {
     RTN rtn;
     PIN_LockClient();
+    {
+        rtn = RTN_FindByAddress(targetAddr);
 
-    rtn = RTN_FindByAddress(targetAddr);
-
-    if(RTN_Valid(rtn)) {
-        targetFuncAddr = RTN_Address(rtn);
+        if(RTN_Valid(rtn))
+            targetFuncAddr = RTN_Address(rtn);
     }
-
-
     PIN_UnlockClient();
 }
 
-#if ENABLE_INS_TRACING
-
-void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr) {
-
+void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr)
+{
     GlobalContext *globalCtx = globalSharedContext;
     ThreadContext *ctx;
 
@@ -44,12 +42,10 @@ void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr) {
     if (currFuncAddr == ctx->stopFuncAddr)
         ctx->haveToTrace=false;
 
-
     if (CHECK_LONGJMP_NOTIFY())
         return;
 
     SUBCALL_COUNT_INC();
-
 
     if (ctx->haveToJump) {
 
@@ -107,9 +103,7 @@ void PIN_FAST_ANALYSIS_CALL singleInstruction(ADDRINT currFuncAddr) {
         SUBCALL_RESET();
 
         ctx->jumpTargetFuncAddr=currFuncAddr;
-
     }
-
 }
 
 void indirect_branchOrCall(ADDRINT currentFuncAddr,
@@ -123,7 +117,6 @@ void indirect_branchOrCall(ADDRINT currentFuncAddr,
 #endif
 
     getTargetFunc(targetAddr, targetFuncAddr);
-
     branchOrCall(currentFuncAddr, targetAddr, targetFuncAddr, insCat);
 }
 
@@ -143,21 +136,20 @@ void branchOrCall(ADDRINT currentFuncAddr,
 
     string currentFuncName;
     string targetFuncName;
-
     RTN rtn;
 
     PIN_LockClient();
+    {
+        rtn = RTN_FindByAddress(currentFuncAddr);
 
-    rtn = RTN_FindByAddress(currentFuncAddr);
+        if(RTN_Valid(rtn))
+            currentFuncName = RTN_Name(rtn);
 
-    if(RTN_Valid(rtn))
-        currentFuncName = RTN_Name(rtn);
+        rtn = RTN_FindByAddress(targetFuncAddr);
 
-    rtn = RTN_FindByAddress(targetFuncAddr);
-
-    if (RTN_Valid(rtn))
-        targetFuncName = RTN_Name(rtn);
-
+        if (RTN_Valid(rtn))
+            targetFuncName = RTN_Name(rtn);
+    }
     PIN_UnlockClient();
 
 #endif
@@ -243,9 +235,7 @@ void branchOrCall(ADDRINT currentFuncAddr,
         return;
     }
 
-
     SUBCALL_MAIN_CHECK();
-
     singleInstruction(currentFuncAddr);
 
     if (traceTarget || FUNC_IS_TEXT(targetFuncAddr)) {

@@ -483,7 +483,6 @@ string makeHumanJump(insInfo &insData) {
 
             if (it3 != globalCtx->allFuncs.end())
                 ins = ins_name + string(" ") + it3->second->functionName() + string("+") + to_string(diff);
-
         }
     }
 

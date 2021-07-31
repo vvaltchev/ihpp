@@ -14,7 +14,7 @@ using namespace std;
     (ctx->shadowStack.size() ?ctx->shadowStack.top().stackPtr : (ADDRINT)-1)
 
 #if ENABLE_RELY_ON_SP_CHECK
-inline void funcMode_sp_check(ThreadContext *ctx, ADDRINT reg_sp)
+static void funcMode_sp_check(ThreadContext *ctx, ADDRINT reg_sp)
 {
 
 #if ENABLE_INS_TRACING

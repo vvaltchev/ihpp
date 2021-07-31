@@ -206,11 +206,8 @@ void intraModeBlockTrace(BasicBlock *bb
     }
 
     treeTop->incCounter();
-
     dbg_intratr_end_sp();
 }
-
-
 
 void intraMode_ret()
 {
@@ -218,13 +215,13 @@ void intraMode_ret()
     IntraModeContext *intraCtx;
     GlobalContext *globalCtx = globalSharedContext;
 
+    ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
+
 #if EMPTY_ANALYSIS
     return;
 #endif
 
-    ctx = globalCtx->getThreadCtx(PIN_ThreadUid());
     intraCtx = ctx->getCurrentFunctionCtx();
-
 
 #ifdef _WIN32
     if (IS_WIN32_NLG_NOTIFY(ctx->getCurrentFunction()))
