@@ -297,11 +297,9 @@ void printThreadContextInfo(GlobalContext *globalCtx, ThreadContext *ctx)
         openTag("intraMode_ctx",true);
     }
 
-    for (map<ADDRINT, IntraModeContext *>::iterator it = ctx->intraModeContexts.begin();
-         it != ctx->intraModeContexts.end();
-         it++)
-    {
-        IntraModeContext *intraCtx = it->second;
+    for (const auto& it : ctx->intraModeContexts) {
+
+        IntraModeContext *intraCtx = it.second;
         ADDRINT funcAddr = intraCtx->getFunctionAddr();
         FunctionObj *fc = globalCtx->allFuncs[funcAddr];
 
@@ -361,24 +359,23 @@ void intraMode_joinThreads(GlobalContext *globalCtx) {
     IntraModeContext *intraCtx;
     ihppForest *forest;
 
-    for (FuncsMapIt funcIt = globalCtx->allFuncs.begin(); funcIt != globalCtx->allFuncs.end(); funcIt++)
-    {
-        if (!globalCtx->hasToTrace(funcIt->second->functionAddress()))
+    for (const auto& funcIt : globalCtx->allFuncs) {
+
+        if (!globalCtx->hasToTrace(funcIt.second->functionAddress()))
             continue;
 
-        intraCtx = th0Ctx->getFunctionCtx(funcIt->first);
+        intraCtx = th0Ctx->getFunctionCtx(funcIt.first);
         forest = &intraCtx->kSlabForest;
 
-        for (unsigned i=1; i < globalCtx->threadContexts.size(); i++)
-        {
+        for (unsigned i=1; i < globalCtx->threadContexts.size(); i++) {
 
             thCtx2 = globalCtx->threadContexts[i];
 
             map<ADDRINT, IntraModeContext *>::iterator it
-                = thCtx2->intraModeContexts.find(funcIt->first);
+                = thCtx2->intraModeContexts.find(funcIt.first);
 
-            if (it != thCtx2->intraModeContexts.end())
-            {
+            if (it != thCtx2->intraModeContexts.end()) {
+
                 forest->local_join(it->second->kSlabForest);
 
 #if IHPP_BENCHMARK
@@ -386,7 +383,6 @@ void intraMode_joinThreads(GlobalContext *globalCtx) {
 #endif
             }
         }
-
     }
 
     if (globalCtx->threadContexts.size() > 1) {
@@ -398,7 +394,7 @@ void intraMode_joinThreads(GlobalContext *globalCtx) {
     }
 }
 
-string getInsName(string ins) {
+static string getInsName(const string& ins) {
 
     size_t space_ch;
     for (space_ch=0; space_ch < ins.size(); space_ch++)
@@ -411,7 +407,7 @@ string getInsName(string ins) {
     return ins.substr(0, space_ch);
 }
 
-string makeHumanJump(insInfo &insData) {
+static string makeHumanJump(const insInfo& insData) {
 
     GlobalContext *globalCtx = globalSharedContext;
     string ins = insData.ins_text;
@@ -452,12 +448,10 @@ string makeHumanJump(insInfo &insData) {
                 ADDRINT diff = addr - insData.targetFuncAddr;
 
                 ins = ins_name + string(" ") + it3->second->functionName() + string("+") + to_string(diff);
-
-                insInfo targetIns = it3->second->instructions[addr];
+                const insInfo& targetIns = it3->second->instructions[addr];
 
                 if (targetIns.ins_text.size() && targetIns.isDirectBranchOrCall())
                     ins += string(" --> ") + makeHumanJump(targetIns);
-
             }
 
 
@@ -470,7 +464,6 @@ string makeHumanJump(insInfo &insData) {
                 ins = ins_name + " " + (string)*it4->second;
                 return ins;
             }
-
 
             if (it3 != globalCtx->allFuncs.end()) {
 
@@ -489,26 +482,23 @@ string makeHumanJump(insInfo &insData) {
     return ins;
 }
 
-void makeHumanDisasm() {
+static void makeHumanDisasm() {
 
     GlobalContext *globalCtx = globalSharedContext;
 
-    for (FuncsMapIt funcIt = globalCtx->allFuncs.begin(); funcIt != globalCtx->allFuncs.end(); funcIt++)
-    {
-        map<ADDRINT,insInfo>::iterator it;
+    for (const auto& funcIt : globalCtx->allFuncs) {
 
-        for (it = (funcIt->second)->instructions.begin(); it != (funcIt->second)->instructions.end(); it++)
-        {
-            if (!it->second.isDirectBranchOrCall())
+        for (auto& it : funcIt.second->instructions) {
+
+            if (!it.second.isDirectBranchOrCall())
                 continue;
 
-            it->second.ins_text=makeHumanJump(it->second);
+            it.second.ins_text = makeHumanJump(it.second);
         }
     }
 }
 
-
-void writeXmlConfig() {
+static void writeXmlConfig() {
 
     GlobalContext *ctx = globalSharedContext;
     ostream &o = globalSharedContext->OutFile;
@@ -566,7 +556,7 @@ void writeXmlConfig() {
     closeTag("configuration");
 }
 
-void print_outputInit() {
+static void print_outputInit() {
 
     GlobalContext *ctx = globalSharedContext;
 
@@ -609,16 +599,16 @@ void print_outputInit() {
 
 }
 
-size_t getMaxFuncLen() {
+static size_t getMaxFuncLen() {
 
     GlobalContext *ctx = globalSharedContext;
-    size_t maxFuncLen=0;
+    size_t maxFuncLen = 0;
 
     if (ctx->options.showFuncs || (ctx->options.showBlocks && !ctx->funcsToTrace.size())) {
 
-        for (map<ADDRINT,FunctionObj *>::iterator it = ctx->allFuncs.begin(); it != ctx->allFuncs.end(); it++) {
+        for (const auto& it : ctx->allFuncs) {
 
-            FunctionObj *fc = it->second;
+            FunctionObj *fc = it.second;
 
             if (fc->functionName().size() > maxFuncLen)
                 maxFuncLen = fc->functionName().size();
@@ -629,7 +619,7 @@ size_t getMaxFuncLen() {
 }
 
 
-void print_ins(ADDRINT addr, insInfo &info) {
+static void print_ins(ADDRINT addr, const insInfo& info) {
 
     GlobalContext *ctx = globalSharedContext;
 
@@ -697,7 +687,7 @@ void print_ins(ADDRINT addr, insInfo &info) {
 }
 
 
-void print_showBlocks(size_t maxFuncLen) {
+static void print_showBlocks(size_t maxFuncLen) {
 
     GlobalContext *ctx = globalSharedContext;
     size_t maxLen=0;
@@ -706,15 +696,14 @@ void print_showBlocks(size_t maxFuncLen) {
 
         if (ctx->funcsToTrace.size()) {
 
-            for (set<string>::iterator it = ctx->funcsToTrace.begin(); it != ctx->funcsToTrace.end(); it++)
-                if (it->size() > maxLen)
-                    maxLen=it->size();
+            for (const string& s : ctx->funcsToTrace)
+                if (s.size() > maxLen)
+                    maxLen = s.size();
 
         } else {
 
-            maxLen=maxFuncLen;
+            maxLen = maxFuncLen;
         }
-
 
         ctx->OutFile << "\n\n\n";
         print_title(ctx, "All basic blocks");
@@ -722,13 +711,11 @@ void print_showBlocks(size_t maxFuncLen) {
     } else {
 
         openTag("basicblocks",true);
-
     }
 
+    for (const auto& it : ctx->allBlocks) {
 
-    for(BlocksMapIt it = ctx->allBlocks.begin(); it != ctx->allBlocks.end(); it++) {
-
-        BasicBlock& bb = *it->second;
+        BasicBlock& bb = *it.second;
 
         if (!ctx->options.xmloutput) {
 
@@ -793,17 +780,17 @@ void print_showBlocks(size_t maxFuncLen) {
                     break;
 
                 if (!ctx->options.xmloutput) {
+
                     const string& ins = insIt->second.ins_text;
                     ctx->OutFile.width(maxLen+12);
                     ctx->OutFile << TSP << TSP << TSP << TSP;
                     ctx->OutFile << TSP << TSP << TSP << TSP;
                     ctx->OutFile << ins << endl;
+
                 } else {
 
                     ctx->OutFile << "<ins ";
-
                     print_ins(insIt->first, insIt->second);
-
                     closeTag("ins");
                 }
             }
@@ -825,14 +812,13 @@ void print_showBlocks(size_t maxFuncLen) {
 
         if (!ctx->options.blocksDisasm)
             ctx->OutFile << endl;
-
     }
 
     if (ctx->options.xmloutput)
         closeTag("basicblocks");
 }
 
-void print_showFuncs(size_t maxFuncLen) {
+static void print_showFuncs(size_t maxFuncLen) {
 
     GlobalContext *ctx = globalSharedContext;
 
@@ -846,9 +832,9 @@ void print_showFuncs(size_t maxFuncLen) {
         openTag("functions",true);
     }
 
-    for (FuncsMapIt it = ctx->allFuncs.begin(); it != ctx->allFuncs.end(); it++) {
+    for (const auto& it : ctx->allFuncs) {
 
-        FunctionObj& fc = *it->second;
+        FunctionObj& fc = *it.second;
 
         if (!ctx->options.xmloutput) {
 
@@ -862,19 +848,16 @@ void print_showFuncs(size_t maxFuncLen) {
 
             if (ctx->options.funcsDisasm) {
 
-                map<ADDRINT,insInfo>::iterator insIt;
-
                 ctx->OutFile << endl;
 
-                for (insIt = fc.instructions.begin(); insIt != fc.instructions.end(); insIt++) {
+                for (const auto& insIt : fc.instructions) {
 
                     ctx->OutFile << "\t\t";
-                    ctx->OutFile << hex << (size_t)insIt->first << dec << "    ";
-                    ctx->OutFile << insIt->second.ins_text << endl;
+                    ctx->OutFile << hex << (size_t)insIt.first << dec << "    ";
+                    ctx->OutFile << insIt.second.ins_text << endl;
                 }
 
                 ctx->OutFile << endl;
-
             }
 
         } else {
@@ -905,15 +888,10 @@ void print_showFuncs(size_t maxFuncLen) {
 
                 openTag("instructions",true);
 
-                map<ADDRINT,insInfo>::iterator insIt;
-
-                for (insIt = fc.instructions.begin(); insIt != fc.instructions.end(); insIt++)
-                {
+                for (const auto& insIt : fc.instructions) {
 
                     ctx->OutFile << "<ins ";
-
-                    print_ins(insIt->first, insIt->second);
-
+                    print_ins(insIt.first, insIt.second);
                     closeTag("ins");
                 }
 
@@ -928,22 +906,19 @@ void print_showFuncs(size_t maxFuncLen) {
         closeTag("functions");
 }
 
-void freeMemory() {
+static void freeMemory() {
 
     GlobalContext *ctx = globalSharedContext;
 
-    for (FuncsMapIt it = ctx->allFuncs.begin(); it != ctx->allFuncs.end(); it++) {
+    for (const auto& it : ctx->allFuncs) {
 
-        FunctionObj& fc = *it->second;
+        FunctionObj& fc = *it.second;
 
-        map<ADDRINT,insInfo>::iterator insIt;
+        for (const auto& insIt : fc.instructions) {
 
-        for (insIt = fc.instructions.begin(); insIt != fc.instructions.end(); insIt++) {
-
-            if (insIt->second.externFuncName)
-                delete [] insIt->second.externFuncName;
+            if (insIt.second.externFuncName)
+                delete [] insIt.second.externFuncName;
         }
-
     }
 }
 
@@ -956,7 +931,6 @@ void Fini(INT32 code, void *)
 
     print_outputInit();
 
-
     if (ctx->options.joinThreads) {
 
         if (ctx->WorkingMode() != WM_IntraMode)
@@ -966,39 +940,32 @@ void Fini(INT32 code, void *)
     }
 
     if (ctx->options.xmloutput)
-        openTag("threads",true);
+        openTag("threads", true);
 
-    for (unsigned i=0; i < ctx->threadContexts.size(); i++) {
+    for (ThreadContext *threadCtx : ctx->threadContexts) {
 
-        print_openThread(ctx->threadContexts[i]->getThreadID());
-
-
+        print_openThread(threadCtx->getThreadID());
 
         //Operations in printContextInfo (inversion of the K slab forest and others)
         //have to counted as operations made by thread "threadID" and not by current thread.
-        BENCHMARK_SET_THREAD(ctx->threadContexts[i]->getThreadID());
+        BENCHMARK_SET_THREAD(threadCtx->getThreadID());
 
-        //cerr << "Computing kCCF for thread " << ctx->threadContexts[i]->threadID << "...\n";
+        //cerr << "Computing kCCF for thread " << threadCtx->threadID << "...\n";
 
-        printThreadContextInfo(ctx, ctx->threadContexts[i]);
-
+        printThreadContextInfo(ctx, threadCtx);
         print_closeThread();
     }
 
     if (ctx->options.xmloutput)
         closeTag("threads");
 
-    size_t maxFuncLen=getMaxFuncLen();
+    size_t maxFuncLen = getMaxFuncLen();
 
-    if (ctx->options.showBlocks) {
-
+    if (ctx->options.showBlocks)
         print_showBlocks(maxFuncLen);
-    }
 
-    if (ctx->options.showFuncs) {
-
+    if (ctx->options.showFuncs)
         print_showFuncs(maxFuncLen);
-    }
 
     if (ctx->options.xmloutput)
         closeTag("output");
@@ -1010,7 +977,6 @@ void Fini(INT32 code, void *)
     */
 
     ctx->OutFile.close();
-
     freeMemory();
     delete ctx;
 }

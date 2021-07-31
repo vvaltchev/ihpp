@@ -50,7 +50,7 @@ public:
     char *externFuncName;
     bool isCall;
 
-    bool isDirectBranchOrCall() { return targetAddr != 0; }
+    bool isDirectBranchOrCall() const { return targetAddr != 0; }
 
     insInfo()
         : targetAddr(0)
