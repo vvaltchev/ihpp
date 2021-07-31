@@ -59,9 +59,9 @@ How to build the tool
     pin-3.20-98437-gf02b61307-gcc-linux
     ```
 
-3. Now, let's create an environment variable called $PIN_TOOL with the absolute path to that directory, like:
+3. Now, let's create an environment variable called $PIN_ROOT with the absolute path to that directory, like:
     ```
-    export PIN_TOOL=/home/john/pin/pin-3.20-98437-gf02b61307-gcc-linux
+    export PIN_ROOT=/home/john/pin/pin-3.20-98437-gf02b61307-gcc-linux
     ```
 
 4. Finally, enter IHPP project's root directory from a command prompt and run:
@@ -76,13 +76,13 @@ How to use the tool
 To use the IHPP tool, run Intel's PIN like this:
 
 ```
-$PIN_TOOL/pin -t obj-intel64/ihpp.so -funcMode -k 10 -outfile out.txt -kccf -- <your_program>
+$PIN_ROOT/pin -t obj-intel64/ihpp.so -funcMode -k 10 -outfile out.txt -kccf -- <your_program>
 ```
 
 For more about its options, run it with -h like:
 
 ```
-$PIN_TOOL/pin -t obj-intel64/ihpp.so -h -- true
+$PIN_ROOT/pin -t obj-intel64/ihpp.so -h -- true
 ```
 
 The current help message is:
