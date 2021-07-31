@@ -10,10 +10,55 @@ using namespace std;
 
 #include "tracingFuncs.h"
 
-
-
 string ThreadContext::getCurrentFunctionName() {
     return globalSharedContext->allFuncs[currentFunction]->functionName();
+}
+
+void GlobalContext::setupThreadContext(ThreadContext *threadCtx)
+{
+    WorkingModeType wMode = globalSharedContext->WorkingMode();
+
+    if (globalSharedContext->funcsToTrace.empty())
+        return;
+
+    if (wMode == WM_InterProcMode) {
+
+        traceObject(
+            globalSharedContext->allBlocks[(ADDRINT)-1],
+            threadCtx,
+            threadCtx->treeTop,
+            threadCtx->treeBottom
+        );
+
+        return;
+    }
+
+    // wMode is WM_FuncMode or WM_IntraMode.
+
+    ihppNode *t=0,*b=0;
+    traceObject(globalSharedContext->allFuncs[(ADDRINT)-1], threadCtx, t, b);
+
+#if ENABLE_KEEP_STACK_PTR
+    threadCtx->shadowStack.push(ShadowStackItemType(t,b,(ADDRINT)-1));
+#else
+    threadCtx->shadowStack.push(ShadowStackItemType(t,b));
+#endif
+
+    if (wMode == WM_IntraMode) {
+
+        IntraModeContext *intraCtx;
+        threadCtx->setCurrentFunction((ADDRINT)-1);
+        intraCtx = threadCtx->getCurrentFunctionCtx();
+
+        t=b=0;
+        traceObject(globalSharedContext->allBlocks[(ADDRINT)-1], intraCtx, t, b);
+
+#if ENABLE_KEEP_STACK_PTR
+        intraCtx->shadowStack.push(ShadowStackItemType(t,b,(ADDRINT)-1));
+#else
+        intraCtx->shadowStack.push(ShadowStackItemType(t,b));
+#endif
+    }
 }
 
 ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) {
@@ -32,7 +77,6 @@ ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) {
 #if EMPTY_ANALYSIS
         threadContexts.push_back(new ThreadContext(0, 0, 0));
 #endif
-
     }
 
 
@@ -40,8 +84,6 @@ ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) {
     PIN_ReleaseLock(&lock);
     return 0;
 #endif
-
-
 
     for (unsigned i=0; i < threadContexts.size(); i++) {
 
@@ -54,48 +96,10 @@ ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) {
         }
     }
 
-    threadContexts.push_back(new ThreadContext(tid, startFuncAddr, stopFuncAddr));
-
-    ret = threadContexts.back();
+    ret = new ThreadContext(tid, startFuncAddr, stopFuncAddr);
+    threadContexts.push_back(ret);
     PIN_ReleaseLock(&lock);
-
-    if (globalSharedContext->funcsToTrace.size()) {
-
-        ihppNode *t=0,*b=0;
-
-        if (globalSharedContext->WorkingMode() != WM_InterProcMode) {
-
-            traceObject(globalSharedContext->allFuncs[(ADDRINT)-1], ret, t, b);
-
-#if ENABLE_KEEP_STACK_PTR
-            ret->shadowStack.push(ShadowStackItemType(t,b,(ADDRINT)-1));
-#else
-            ret->shadowStack.push(ShadowStackItemType(t,b));
-#endif
-
-            if (globalSharedContext->WorkingMode() == WM_IntraMode) {
-
-                IntraModeContext *intraCtx;
-                ret->setCurrentFunction((ADDRINT)-1);
-                intraCtx = ret->getCurrentFunctionCtx();
-
-                t=b=0;
-                traceObject(globalSharedContext->allBlocks[(ADDRINT)-1], intraCtx, t, b);
-
-#if ENABLE_KEEP_STACK_PTR
-                intraCtx->shadowStack.push(ShadowStackItemType(t,b,(ADDRINT)-1));
-#else
-                intraCtx->shadowStack.push(ShadowStackItemType(t,b));
-#endif
-            }
-
-        } else {
-
-            traceObject(globalSharedContext->allBlocks[(ADDRINT)-1], ret, ret->treeTop, ret->treeBottom);
-        }
-
-    }
-
+    setupThreadContext(ret);
     return ret;
 }
 

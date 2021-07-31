@@ -41,14 +41,14 @@ public:
     ADDRINT exit_addr;
 
     ADDRINT text_addr;
-    
+
 
     specialAttrs() :
 
 #if defined(_WIN32)
-                    _NLG_Notify_addr(0), _NLG_Notify1_addr(0), 
-                    __NLG_Dispatch_addr(0), __tmainCRTStartup_addr(0), 
-                    wWinMain_addr(0), unnamedImageEntryPoint_addr(0), 
+                    _NLG_Notify_addr(0), _NLG_Notify1_addr(0),
+                    __NLG_Dispatch_addr(0), __tmainCRTStartup_addr(0),
+                    wWinMain_addr(0), unnamedImageEntryPoint_addr(0),
 #endif
                     main_addr(0), exit_addr(0), text_addr(0)
     { }
@@ -62,6 +62,8 @@ class GlobalContext {
     unsigned int _K_CCF_VAL;
     WorkingModeType _WorkingMode;
 
+    void setupThreadContext(ThreadContext *ctx);
+
 public:
 
     ofstream OutFile;
@@ -74,7 +76,7 @@ public:
     vector<ThreadContext*> threadContexts;
 
     bool exitPassed;
-    
+
 #if DEBUG
     bool showDebug;
 #endif
@@ -86,12 +88,12 @@ public:
     ADDRINT stopFuncAddr;
 
     double timer;
-    
+
     GlobalContext(WorkingModeType wm, unsigned kval, optionsClass options);
     ~GlobalContext();
 
     ThreadContext *getThreadCtx(PIN_THREAD_UID tid);
-    
+
     WorkingModeType WorkingMode() { return _WorkingMode; }
     unsigned int kval() { return _K_CCF_VAL; }
 
@@ -110,9 +112,9 @@ extern GlobalContext *globalSharedContext;
 #endif
 
 
-inline bool GlobalContext::hasToTraceByName(string funcName, ADDRINT funcAddr) 
+inline bool GlobalContext::hasToTraceByName(string funcName, ADDRINT funcAddr)
 {
-    if (funcsToTrace.size()) 
+    if (funcsToTrace.size())
         return funcsToTrace.find(funcName) != funcsToTrace.end();
 
     return allFuncs.find(funcAddr) != allFuncs.end();
@@ -131,7 +133,7 @@ void kSlabForestKLevelCountersClear(forest<keyT> &f, keyT &rootKey, unsigned int
     typename forest<keyT>::treesIterator end = f.getTreesIteratorEnd();
 
     while (it != end) {
-    
+
         if (it->getKey() != rootKey)
             it->clearLevelKCounters(k);
 
