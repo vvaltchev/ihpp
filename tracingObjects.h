@@ -84,8 +84,8 @@ public:
     { }
 
     ADDRINT functionAddress() const { return key; }
-    string functionName() const { return _functionName; }
-    string fileName() const { return _fileName; }
+    const string& functionName() const { return _functionName; }
+    const string& fileName() const { return _fileName; }
 
     operator string() const { return functionName()+"()"; }
 };

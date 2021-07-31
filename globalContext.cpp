@@ -10,7 +10,7 @@ using namespace std;
 
 #include "tracingFuncs.h"
 
-string ThreadContext::getCurrentFunctionName() {
+const string& ThreadContext::getCurrentFunctionName() const {
     return globalSharedContext->allFuncs[currentFunction]->functionName();
 }
 
