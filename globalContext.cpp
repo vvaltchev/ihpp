@@ -14,8 +14,24 @@ string ThreadContext::getCurrentFunctionName() {
     return globalSharedContext->allFuncs[currentFunction]->functionName();
 }
 
-void GlobalContext::setupThreadContext(ThreadContext *threadCtx)
+void GlobalContext::destroyThreadContext(PIN_THREAD_UID tid)
 {
+    // We have just reset the TLS for this thread ID and in *no case*
+    // delete the threadContext object, as we'll need it later in output.cpp.
+    PIN_SetThreadData(_tls_key, nullptr, tid);
+}
+
+void GlobalContext::createThreadContext(PIN_THREAD_UID tid)
+{
+    if (EMPTY_ANALYSIS) {
+        if (threadContexts.size() > 0)
+            return;
+    }
+
+    ThreadContext *threadCtx = new ThreadContext(tid, startFuncAddr, stopFuncAddr);
+    PIN_SetThreadData(_tls_key, threadCtx, tid);
+    threadContexts.push_back(threadCtx);
+
     WorkingModeType wMode = globalSharedContext->WorkingMode();
 
     if (globalSharedContext->funcsToTrace.empty())
@@ -61,71 +77,46 @@ void GlobalContext::setupThreadContext(ThreadContext *threadCtx)
     }
 }
 
-ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid) {
+ThreadContext *GlobalContext::getThreadCtx(PIN_THREAD_UID tid)
+{
+    static bool already_called;
 
-    ThreadContext *ret;
-    PIN_GetLock(&lock, 1);
-
-    if (!threadContexts.size()) {
-
+    if (!already_called) {
         double tmp = getMilliseconds();
         double diff = tmp - timer;
-        timer = tmp;
-
         fprintf(stderr, "[ IHPP ] Instrumentation time: %.3f sec\n", diff/1000.0);
-
-#if EMPTY_ANALYSIS
-        threadContexts.push_back(new ThreadContext(0, 0, 0));
-#endif
+        timer = tmp;
+        already_called = true;
     }
 
+    if (EMPTY_ANALYSIS)
+        return nullptr;
 
-#if EMPTY_ANALYSIS
-    PIN_ReleaseLock(&lock);
-    return 0;
-#endif
-
-    for (unsigned i=0; i < threadContexts.size(); i++) {
-
-        if (threadContexts[i]->getThreadID() == tid) {
-
-            ret = threadContexts[i];
-            PIN_ReleaseLock(&lock);
-
-            return ret;
-        }
-    }
-
-    ret = new ThreadContext(tid, startFuncAddr, stopFuncAddr);
-    threadContexts.push_back(ret);
-    PIN_ReleaseLock(&lock);
-    setupThreadContext(ret);
-    return ret;
+    return (ThreadContext *)PIN_GetThreadData(_tls_key, tid);
 }
 
 GlobalContext::GlobalContext(WorkingModeType wm, unsigned kval, optionsClass options)
 	: _K_CCF_VAL(kval)
 	, _WorkingMode(wm)
-{
-    startFuncAddr=0;
-    stopFuncAddr=0;
-    exitPassed=false;
-
-    threadContexts.reserve(64);
-    PIN_InitLock(&lock);
-
-    this->options = options;
-
+    , exitPassed(false)
 #if DEBUG
-    showDebug=true;
+    , showDebug(true)
 #endif
+    , options(options)
+    , startFuncAddr(0)
+    , stopFuncAddr(0)
+{
+    _tls_key = PIN_CreateThreadDataKey(nullptr);
 
+    if (_tls_key == INVALID_TLS_KEY) {
+        cerr << "Unable to create TLS KEY" << endl;
+        PIN_ExitProcess(1);
+    }
 }
 
 GlobalContext::~GlobalContext() {
 
-    for (unsigned i=0; i < threadContexts.size(); i++)
-        delete threadContexts[i];
+    PIN_DeleteThreadDataKey(_tls_key);
 
     for (BlocksMapIt it = allBlocks.begin(); it != allBlocks.end(); it++)
         delete it->second;

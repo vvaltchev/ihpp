@@ -395,6 +395,15 @@ void ImageLoad(IMG img, void *) {
 
 }
 
+void ThreadStart(THREADID tid, CONTEXT* ctxt, INT32 flags, VOID* v)
+{
+    globalSharedContext->createThreadContext(tid);
+}
+
+void ThreadFini(THREADID tid, const CONTEXT* ctxt, INT32 code, VOID* v)
+{
+    globalSharedContext->destroyThreadContext(tid);
+}
 
 /* ===================================================================== */
 /* Main                                                                  */
@@ -405,15 +414,12 @@ int main(int argc, char ** argv) {
     PIN_InitSymbols();
 
     if (PIN_Init(argc, argv)) {
-
         optionsClass::showHelp();
         return 0;
     }
 
-    if (!optionsClass::checkOptions()) {
-
+    if (!optionsClass::checkOptions())
         return 0;
-    }
 
     optionsClass options;
 
@@ -481,6 +487,9 @@ int main(int argc, char ** argv) {
             globalSharedContext->allBlocks[bb->blockAddress()] = bb;
         }
     }
+
+    PIN_AddThreadStartFunction(ThreadStart, NULL);
+    PIN_AddThreadFiniFunction(ThreadFini, NULL);
 
     globalSharedContext->timer = getMilliseconds();
     PIN_StartProgram();

@@ -58,11 +58,9 @@ public:
 
 class GlobalContext {
 
-    PIN_LOCK lock;
+    TLS_KEY _tls_key;
     unsigned int _K_CCF_VAL;
     WorkingModeType _WorkingMode;
-
-    void setupThreadContext(ThreadContext *ctx);
 
 public:
 
@@ -93,6 +91,8 @@ public:
     ~GlobalContext();
 
     ThreadContext *getThreadCtx(PIN_THREAD_UID tid);
+    void createThreadContext(PIN_THREAD_UID tid);
+    void destroyThreadContext(PIN_THREAD_UID tid);
 
     WorkingModeType WorkingMode() { return _WorkingMode; }
     unsigned int kval() { return _K_CCF_VAL; }
