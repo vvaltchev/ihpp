@@ -29,7 +29,7 @@ void traceObject_generic(TracingObject<T> *to,
         it = ctx->R.find(key);
 
         if (it == ctx->R.end())
-            ctx->R[key] = ( top = ctx->kSlabForest.addTreeByVal(node<T>(key, to, 0))  );
+            ctx->R[key] = ( top = ctx->kSlabForest.addTree(node<T>(key, to, 0))  );
         else
             top = it->second;
 

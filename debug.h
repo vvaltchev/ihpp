@@ -38,7 +38,7 @@
 #if DEBUG && DEBUG_BRCALL
 
     #define dbg_brcall_jmp()                    if (__dcheck) cerr << "\nINS [cod2]: PROBABLE longjmp from: " << currentFuncName << " to " << targetFuncName << endl;\
-                                                if (__dcheck) cerr << "INS: insCat: " <<  CATEGORY_StringShort((CATEGORY)insCat) << endl;
+                                                if (__dcheck) cerr << "INS: insCat: " <<  CATEGORY_StringShort(insCat) << endl;
 
 
     #define dbg_brcall_cantpop()                if (__dcheck) cerr << "INS: CAN'T pop()!!!\n";

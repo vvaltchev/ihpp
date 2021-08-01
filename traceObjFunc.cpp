@@ -21,7 +21,7 @@ void traceObject_kinf_roll(TracingObject<ADDRINT> *to,
 
     if (!treeTop) {
 
-        treeTop = ctx->kSlabForest.addTreeByVal(ihppNode(key, to, 1));
+        treeTop = ctx->kSlabForest.addTree(ihppNode(key, to, 1));
 
         if (!ctx->rootKey)
             ctx->rootKey=key;
@@ -57,7 +57,7 @@ void traceObject_kinf_no_roll(TracingObject<ADDRINT> *to,
 
     if (!treeTop) {
 
-        treeTop = ctx->kSlabForest.addTreeByVal(ihppNode(key, to, 1));
+        treeTop = ctx->kSlabForest.addTree(ihppNode(key, to, 1));
 
         if (!ctx->rootKey)
             ctx->rootKey=key;
@@ -110,7 +110,7 @@ void traceObject_classic_roll(TracingObject<ADDRINT> *to,
         n = ctx->kSlabForest.getTreeRef(key);
 
         if (!n)
-            n = ctx->kSlabForest.addTreeByVal(ihppNode(key,to,0));
+            n = ctx->kSlabForest.addTree(ihppNode(key,to,0));
 
         treeTop = n;
 
@@ -170,7 +170,7 @@ void traceObject_classic_no_roll(TracingObject<ADDRINT> *to,
         n = ctx->kSlabForest.getTreeRef(key);
 
         if (!n)
-            n = ctx->kSlabForest.addTreeByVal(ihppNode(key,to,0));
+            n = ctx->kSlabForest.addTree(ihppNode(key,to,0));
 
         treeTop = n;
 

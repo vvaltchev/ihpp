@@ -34,35 +34,39 @@ public:
     node();
     node(const node& n);
     node(keyT key, ObjectWithKey<keyT>* val, obj_counter_t counter=0);
-    ~node() = default;
     node<keyT>& operator=(const node& n);
+    ~node() = default;
 
-    node<keyT>* getChildRef(keyT k);
-    node<keyT>* addChild(node<keyT> &n);
-    node<keyT>* replaceChild(node<keyT> &n);
-    node<keyT>* addChildByVal(node<keyT> n) { return addChild(n); }
-    node<keyT>* getParentRef() { return (parent && *parent) ?  parent : 0; }
+    node<keyT> *getChildRef(keyT k);
+    node<keyT> *addChild(const node<keyT>& n);
+    node<keyT> *replaceChild(node<keyT>& n);
+    node<keyT> *addChildByVal(node<keyT> n) { return addChild(n); }
+    node<keyT> *getParentRef() { return (parent && *parent) ?  parent : 0; }
     vector< node<keyT>* > getAllTreeNodesRef();
 
-    bool isValid() { return val != nullptr; }
+    bool isValid() const { return val != nullptr; }
     size_t childrenCount() { return children.size(); }
     size_t recursiveAllNodesCount();
     void autoSetParents();
-    keyT getKey() { assert(isValid()); return val->getKey(); }
+    keyT getKey() const { assert(isValid()); return val->getKey(); }
     ObjectWithKey<keyT> *getValue() { assert(isValid()); return val; }
 
     auto begin() { return children.begin(); }
     auto end() { return children.end(); }
+    auto begin() const { return children.cbegin(); }
+    auto end() const { return children.cend(); }
+    auto cbegin() { return children.cbegin(); }
+    auto cend() { return children.cend(); }
 
     void incCounter() { counter++; }
-    obj_counter_t getCounter() { return counter; }
+    obj_counter_t getCounter() const { return counter; }
     void setCounter(obj_counter_t c) { counter=c; }
 
     node<keyT> kpath(unsigned int k);
     node<keyT> kpathR(unsigned int k);
 
     void resetVisitedRecursive();
-    inline void clearLevelKCounters(unsigned int k);
+    void clearLevelKCounters(unsigned int k);
 
     operator string() {
 
@@ -229,7 +233,7 @@ node<keyT> node<keyT>::kpath(unsigned int k) {
 
 
 template <typename keyT>
-inline node<keyT>* node<keyT>::addChild(node<keyT> &n) {
+inline node<keyT>* node<keyT>::addChild(const node<keyT>& n) {
 
     node *t;
     assert(!getChildRef(n.getKey()));
@@ -239,7 +243,7 @@ inline node<keyT>* node<keyT>::addChild(node<keyT> &n) {
 }
 
 template <typename keyT>
-inline node<keyT>* node<keyT>::replaceChild(node<keyT> &n) {
+inline node<keyT>* node<keyT>::replaceChild(node<keyT>& n) {
 
     node *t;
     assert(getChildRef(n.getKey()));

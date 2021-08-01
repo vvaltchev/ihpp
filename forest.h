@@ -5,7 +5,7 @@ template <typename keyT>
 class forest {
 
     ihppNodeChildrenContainerMap< keyT, node<keyT> > trees;
-    static void joinSubtrees(node<keyT> &t1, node<keyT> &t2);
+    static void joinSubtrees(node<keyT> &t1, const node<keyT> &t2);
 
 public:
 
@@ -15,18 +15,18 @@ public:
 
     typedef typename ihppNodeChildrenContainerMap< keyT, node<keyT>  >::iterator iterator;
 
-    forest();
+    forest() = default;
     forest(const forest &f);
-    forest(node<keyT> n);
+    forest(const node<keyT>& n);
 
-    node<keyT> * getTreeRef(keyT k);
-    node<keyT> * toTree();
-
-    inline node<keyT> * addTree(node<keyT> &n);
-    node<keyT> * addTreeByVal(node<keyT> n) { return addTree(n); }
+    node<keyT> *getTreeRef(keyT k);
+    node<keyT> *toTree();
+    node<keyT> *addTree(const node<keyT>& n);
 
     auto begin() { return trees.begin(); }
     auto end() { return trees.end(); }
+    auto begin() const { return trees.begin(); }
+    auto end() const { return trees.end(); }
 
     size_t treesCount() { return trees.size(); }
     size_t recursiveAllNodesCount();
@@ -35,44 +35,38 @@ public:
 
     forest<keyT> inverseK(unsigned int k);
 
-    void local_join(node<keyT> &t2);
-    void local_join(forest<keyT> &f2);
+    void local_join(const node<keyT>& t2);
+    void local_join(const forest<keyT>& f2);
 
-    void local_joinByVal(node<keyT> t2) { local_join(t2); }
-    void local_joinByVal(forest<keyT> f2) { local_join(f2); }
-
-    inline forest<keyT> &operator=(forest<keyT> f);
+    forest<keyT> &operator=(const forest<keyT>& f);
 };
 
 
 template <typename keyT>
-inline forest<keyT>::forest() { }
-
-template <typename keyT>
-inline forest<keyT>::forest(const forest<keyT> &f) {
-
-    trees = f.trees;
+inline forest<keyT>::forest(const forest<keyT>& f)
+    : trees(f.trees)
+{
     BM_inc_forests_copied();
 }
 
 template <typename keyT>
-inline forest<keyT>::forest(node<keyT>  n) {
-
+inline forest<keyT>::forest(const node<keyT>& n)
+    : trees()
+{
     addTree(n);
     BM_inc_forests_copied();
 }
 
 template <typename keyT>
-inline forest<keyT> &forest<keyT>::operator=(forest<keyT> f) {
-
-    trees=f.trees;
+inline forest<keyT> &forest<keyT>::operator=(const forest<keyT>& f)
+{
+    trees = f.trees;
     BM_inc_forests_copied();
     return *this;
 }
 
-
 template <typename keyT>
-inline node<keyT>* forest<keyT>::addTree(node<keyT>  &n) {
+inline node<keyT>* forest<keyT>::addTree(const node<keyT>& n) {
 
     assert(!getTreeRef(n.getKey()));
     return &trees.insert(n.getKey(), n);
@@ -120,11 +114,11 @@ void forest<keyT>::autoSetParents() {
 
 
 template <typename keyT>
-void forest<keyT>::joinSubtrees(node<keyT> &t1, node<keyT> &t2) {
+void forest<keyT>::joinSubtrees(node<keyT> &t1, const node<keyT> &t2) {
 
     t1.setCounter(t1.getCounter() + t2.getCounter());
 
-    for (auto& t2_child : t2) {
+    for (const auto& t2_child : t2) {
 
         node<keyT> *t = t1.getChildRef(t2_child.getKey());
 
@@ -154,21 +148,18 @@ forest<keyT> forest<keyT>::join(node<keyT> &t1, node<keyT> &t2) {
 }
 
 template <typename keyT>
-void forest<keyT>::local_join(node<keyT> &t2) {
+void forest<keyT>::local_join(const node<keyT>& t2) {
 
-    node<keyT> *t;
-
-    t = getTreeRef(t2.getKey());
+    node<keyT> *t = getTreeRef(t2.getKey());
 
     if (t)
         joinSubtrees(*t, t2);
     else
         addTree(t2);
-
 }
 
 template <typename keyT>
-void forest<keyT>::local_join(forest<keyT> &f2) {
+void forest<keyT>::local_join(const forest<keyT>& f2) {
 
     for (auto& tree : f2)
         local_join(tree);
@@ -202,7 +193,7 @@ forest<keyT> forest<keyT>::inverseK(unsigned int k) {
         const vector< node<keyT> * >& tmp = tree.getAllTreeNodesRef();
 
         for (node<keyT> *other_tree : tmp)
-            res.local_joinByVal(other_tree->kpathR(k));
+            res.local_join(other_tree->kpathR(k));
     }
 
     return res;

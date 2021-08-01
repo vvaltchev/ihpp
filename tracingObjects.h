@@ -31,10 +31,8 @@ public:
     { }
 
     virtual ~TracingObject() = default;
-
-    TracingObjType getType() { return type; }
-
-    virtual keyT getKey() { return key; }
+    TracingObjType getType() const { return type; }
+    virtual keyT getKey() const { return key; }
     virtual obj_counter_t getSimpleCounter() { return simpleCounter; }
     virtual void incSimpleCounter() { simpleCounter++; }
     virtual operator string() const = 0;
