@@ -149,10 +149,12 @@ forest<keyT> forest<keyT>::inverseK(unsigned int k)
 
     for (auto& tree : *this) {
 
-        tree.autoSetParents();
-        const vector< node<keyT> * >& tmp = tree.getAllTreeNodesRef();
+        vector< node<keyT> * > nodes;
 
-        for (node<keyT> *other_tree : tmp)
+        tree.autoSetParents();
+        tree.getAllTreeNodesRef(nodes);
+
+        for (node<keyT> *other_tree : nodes)
             res.local_join(other_tree->kpathR(k));
     }
 

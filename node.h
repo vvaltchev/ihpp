@@ -25,7 +25,6 @@ protected:
     ihppNodeChildrenContainer< keyT, node<keyT> > children;
 
     void clearLevelKCounters(unsigned int k, unsigned int deepth);
-    void getAllTreeNodesRef(vector< node<keyT>* > &vec);
 
 public:
 
@@ -42,7 +41,7 @@ public:
     node<keyT> *replaceChild(node<keyT>& n);
     node<keyT> *addChildByVal(node<keyT> n) { return addChild(n); }
     node<keyT> *getParentRef() { return (parent && *parent) ?  parent : 0; }
-    vector< node<keyT>* > getAllTreeNodesRef();
+    void getAllTreeNodesRef(vector< node<keyT>* >& vec);
 
     bool isValid() const { return val != nullptr; }
     size_t childrenCount() const { return children.size(); }
@@ -155,23 +154,13 @@ inline void node<keyT>::clearLevelKCounters(unsigned int k) {
 }
 
 template <typename keyT>
-void node<keyT>::getAllTreeNodesRef(vector< node<keyT>* > &vec) {
+void node<keyT>::getAllTreeNodesRef(vector< node<keyT>* >& vec) {
 
     vec.push_back(this);
 
     for (auto& child : *this)
         child.getAllTreeNodesRef(vec);
 }
-
-
-template <typename keyT>
-inline vector< node<keyT>* > node<keyT>::getAllTreeNodesRef() {
-
-    vector< node* > res;
-    getAllTreeNodesRef(res);
-    return res;
-}
-
 
 template <typename keyT>
 node<keyT> node<keyT>::kpathR(unsigned int k) {
