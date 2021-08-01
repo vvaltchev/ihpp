@@ -8,7 +8,7 @@
 void (*traceObject)(TracingObject<ADDRINT> *to,
                     GenericTraceContext *ctx,
                     ihppNode* &treeTop,
-                    ihppNode* &treeBottom) = 0;
+                    ihppNode* &treeBottom) = nullptr;
 
 void traceObject_kinf_roll(TracingObject<ADDRINT> *to,
                            GenericTraceContext *ctx,

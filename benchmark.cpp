@@ -5,12 +5,12 @@
 
 class ThreadContext;
 
-bool benchmark=true;
-bool usePinThread=true;
-bool useCurrFunc=true;
+bool benchmark = true;
+bool usePinThread = true;
+bool useCurrFunc = true;
 
-ThreadContext *__benchmarkThread=0;
-ADDRINT __benchmarkFunc=0;
+ThreadContext *__benchmarkThread;
+ADDRINT __benchmarkFunc;
 
 #endif
 

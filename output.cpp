@@ -190,7 +190,7 @@ static void dumpXmlForest(ihppForest& forest) {
 static void printContextInfo(GlobalContext *globalCtx, GenericTraceContext *ctx) {
 
     ihppForest kccf;
-    ihppForest *kSFCopy = 0;
+    ihppForest *kSFCopy = nullptr;
 
     //Operations in this copy shouldn't be counted in benchmark
     //because they are computed only for a visualization propouse:

@@ -42,8 +42,8 @@ using namespace std;
 
 #define INTRAMODE_SET_TOP_BOTTOM_TO_ROOT()            {            \
     intraCtx->counter=1;                                           \
-    treeTop=intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey);   \
-    treeBottom=0;                                                  \
+    treeTop = intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey); \
+    treeBottom = nullptr;                                          \
 }
 
 #define INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT()                 \
@@ -139,8 +139,8 @@ void intraModeBlockTrace(BasicBlock *bb
 
                 if (parent->getKey() == bb->getKey()) {
 
-                    treeTop=parent;
-                    treeBottom=0;
+                    treeTop = parent;
+                    treeBottom = nullptr;
 
                     //in rollLoops mode, k=inf is automatic
                     //intraCtx->counter=1;
@@ -178,8 +178,8 @@ void intraModeBlockTrace(BasicBlock *bb
 
         dbg_intratr_first_call();
 
-        treeTop=0; treeBottom=0;
-
+        treeTop = nullptr;
+        treeBottom = nullptr;
         traceObject(bb, intraCtx, treeTop, treeBottom);
 
         assert(intraCtx->rootKey);

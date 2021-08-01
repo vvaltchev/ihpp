@@ -46,8 +46,8 @@ void FunctionObjTrace(FunctionObj *fc
 #endif
 ) {
 
-    ihppNode *treeTop=0;
-    ihppNode *treeBottom=0;
+    ihppNode *treeTop = nullptr;
+    ihppNode *treeBottom = nullptr;
     ThreadContext *ctx;
     GlobalContext *globalCtx = globalSharedContext;
 

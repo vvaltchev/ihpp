@@ -17,7 +17,7 @@ inline bool subcall_false_jmp_check(ThreadContext *ctx, ADDRINT currFuncAddr)
     if (ctx->subcallcount <= 2) {
 
         dbg_single_inst_false_jmp();
-        ctx->subcallcount=0;
+        ctx->subcallcount = 0;
         ctx->jumpTargetFuncAddr = currFuncAddr;
         return true;
     }
@@ -129,7 +129,7 @@ void indirect_branchOrCall(ADDRINT currentFuncAddr,
                            ADDRINT targetAddr,
                            ADDRINT insCat)
 {
-    ADDRINT targetFuncAddr=0;
+    ADDRINT targetFuncAddr = 0;
 
 #if EMPTY_ANALYSIS
     return;

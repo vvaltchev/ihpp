@@ -79,25 +79,22 @@ public:
 template <typename keyT>
 inline node<keyT> &node<keyT>::operator=(node<keyT> n) {
 
-
-    val=n.val;
-    children=n.children;
-    counter=n.counter;
-    parent=0;
+    val = n.val;
+    children = n.children;
+    counter = n.counter;
+    parent = nullptr;
 
     BM_inc_nodes_copied();
-
     return *this;
 }
 
 template <typename keyT>
 inline node<keyT>::node(const node<keyT> &n) {
 
-
-    val=n.val;
-    children=n.children;
-    counter=n.counter;
-    parent=0;
+    val = n.val;
+    children = n.children;
+    counter = n.counter;
+    parent = nullptr;
 
     BM_inc_nodes_copied();
 }
@@ -106,8 +103,8 @@ inline node<keyT>::node(const node<keyT> &n) {
 template <typename keyT>
 inline node<keyT>::node() {
 
-    val=0;
-    parent=0;
+    val = nullptr;
+    parent = nullptr;
 
     BM_inc_empty_nodes_created();
 }
@@ -115,9 +112,9 @@ inline node<keyT>::node() {
 template <typename keyT>
 inline node<keyT>::node(keyT key, ObjectWithKey<keyT>* val, obj_counter_t counter) {
 
-    this->val=val;
-    this->counter=counter;
-    this->parent=0;
+    this->val = val;
+    this->counter = counter;
+    this->parent = nullptr;
 
     assert(val);
     assert(key == val->getKey());

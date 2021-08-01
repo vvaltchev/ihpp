@@ -51,7 +51,8 @@ void GlobalContext::createThreadContext(PIN_THREAD_UID tid)
 
     // wMode is WM_FuncMode or WM_IntraMode.
 
-    ihppNode *t=0,*b=0;
+    ihppNode *t = nullptr;
+    ihppNode *b = nullptr;
     traceObject(globalSharedContext->allFuncs[(ADDRINT)-1], threadCtx, t, b);
 
 #if ENABLE_KEEP_STACK_PTR
@@ -66,7 +67,8 @@ void GlobalContext::createThreadContext(PIN_THREAD_UID tid)
         threadCtx->setCurrentFunction((ADDRINT)-1);
         intraCtx = threadCtx->getCurrentFunctionCtx();
 
-        t=b=0;
+        t = nullptr;
+        b = nullptr;
         traceObject(globalSharedContext->allBlocks[(ADDRINT)-1], intraCtx, t, b);
 
 #if ENABLE_KEEP_STACK_PTR

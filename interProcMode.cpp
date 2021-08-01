@@ -35,11 +35,10 @@ void interModeBlockTrace(BasicBlock *bb)
 
     while (parent) {
 
-
         if (parent->getKey() == bb->getKey()) {
 
-            ctx->treeTop=parent;
-            ctx->treeBottom=0;
+            ctx->treeTop = parent;
+            ctx->treeBottom = nullptr;
             ctx->treeTop->incCounter();
             return;
         }
