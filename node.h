@@ -34,26 +34,22 @@ public:
     node();
     node(const node& n);
     node(keyT key, ObjectWithKey<keyT>* val, obj_counter_t counter=0);
-    ~node();
+    ~node() = default;
+    node<keyT>& operator=(const node& n);
 
     node<keyT>* getChildRef(keyT k);
     node<keyT>* addChild(node<keyT> &n);
     node<keyT>* replaceChild(node<keyT> &n);
     node<keyT>* addChildByVal(node<keyT> n) { return addChild(n); }
-
     node<keyT>* getParentRef() { return (parent && *parent) ?  parent : 0; }
+    vector< node<keyT>* > getAllTreeNodesRef();
 
-    inline vector< node<keyT>* > getAllTreeNodesRef();
-
+    bool isValid() { return val != nullptr; }
     size_t childrenCount() { return children.size(); }
     size_t recursiveAllNodesCount();
-
     void autoSetParents();
-
-    bool isValid() { return val != 0; }
-
     keyT getKey() { assert(isValid()); return val->getKey(); }
-    ObjectWithKey<keyT> * getValue() { assert(isValid()); return val; }
+    ObjectWithKey<keyT> *getValue() { assert(isValid()); return val; }
 
     auto begin() { return children.begin(); }
     auto end() { return children.end(); }
@@ -68,17 +64,19 @@ public:
     void resetVisitedRecursive();
     inline void clearLevelKCounters(unsigned int k);
 
+    operator string() {
+
+        return (val)
+            ? static_cast<string>(*getValue())
+            : string();
+    }
+
     operator bool() { return isValid(); }
-
-    node<keyT> &operator=(node<keyT> n);
-
-    //for this to work, typeof(*val) MUST BE castable to string
-    operator string() { return (val) ? (string)*getValue() : string(); }
 };
 
 template <typename keyT>
-inline node<keyT> &node<keyT>::operator=(node<keyT> n) {
-
+inline node<keyT> &node<keyT>::operator=(const node& n)
+{
     val = n.val;
     children = n.children;
     counter = n.counter;
@@ -89,42 +87,35 @@ inline node<keyT> &node<keyT>::operator=(node<keyT> n) {
 }
 
 template <typename keyT>
-inline node<keyT>::node(const node<keyT> &n) {
-
-    val = n.val;
-    children = n.children;
-    counter = n.counter;
-    parent = nullptr;
-
+inline node<keyT>::node(const node<keyT> &n)
+    : parent(nullptr)
+    , val(n.val)
+    , counter(n.counter)
+    , children(n.children)
+{
     BM_inc_nodes_copied();
 }
 
-
 template <typename keyT>
-inline node<keyT>::node() {
-
-    val = nullptr;
-    parent = nullptr;
-
+inline node<keyT>::node()
+    : parent(nullptr)
+    , val(nullptr)
+    , counter(0)
+{
     BM_inc_empty_nodes_created();
 }
 
 template <typename keyT>
-inline node<keyT>::node(keyT key, ObjectWithKey<keyT>* val, obj_counter_t counter) {
-
-    this->val = val;
-    this->counter = counter;
-    this->parent = nullptr;
-
+inline node<keyT>::node(keyT key, ObjectWithKey<keyT> *val, obj_counter_t counter)
+    : parent(nullptr)
+    , val(val)
+    , counter(counter)
+{
     assert(val);
     assert(key == val->getKey());
-
     BM_inc_nodes_created();
 }
 
-
-template <typename keyT>
-inline node<keyT>::~node() { }
 
 template <typename keyT>
 inline ostream& operator<<(ostream& s, node<keyT> n) {
@@ -135,25 +126,20 @@ inline ostream& operator<<(ostream& s, node<keyT> n) {
 template <typename keyT>
 void node<keyT>::clearLevelKCounters(unsigned int k, unsigned int deepth) {
 
-    iterator it;
-
     if (deepth >= k)
         return;
 
-    counter=0;
-
-    for (it = begin(); it != end(); it++)
-        it->clearLevelKCounters(k, deepth+1);
+    for (auto& child : *this)
+        child.clearLevelKCounters(k, deepth+1);
 }
 
 template <typename keyT>
 size_t node<keyT>::recursiveAllNodesCount() {
 
-    iterator it;
     size_t count=1;
 
-    for (it = begin(); it != end(); it++)
-        count+=it->recursiveAllNodesCount();
+    for (auto& child : *this)
+        count += child.recursiveAllNodesCount();
 
     return count;
 }
@@ -167,12 +153,10 @@ inline void node<keyT>::clearLevelKCounters(unsigned int k) {
 template <typename keyT>
 void node<keyT>::getAllTreeNodesRef(vector< node<keyT>* > &vec) {
 
-    iterator it;
-
     vec.push_back(this);
 
-    for (it = begin(); it != end(); it++)
-        it->getAllTreeNodesRef(vec);
+    for (auto& child : *this)
+        child.getAllTreeNodesRef(vec);
 }
 
 
@@ -181,10 +165,8 @@ inline vector< node<keyT>* > node<keyT>::getAllTreeNodesRef() {
 
     vector< node* > res;
     getAllTreeNodesRef(res);
-
     return res;
 }
-
 
 
 template <typename keyT>
@@ -198,14 +180,13 @@ node<keyT> node<keyT>::kpathR(unsigned int k) {
         return node(getKey(),val,counter);
 
     res = node(getKey(),val,counter);
-    ptr=&res;
-
-    curr=this->parent;
+    ptr = &res;
+    curr = this->parent;
 
     while (curr && curr->isValid() && i < k) {
 
-        ptr=ptr->addChildByVal(node(curr->getKey(),curr->val,counter));
-        curr=curr->parent;
+        ptr = ptr->addChildByVal(node(curr->getKey(),curr->val,counter));
+        curr = curr->parent;
         i++;
     }
 
@@ -230,15 +211,13 @@ node<keyT> node<keyT>::kpath(unsigned int k) {
     while (curr && curr->isValid() && i < k) {
 
         list.push(node(curr->getKey(),curr->val,counter));
-        curr=curr->parent;
+        curr = curr->parent;
         i++;
     }
 
-
     res = list.top();
     list.pop();
-
-    ptr=&res;
+    ptr = &res;
 
     while (!list.empty()) {
 
@@ -252,35 +231,27 @@ node<keyT> node<keyT>::kpath(unsigned int k) {
 template <typename keyT>
 inline node<keyT>* node<keyT>::addChild(node<keyT> &n) {
 
-    register node *t;
-
+    node *t;
     assert(!getChildRef(n.getKey()));
-
     t = &children.insert(n.getKey(), n);
-    t->parent=this;
-
+    t->parent = this;
     return t;
 }
 
 template <typename keyT>
 inline node<keyT>* node<keyT>::replaceChild(node<keyT> &n) {
 
-    register node *t;
-
+    node *t;
     assert(getChildRef(n.getKey()));
-
     t = &children.replace(n.getKey(), n);
-    t->parent=this;
-
+    t->parent = this;
     return t;
 }
 
 template <typename keyT>
 inline node<keyT>* node<keyT>::getChildRef(keyT k) {
 
-    iterator it;
-
-    it = children.find(k);
+    iterator it = children.find(k);
 
     if (it != end())
         return &(*it);
@@ -291,11 +262,9 @@ inline node<keyT>* node<keyT>::getChildRef(keyT k) {
 template <typename keyT>
 void node<keyT>::autoSetParents() {
 
-    iterator it;
+    for (auto& child : *this) {
 
-    for (it=begin(); it != end(); it++) {
-
-        it->parent=this;
-        it->autoSetParents();
+        child.parent = this;
+        child.autoSetParents();
     }
 }
