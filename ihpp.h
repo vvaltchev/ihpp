@@ -19,9 +19,6 @@
 #ifndef __IHPP_HEADER__
 #define __IHPP_HEADER__
 
-
-
-
 class specialAttrs {
 
 public:
@@ -64,14 +61,13 @@ class GlobalContext {
 
 public:
 
-    ofstream OutFile;
-
-    set<string> funcsToTrace;
-    set<ADDRINT> funcAddrsToTrace;
+    std::ofstream OutFile;
+    std::set<std::string> funcsToTrace;
+    std::set<ADDRINT> funcAddrsToTrace;
 
     BlocksMap allBlocks;
     FuncsMap allFuncs;
-    vector<ThreadContext*> threadContexts;
+    std::vector<ThreadContext*> threadContexts;
 
     bool exitPassed;
 
@@ -97,14 +93,14 @@ public:
     WorkingModeType WorkingMode() { return _WorkingMode; }
     unsigned int kval() { return _K_CCF_VAL; }
 
-    inline bool hasToTraceByName(string funcName, ADDRINT funcAddr);
-    inline bool hasToTrace(ADDRINT funcAddr);
+    bool hasToTraceByName(const std::string& funcName, ADDRINT funcAddr);
+    bool hasToTrace(ADDRINT funcAddr);
 };
 
 extern GlobalContext *globalSharedContext;
 
 
-inline bool GlobalContext::hasToTraceByName(string funcName, ADDRINT funcAddr)
+inline bool GlobalContext::hasToTraceByName(const std::string& funcName, ADDRINT funcAddr)
 {
     if (funcsToTrace.size())
         return funcsToTrace.find(funcName) != funcsToTrace.end();
@@ -112,17 +108,15 @@ inline bool GlobalContext::hasToTraceByName(string funcName, ADDRINT funcAddr)
     return allFuncs.find(funcAddr) != allFuncs.end();
 }
 
-
 inline bool GlobalContext::hasToTrace(ADDRINT funcAddr)
 {
     return funcAddrsToTrace.find(funcAddr) != funcAddrsToTrace.end();
 }
 
 template <typename keyT>
-void kSlabForestKLevelCountersClear(forest<keyT> &f, keyT &rootKey, unsigned int k)
+void kSlabForestKLevelCountersClear(forest<keyT>& f, keyT& rootKey, unsigned int k)
 {
     for (auto& tree : f) {
-
         if (tree.getKey() != rootKey)
             tree.clearLevelKCounters(k);
     }

@@ -30,7 +30,6 @@
 */
 
 #include <iostream>
-using namespace std;
 
 #include "config.h"
 #include "debug.h"
@@ -39,6 +38,8 @@ using namespace std;
 #include "output.h"
 
 #include "tracingFuncs.h"
+
+using namespace std;
 
 GlobalContext *globalSharedContext = nullptr;
 

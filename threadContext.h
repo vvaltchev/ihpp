@@ -45,7 +45,7 @@ public:
 #endif
 
     //WM_IntraMode properties
-    map<ADDRINT, IntraModeContext*> intraModeContexts;
+    std::map<ADDRINT, IntraModeContext*> intraModeContexts;
 
     //Methods
 
@@ -60,7 +60,7 @@ public:
     IntraModeContext *getCurrentFunctionCtx() { return getFunctionCtx(currentFunction); }
 
     ADDRINT getCurrentFunction() const { return currentFunction; }
-    const string& getCurrentFunctionName() const;
+    const std::string& getCurrentFunctionName() const;
     PIN_THREAD_UID getThreadID() const { return threadID; }
 };
 

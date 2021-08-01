@@ -149,7 +149,7 @@ forest<keyT> forest<keyT>::inverseK(unsigned int k)
 
     for (auto& tree : *this) {
 
-        vector< node<keyT> * > nodes;
+        std::vector< node<keyT> * > nodes;
 
         tree.autoSetParents();
         tree.getAllTreeNodesRef(nodes);

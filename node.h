@@ -8,9 +8,6 @@
 #include "dataStructures.h"
 #include "benchmark.h"
 
-using namespace std;
-
-
 template <typename keyT>
 class node : public ObjectWithKey<keyT> {
 
@@ -41,7 +38,7 @@ public:
     node<keyT> *replaceChild(node<keyT>& n);
     node<keyT> *addChildByVal(node<keyT> n) { return addChild(n); }
     node<keyT> *getParentRef() { return (parent && *parent) ?  parent : 0; }
-    void getAllTreeNodesRef(vector< node<keyT>* >& vec);
+    void getAllTreeNodesRef(std::vector< node<keyT>* >& vec);
 
     bool isValid() const { return val != nullptr; }
     size_t childrenCount() const { return children.size(); }
@@ -67,11 +64,11 @@ public:
     void resetVisitedRecursive();
     void clearLevelKCounters(unsigned int k);
 
-    operator string() {
+    operator std::string() {
 
         return (val)
-            ? static_cast<string>(*getValue())
-            : string();
+            ? static_cast<std::string>(*getValue())
+            : std::string();
     }
 
     operator bool() { return isValid(); }
@@ -121,10 +118,9 @@ inline node<keyT>::node(keyT key, ObjectWithKey<keyT> *val, obj_counter_t counte
 
 
 template <typename keyT>
-inline ostream& operator<<(ostream& s, node<keyT> n) {
+inline std::ostream& operator<<(std::ostream& s, const node<keyT>& n) {
     return n ? s << n.getKey() : s << "(null)";
 }
-
 
 template <typename keyT>
 void node<keyT>::clearLevelKCounters(unsigned int k, unsigned int deepth) {
@@ -154,7 +150,7 @@ inline void node<keyT>::clearLevelKCounters(unsigned int k) {
 }
 
 template <typename keyT>
-void node<keyT>::getAllTreeNodesRef(vector< node<keyT>* >& vec) {
+void node<keyT>::getAllTreeNodesRef(std::vector< node<keyT>* >& vec) {
 
     vec.push_back(this);
 
@@ -192,7 +188,7 @@ node<keyT> node<keyT>::kpath(unsigned int k) {
     node res;
     node *curr,*ptr;
     unsigned int i=0;
-    stack<node> list;
+    std::stack<node> list;
 
     if (!k)
         return node(getKey(),val,counter);

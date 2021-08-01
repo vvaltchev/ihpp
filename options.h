@@ -33,10 +33,9 @@ public:
     bool unrollRec;
     bool insTracing;
 
-    string startFuncName;
-    string stopFuncName;
-
-    string tracingFuncList;
+    std::string startFuncName;
+    std::string stopFuncName;
+    std::string tracingFuncList;
 
     optionsClass()
     {

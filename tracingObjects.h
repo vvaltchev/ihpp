@@ -35,14 +35,14 @@ public:
     virtual keyT getKey() const { return key; }
     virtual obj_counter_t getSimpleCounter() { return simpleCounter; }
     virtual void incSimpleCounter() { simpleCounter++; }
-    virtual operator string() const = 0;
+    virtual operator std::string() const = 0;
 };
 
 class insInfo {
 
 public:
 
-    string ins_text;
+    std::string ins_text;
     ADDRINT targetAddr;
     ADDRINT targetFuncAddr;
     char *externFuncName;
@@ -57,7 +57,7 @@ public:
         , isCall(false)
     { }
 
-    insInfo(string ins, ADDRINT tAddr, ADDRINT tfuncAddr, char *extFuncName = nullptr)
+    insInfo(std::string ins, ADDRINT tAddr, ADDRINT tfuncAddr, char *extFuncName = nullptr)
         : ins_text(ins)
         , targetAddr(tAddr)
         , targetFuncAddr(tfuncAddr)
@@ -68,24 +68,24 @@ public:
 
 class FunctionObj : public TracingObject<ADDRINT> {
 
-    string _functionName;
-    string _fileName;
+    std::string _functionName;
+    std::string _fileName;
 
 public:
 
-    map<ADDRINT, insInfo> instructions;
+    std::map<ADDRINT, insInfo> instructions;
 
-    FunctionObj(ADDRINT ptr, string funcName, string fileName)
+    FunctionObj(ADDRINT ptr, std::string funcName, std::string fileName)
         : TracingObject<ADDRINT>(TracingObjType::Func, ptr)
         , _functionName(funcName)
         , _fileName(fileName)
     { }
 
     ADDRINT functionAddress() const { return key; }
-    const string& functionName() const { return _functionName; }
-    const string& fileName() const { return _fileName; }
+    const std::string& functionName() const { return _functionName; }
+    const std::string& fileName() const { return _fileName; }
 
-    operator string() const { return functionName()+"()"; }
+    operator std::string() const { return functionName()+"()"; }
 };
 
 class BasicBlock : public TracingObject<ADDRINT> {
@@ -112,15 +112,15 @@ public:
     ADDRINT blockAddress() const { return key; }
     ADDRINT blockEndAddress() const { return lastInsAddr; }
     ADDRINT functionAddr() const { return functionPtr->functionAddress(); }
-    string functionName() const { return functionPtr->functionName(); }
+    std::string functionName() const { return functionPtr->functionName(); }
     INT32 firstLine() const { return _firstLine; }
     INT32 firstCh() const { return _firstCh; }
 
     bool isFirstBlock() const { return blockAddress() == functionPtr->functionAddress(); }
 
-    operator string() const {
+    operator std::string() const {
 
-        stringstream ss;
+        std::stringstream ss;
 
         ss << "{";
         ss << functionName();
@@ -136,46 +136,40 @@ public:
     }
 };
 
-
-
-
-inline ostream& operator << (ostream& s, BasicBlock& bb) {
-
-    return s << (string)bb;
+inline std::ostream& operator << (std::ostream& s, BasicBlock& bb) {
+    return s << static_cast<std::string>(bb);
 }
 
-inline ostream& operator << (ostream& s, FunctionObj& fc) {
-
-    return s << (string)fc;
+inline std::ostream& operator << (std::ostream& s, FunctionObj& fc) {
+    return s << static_cast<std::string>(fc);
 }
-
-
 
 typedef node<ADDRINT> ihppNode;
 typedef forest<ADDRINT> ihppForest;
-typedef map<ADDRINT, ihppNode*> ihppNodeMap;
-typedef map<ADDRINT, FunctionObj*> FuncsMap;
-typedef map<ADDRINT, BasicBlock*> BlocksMap;
+typedef std::map<ADDRINT, ihppNode*> ihppNodeMap;
+typedef std::map<ADDRINT, FunctionObj*> FuncsMap;
+typedef std::map<ADDRINT, BasicBlock*> BlocksMap;
 typedef FuncsMap::iterator FuncsMapIt;
 typedef BlocksMap::iterator BlocksMapIt;
 
-inline ostream& operator << (ostream& s, ihppNode &n) {
+inline std::ostream& operator<<(std::ostream& s, ihppNode &n) {
 
-    TracingObject<ADDRINT> *obj = static_cast<TracingObject<ADDRINT> *>(n.getValue());
+    TracingObject<ADDRINT> *obj =
+        static_cast<TracingObject<ADDRINT> *>(n.getValue());
 
-    assert(obj);
-
-    return s << (string)*obj;
+    assert(obj != nullptr);
+    return s << static_cast<std::string>(*obj);
 }
 
-inline ostream& operator << (ostream& s, ihppNode *n) {
+inline std::ostream& operator << (std::ostream& s, ihppNode *n) {
 
     if (n) {
 
-        TracingObject<ADDRINT> *obj = static_cast<TracingObject<ADDRINT> *>(n->getValue());
-        assert(obj);
+        TracingObject<ADDRINT> *obj =
+            static_cast<TracingObject<ADDRINT> *>(n->getValue());
 
-        return s << (string)*obj;
+        assert(obj != nullptr);
+        return s << static_cast<std::string>(*obj);
     }
 
     return s << "(null)";
