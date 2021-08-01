@@ -8,11 +8,13 @@ double getMilliseconds();
 
 #if IHPP_BENCHMARK
 
+    class ThreadContext;
+
     extern bool benchmark;
     extern bool usePinThread;
     extern bool useCurrFunc;
 
-    extern PIN_THREAD_UID __benchmarkThread;
+    extern ThreadContext *__benchmarkThread;
     extern ADDRINT __benchmarkFunc;
 
 
@@ -21,11 +23,11 @@ double getMilliseconds();
     #define BENCHMARK_ON                benchmark=true;
     #define BENCHMARK_OFF               benchmark=false;
 
-    #define BENCHMARK_SET_THREAD(tid)   usePinThread=false; __benchmarkThread=(tid);
+    #define BENCHMARK_SET_THREAD(ctx)   usePinThread=false; __benchmarkThread=(ctx);
     #define BENCHMARK_SET_FUNC(addr)    useCurrFunc=false; __benchmarkFunc=(addr);
 
-    #define __BM_GET_THREAD             (usePinThread ? PIN_ThreadUid() : __benchmarkThread)
-    #define __BM_CURR_TH                (globalSharedContext->getThreadCtx(__BM_GET_THREAD))
+    #define __BM_CURR_PIN_TH_CTX        globalSharedContext->getThreadCtx(PIN_ThreadUid())
+    #define __BM_CURR_TH                (usePinThread ? __BM_CURR_PIN_TH_CTX : __benchmarkThread)
     #define __BM_GET_FUNC               (useCurrFunc ? __BM_CURR_TH->getCurrentFunction() : __benchmarkFunc)
     #define __BM_CURR_FUNC              (__BM_CURR_TH->getFunctionCtx(__BM_GET_FUNC))
     #define __BM_INTRAMODE              (globalSharedContext->WorkingMode() == WM_IntraMode)

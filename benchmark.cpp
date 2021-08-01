@@ -1,13 +1,15 @@
 #include "config.h"
 #include "pin.H"
 
-#if IHPP_BENCHMARK 
+#if IHPP_BENCHMARK
+
+class ThreadContext;
 
 bool benchmark=true;
 bool usePinThread=true;
 bool useCurrFunc=true;
 
-PIN_THREAD_UID __benchmarkThread=0;
+ThreadContext *__benchmarkThread=0;
 ADDRINT __benchmarkFunc=0;
 
 #endif

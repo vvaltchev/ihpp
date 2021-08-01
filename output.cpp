@@ -941,7 +941,7 @@ void Fini(INT32 code, void *)
 
         //Operations in printContextInfo (inversion of the K slab forest and others)
         //have to counted as operations made by thread "threadID" and not by current thread.
-        BENCHMARK_SET_THREAD(threadCtx->getThreadID());
+        BENCHMARK_SET_THREAD(threadCtx);
 
         //cerr << "Computing kCCF for thread " << threadCtx->threadID << "...\n";
 
