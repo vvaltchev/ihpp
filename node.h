@@ -19,13 +19,13 @@ protected:
     ObjectWithKey<keyT> *val;
     obj_counter_t counter;
 
-    ihppNodeChildrenContainer< keyT, node<keyT> > children;
+    ihppNodeChildrenList< keyT, node<keyT> > children;
 
     void clearLevelKCounters(unsigned int k, unsigned int deepth);
 
 public:
 
-    typedef typename ihppNodeChildrenContainer< keyT, node<keyT> >::iterator iterator;
+    typedef typename ihppNodeChildrenList< keyT, node<keyT> >::iterator iterator;
 
     node();
     node(const node& n);

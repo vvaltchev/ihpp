@@ -136,7 +136,7 @@ public:
     valueT is assumed to be an ObjectWithKey and to be NOT a pointer.
 */
 template <typename keyT, typename valueT>
-class ihppNodeChildrenContainer {
+class ihppNodeChildrenList {
 
     std::list<valueT> _data;
 

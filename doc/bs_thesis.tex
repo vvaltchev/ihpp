@@ -2616,7 +2616,7 @@ nodes are a \emph{transport} for \emph{tracing objects} inside trees and forests
 Since \verb|node| objects act as \emph{trees} in IHPP, they have to transport
 also their \emph{children} nodes. As can be seen in \cref{nodeClass},
 \emph{children} nodes are contained using a
-\verb|ihppNodeChildrenContainer<keyT,valueT>| object.
+\verb|ihppNodeChildrenList<keyT,valueT>| object.
 
 \begin{lstlisting}[language=C++,
 	caption={partial definition of \texttt{node<keyT>} class},
@@ -2633,14 +2633,14 @@ protected:
 	ObjectWithKey<keyT> *val;
 	obj_counter_t counter;
 
-	ihppNodeChildrenContainer< keyT, node<keyT> > children;
+	ihppNodeChildrenList< keyT, node<keyT> > children;
 
 	//code omitted [...]
 
 public:
 
 	typedef typename
-	ihppNodeChildrenContainer<
+	ihppNodeChildrenList<
 		keyT,
         node<keyT>
     >::iterator iterator;
@@ -2678,8 +2678,8 @@ public:
 \end{lstlisting}
 
 \noindent
-Technically, \verb|ihppNodeChildrenContainer| is not a real type but a macro which
-stands for \verb|ihppNodeChildrenContainerList1|.
+Technically, \verb|ihppNodeChildrenList| is not a real type but a macro which
+stands for \verb|ihppNodeChildrenListList1|.
 This last one, is one of the actually \emph{three} node container
 classes defined in \verb|dataStructures.h|. Other container classes
 has exactly the same interface but store data internally in other ways,
@@ -2695,7 +2695,7 @@ This approach, apart of this little problem, is better than manually using point
 to \verb|node| objects because fully delegates the memory management problem to the container: when a \verb|node| object is destroyed the \verb|children| object
 is automatically destroyed too with all its nodes; therefore, full tree copies
 are very simply in this way since the \verb|node<keyT>| class has its
-overload of \verb|operator=()| like the \verb|ihppNodeChildrenContainer| has its own:
+overload of \verb|operator=()| like the \verb|ihppNodeChildrenList| has its own:
 no explicit memory allocations in \verb|node<keyT>| are necessary.
 
 A technical note. Methods directly implemented in class definitions like
