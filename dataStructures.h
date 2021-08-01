@@ -44,7 +44,7 @@ public:
 
 
 template <typename keyT, typename valueT>
-class ihppNodeChildrenContainerMap {
+class ihppNodeChildrenMap {
 
     std::map<keyT, valueT> _data;
 
@@ -52,7 +52,7 @@ public:
 
     class iterator {
 
-        friend class ihppNodeChildrenContainerMap<keyT, valueT>;
+        friend class ihppNodeChildrenMap<keyT, valueT>;
 
         bool _valid;
         typename std::map< keyT, valueT >::iterator _it;
@@ -84,7 +84,7 @@ public:
 
     class const_iterator {
 
-        friend class ihppNodeChildrenContainerMap<keyT, valueT>;
+        friend class ihppNodeChildrenMap<keyT, valueT>;
 
         bool _valid;
         typename std::map< keyT, valueT >::const_iterator _it;

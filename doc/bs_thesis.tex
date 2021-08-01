@@ -2640,9 +2640,9 @@ protected:
 public:
 
 	typedef typename
-	ihppNodeChildrenContainer< 
+	ihppNodeChildrenContainer<
 		keyT,
-        node<keyT> 
+        node<keyT>
     >::iterator iterator;
 
 	//code omitted [...]
@@ -2707,7 +2707,7 @@ the ones in \verb|node<keyT>| class, are \emph{implicit inline} methods with
 The \verb|forest<keyT>| class is very similar to \verb|node<keyT>|, with
 the main difference that it is not identified by a key, neither transports
 an object pointer as value. It is substantially a container
-for nodes and can use exactly the same children nodes containers used by \verb|node<keyT>|. Actually, it uses \verb|ihppNodeChildrenContainerMap| as container because for small values
+for nodes and can use exactly the same children nodes containers used by \verb|node<keyT>|. Actually, it uses \verb|ihppNodeChildrenMap| as container because for small values
 of $k$ in \verb|funcMode|, a forest can have hundreds trees and a hashmap will have
 better performance then a linked list.
 \Cref{forestClass} (below) shows a partial definition of the \verb|forest<keyT>| class.
@@ -2719,7 +2719,7 @@ better performance then a linked list.
 template <typename keyT>
 class forest {
 
-	ihppNodeChildrenContainerMap< keyT, node<keyT> > trees;
+	ihppNodeChildrenMap< keyT, node<keyT> > trees;
 	static void joinSubtrees(node<keyT> &t1, node<keyT> &t2);
 
 public:
@@ -2727,7 +2727,7 @@ public:
 	//code omitted [...]
 
 	typedef typename
-	ihppNodeChildrenContainerMap<
+	ihppNodeChildrenMap<
 		keyT,
 		node<keyT>
 	>::iterator iterator;
@@ -2783,9 +2783,9 @@ void forest<keyT>::joinSubtrees(node<keyT> &t1, node<keyT> &t2) {
     t1.setCounter(t1.getCounter() + t2.getCounter());
 
 	for (auto& t2_child : t2) {
-	
+
 		node<keyT> *t = t1.getChildRef(t2_child.getKey());
-	
+
 		if (!t)
 			t1.addChild(t2_child);
 		else
@@ -2815,14 +2815,14 @@ forest<keyT> forest<keyT>::inverseK(unsigned int k) {
     forest<keyT> res;
 
 	for (auto& tree : *this) {
-	
+
 		tree.autoSetParents();
 		const vector< node<keyT> * >& tmp = tree.getAllTreeNodesRef();
-	
+
 		for (node<keyT> *other_tree : tmp)
 			res.local_joinByVal(other_tree->kpathR(k));
 	}
-	
+
 	return res;
 }
 \end{lstlisting}
@@ -2845,10 +2845,10 @@ int main(int argc, char ** argv) {
 	if (globalSharedContext->WorkingMode() != WM_FuncMode) {
 		TRACE_AddInstrumentFunction(BlockTraceInstrumentation, 0);
 	}
-	
-	
+
+
 	IMG_AddInstrumentFunction(ImageLoad, 0);
-	
+
 	//much code omitted [...]
 }
 
@@ -2936,7 +2936,7 @@ void imageLoad_doInsInstrumentation(IMG &img, RTN &rtn, FunctionObj *fc)
 		if (ctx->WorkingMode() != WM_InterProcMode) {
 			insInstrumentation(rtn, ins);
 		}
-		
+
 		//much code omitted [...]
 	}
 	RTN_Close(rtn);

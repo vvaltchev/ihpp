@@ -6,11 +6,11 @@ class forest {
 
     static void joinSubtrees(node<keyT> &t1, const node<keyT> &t2);
 
-    ihppNodeChildrenContainerMap< keyT, node<keyT> > trees;
+    ihppNodeChildrenMap< keyT, node<keyT> > trees;
 
 public:
 
-    typedef typename ihppNodeChildrenContainerMap< keyT, node<keyT>  >::iterator iterator;
+    typedef typename ihppNodeChildrenMap< keyT, node<keyT>  >::iterator iterator;
 
     forest() = default;
     forest(const forest &f);
