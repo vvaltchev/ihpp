@@ -12,8 +12,8 @@ protected:
 public:
 
     TracingObject(keyT k) : simpleCounter(0), key(k) {}
-    virtual keyT getKey() { return key; }
-    virtual unsigned int getSimpleCounter() { return simpleCounter; }
+    virtual keyT getKey() const { return key; }
+    virtual unsigned int getSimpleCounter() const { return simpleCounter; }
     virtual void incSimpleCounter() { simpleCounter++; }
 
     virtual operator string() const = 0;
@@ -25,8 +25,8 @@ class simpleVal : public ObjectWithKey<const char*> {
     const char *key;
 
 public:
-    simpleVal(const char *k) { key=k; }
-    const char *getKey() { return key; }
+    simpleVal(const char *k) : key(k) { }
+    const char *getKey() const { return key; }
 };
 
 template <typename T>
@@ -36,8 +36,12 @@ public:
 
     node<T> *treeTop;
     node<T> *treeBottom;
-    
-    ShadowStackItemType() : treeTop(0), treeBottom(0) { }
+
+    ShadowStackItemType()
+        : treeTop(nullptr)
+        , treeBottom(nullptr)
+    { }
+
     ShadowStackItemType(node<T> *t, node<T> *b) : treeTop(t), treeBottom(b) {     }
 };
 
