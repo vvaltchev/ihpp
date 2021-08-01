@@ -23,9 +23,11 @@ public:
     auto end() { return trees.end(); }
     auto begin() const { return trees.begin(); }
     auto end() const { return trees.end(); }
+    auto cbegin() { return trees.cbegin(); }
+    auto cend() { return trees.cend(); }
 
-    size_t treesCount() { return trees.size(); }
-    size_t recursiveAllNodesCount();
+    size_t treesCount() const { return trees.size(); }
+    size_t recursiveAllNodesCount() const;
 
     void autoSetParents();
 
@@ -69,11 +71,11 @@ inline node<keyT>* forest<keyT>::addTree(const node<keyT>& n) {
 }
 
 template <typename keyT>
-size_t forest<keyT>::recursiveAllNodesCount() {
+size_t forest<keyT>::recursiveAllNodesCount() const {
 
     size_t count = 0;
 
-    for (auto& tree : *this)
+    for (const auto& tree : *this)
         count += tree.recursiveAllNodesCount();
 
     return count;

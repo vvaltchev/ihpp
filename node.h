@@ -45,8 +45,8 @@ public:
     vector< node<keyT>* > getAllTreeNodesRef();
 
     bool isValid() const { return val != nullptr; }
-    size_t childrenCount() { return children.size(); }
-    size_t recursiveAllNodesCount();
+    size_t childrenCount() const { return children.size(); }
+    size_t recursiveAllNodesCount() const;
     void autoSetParents();
     keyT getKey() const { assert(isValid()); return val->getKey(); }
     ObjectWithKey<keyT> *getValue() { assert(isValid()); return val; }
@@ -138,11 +138,11 @@ void node<keyT>::clearLevelKCounters(unsigned int k, unsigned int deepth) {
 }
 
 template <typename keyT>
-size_t node<keyT>::recursiveAllNodesCount() {
+size_t node<keyT>::recursiveAllNodesCount() const {
 
-    size_t count=1;
+    size_t count = 1;
 
-    for (auto& child : *this)
+    for (const auto& child : *this)
         count += child.recursiveAllNodesCount();
 
     return count;
