@@ -1,13 +1,9 @@
 
 # IHPP: An Intraprocedural Hot Path Profiler
-This is my [B.S. thesis] project written during the accademic year 2011/2012 with minor
-recent updates (Jul 2021) to make it work with recent C++ compilers and the newest
-version of Intel PIN (3.20) on Linux. The original work is tagged as `bs_thesis_final`
-in git. <br />
-
-*Remarks*: the code style is not great, but it's an old project written during the
-college years and untouched since then. Help from any volunteers interested in
-refactoring and further developing the project will be appreciated.
+This is my [B.S. thesis] project written during the accademic year 2011/2012 with a little bit
+of modernization effort (Jul 2021) to make the code more readable and to make it build with
+recent C++ compilers and the latest version of Intel PIN (3.20) on Linux. The original work is
+tagged as `bs_thesis_final` in git. <br />
 
 ## Abstract
 IHPP is an innovative instrumentation profiler written based on the Intel Pin framework.
