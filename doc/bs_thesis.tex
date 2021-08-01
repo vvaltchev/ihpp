@@ -150,7 +150,7 @@ thousands times faster than in the past, they are still \emph{slow} sometimes an
 software still needs to be analyzed and optimized. One way of analyzing
 performance of programs is \textbf{profiling}: it consists substantially in
 running the target program in a controlled environment and collecting data about
-its behavior in order to discover possible bottlenecks in software. A basilar
+its behavior in order to discover possible bottlenecks in software. A basic
 introduction of program analysis and various profiling techniques can be found
 in the chapter 2.
 
@@ -199,7 +199,7 @@ solve it. Nevertheless, even if a profiler \emph{will not} tell the programmer \
 to solve the problem, it will tell \emph{quickly} where is it, which is much
 better than nothing because it can save several human hours of work.
 
-\section{Contributions}
+\section{Acknowledgments}
 
 In order to collect k-level context-sensitive data, IHPP uses some data
 structures and algorithms that \emph{have not been} ideated by the author:
@@ -424,7 +424,7 @@ loaded in memory or a little before they are going to be executed by the
 cpu. In order to this to happen, another program which has \emph{full control}
 of the target one is needed. This approach is used by tools like
 \textbf{Valgrind} and \textbf{Intel Pin}\footnote{Pin's official page:
-\url{http://www.pintool.org}}; this last one is the tool used for the IHPP
+\url{https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html}}; this last one is the tool used for the IHPP
 project.
 
 \item[Runtime injection] This technique is based on the same idea of the last
@@ -448,7 +448,7 @@ which adopted this approach were IBM SIMMON and IBM OLIVER.
 \chapter{Algorithms and data structures in IHPP}
 Since IHPP uses new and not yet published\footnote{The conference in which will be presented the work \emph{k-Calling Context
 Profiling}~\cite{kccf} will be held in October 2012, as written here:
-\mbox{\url{http://splashcon.org/2012/}}} data structures like $k$-SF and $k$-CCF, at least a basilar explanation of these ones is \emph{strictly} necessary in this paper.
+\mbox{\url{http://splashcon.org/2012/}}} data structures like $k$-SF and $k$-CCF, at least a basic explanation of these ones is \emph{strictly} necessary in this paper.
 Note: in order to remove every possible ambiguity about these data structures,
 formal definitions used in this chapter are literally taken from the original work.
 
@@ -533,7 +533,7 @@ Note: contexts marketed with (*) are \emph{full} calling contexts.}
 \label{kctx1}
 \end{figure}
 
-As it is possible to see, for various values of the $k$ parameter there are more or less $k$-contexts with different values of $c(\pi)$: for $k=0$ $c(\pi)$ is, simply, the number of times each function is called; for $k=2$ instead, $c(\pi)$ is number of times an unique 3-elements-path like $\langle$r,a,b$\rangle$ is activated. This example is too simple to show that but, in general, as $k$ grows, more context information is added, counter values decrease and, for relatively big values of $k$, information made become too specific for any sort analysis so, it is a profiler's user task to choose the \emph{right} $k$-value.
+As it is possible to see, for various values of the $k$ parameter there are more or less $k$-contexts with different values of $c(\pi)$: for $k=0$ $c(\pi)$ is, simply, the number of times each function is called; for $k=2$ instead, $c(\pi)$ is number of times an unique 3-elements-path like $\langle$r,a,b$\rangle$ is activated. This example is too simple to show that but, in general, as $k$ grows, more context information is added, counter values decrease and, for relatively big values of $k$, information made become too specific for any sort analysis so, it is a profiler's user's task to choose the \emph{right} $k$-value.
 
 At this point, the problem is how to get (in terms of algorithms and data
 structures) all $k$-contexts of a program run for a given value of $k$: a solution is to extract the $k$-contexts from a CCT (\emph{Calling Context Tree}) which is build
@@ -597,7 +597,7 @@ function func_call_event_handler(funcType func):
 
 	if (temp == null) then
 		temp = new node(func,1)
-		currentNode.addChildren(temp)
+		currentNode.addChild(temp)
 	else
 		temp.incrementCounter()
 	endif
@@ -615,7 +615,7 @@ and its pseudo-code will not be shown here but the idea is: given a CCT and a no
 
 \section{The $k$-Calling Context Forest}
 
-As told in \emph{k-Calling Context Profiling}~\cite{kccf}, building (and handling) a CCT for a relatively long running program is unpractical and often useless.
+As explained in \emph{k-Calling Context Profiling}~\cite{kccf}, building (and handling) a CCT for a relatively long running program is unpractical and often useless.
 A much better data structure for handling $k$-contexts is \emph{$k$-CCF}:
 the idea on which it is based is to have a \emph{forest} formed by
 a tree (of at most $k$ levels) \emph{for each} function.
@@ -683,7 +683,7 @@ a tree (of at most $k$ levels) \emph{for each} function.
 The interpretation of fig.~\ref{kccf1} is simple: for $k=0$ there is no context
 information and only one node per function is present; its counter shows the number of times that function has been called during the program execution. For $k=1$, every function has as children its callers, for example, $a()$ has been called $2$ times: 1 by $r()$ and 1 by $c()$. This way of proceeding can be extended for greater values of $k$ with the remark that
 there is always a maximum $k$-value which produces a full context-sensitive information
-(in this example, that value of $k$ is $3$): greater values of $k$ have no effect on the output. Apart of these considerations, $k$-CCF have not been formally defined yet because its definition uses an operation called \emph{tree join}.
+(in this example, that value of $k$ is $3$): greater values of $k$ have no effect on the output. Apart of these considerations, $k$-CCF has not been formally defined yet because its definition uses an operation called \emph{tree join}.
 
 \subsection{The join operation}
 
@@ -788,7 +788,7 @@ all distinct paths of length a most k+1 activated by the execution\footnote{The 
 \subsection{How to build a $k$-CCF}
 
 As previously stated, the CCT of a program execution contains all $k$-contexts for
-all possible values of $k$ so, should exist a way to build a $k$-CCF from a CCT: in fact, this is true and can be obtained using a particular operation called $k$-inverse forest, formally defined below.\\
+all possible values of $k$ so, it should exist a way to build a $k$-CCF from a CCT: in fact, this is true and can be obtained using a particular operation called $k$-inverse forest, formally defined below.\\
 
 \textbf{Definition 6} \emph{$k$-inverse forest}~\cite{kccf}. Let $F$ be a labeled forest with $n$ nodes
 $v_1$, \ldots ,$v_n$. For all $i \in [1,n]$, let $\pi_i$ be the maximal suffix of length at most $k+1$ of the unique root path that leads to $v_i$ in $F$. The $k$-inverse forest of $F$, denoted as $inv_k(F)$, is the labeled forest obtained as \texttt{join}($\pi_1^R$, \ldots ,$\pi_n^R$).\\[20pt]
@@ -1178,12 +1178,10 @@ This concept will be, of course, explained later.
 
 \subsection{Technical considerations}
 
-Like Pin itself, IHPP works both on Microsoft \textbf{Windows} and \textbf{Linux}-based systems but, output data sometimes is different and the reason is the compiler:
-under Linux systems the compiler \verb|gcc| is supported instead, under Windows only the compiler \verb|cl| included in the software \textbf{Visual Studio} is supported.
-This means that both the IHPP and the target program have to be compiled with the same compiler under a specific platform. Under Windows systems, target programs built with \verb|gcc| portings or other compilers are not supported due to problems with debug information:
-practically, IHPP fetches the debug information of a program through Pin which accepts only \verb|pdb| debug info format under Windows and only \verb|dwarf| format under Linux-based systems; nevertheless, the problematic difference between the two compilers is another:
-they compile C/C++ code in a different way and often they do not respect the \emph{standard calling conventions}, specially in auxiliary routines inserted into the target program.
-Because of this, a huge amount of work has been done in IHPP to overcome these problems,
+Like PIN itself, IHPP works both on Microsoft \textbf{Windows} and \textbf{Linux}-based systems but, output data sometimes is different because of compiler-specific details. Under Linux systems the compiler \verb|gcc| is supported, while under Windows
+the \verb|cl| compiler included in \textbf{Visual Studio} is supported.
+This means that both the IHPP and the target program have to be compiled with the same compiler under a specific platform. Under Windows systems, target programs built with \verb|gcc| portings or other compilers are not supported due to problems with debug information: IHPP fetches the debug information of a program through PIN which accepts only \verb|pdb| debug info format under Windows and only \verb|dwarf| format under Linux-based systems; nevertheless, the problematic difference between the two compilers is of
+a different kind: the \emph{calling conventions} (ABI) for a given platform are not always respected in auxiliary compiler-generated routines. Because of this, a huge amount of work has been done in IHPP to overcome these problems,
 specially under Windows systems.
 
 \section{The \emph{function} mode}
@@ -2303,7 +2301,7 @@ rounded corners = 10pt, fit = (t1) (n2) (n6) (n7)] {};
 \end{figure}
 
 \noindent
-The \verb|traceObject()| function mentioned before, works with basilar objects
+The \verb|traceObject()| function mentioned before, works with the base objects
 defined in files of group (1). The first two files in this last group use on their basis
 container classes for \verb|ObjectWithKey<T>| objects defined and implemented
 in the file \verb|dataStructures.h|.
@@ -2418,7 +2416,7 @@ performance reasons it is instanced as a simply global symbol called \verb|globa
 
 class GlobalContext {
 
-	PIN_LOCK lock;
+	TLS_KEY _tls_key;
 	/* code omitted [...] */
 
 public:
@@ -2672,7 +2670,7 @@ public:
 	node<keyT> kpathR(unsigned int k);
 
 	//code omitted [...]
-	node<keyT> &operator=(node<keyT> n);
+	node<keyT> &operator=(const node<keyT>& n);
 };
 
 \end{lstlisting}
@@ -2719,44 +2717,36 @@ better performance then a linked list.
 template <typename keyT>
 class forest {
 
+	static void joinSubtrees(node<keyT> &t1, const node<keyT> &t2);	
 	ihppNodeChildrenMap< keyT, node<keyT> > trees;
-	static void joinSubtrees(node<keyT> &t1, node<keyT> &t2);
-
+	
 public:
-
-	//code omitted [...]
-
-	typedef typename
-	ihppNodeChildrenMap<
-		keyT,
-		node<keyT>
-	>::iterator iterator;
-
-	forest();
+	
+	typedef typename ihppNodeChildrenMap< keyT, node<keyT>  >::iterator iterator;
+	
+	forest() = default;
 	forest(const forest &f);
-	forest(node<keyT> n);
-
-	node<keyT> * getTreeRef(keyT k);
-
-	//code omitted [...]
-
-	inline node<keyT> * addTree(node<keyT> &n);
-
-	//code omitted [...]
-	iterator begin() { /* omitted */ }
-	iterator end() { /* omitted */ }
-
-	//code omitted [...]
-
+	forest(const node<keyT>& n);
+	forest<keyT> &operator=(const forest<keyT>& f);
+	
+	node<keyT> *getTreeRef(keyT k);
+	node<keyT> *toTree();
+	node<keyT> *addTree(const node<keyT>& n);
+	
+	auto begin() { return trees.begin(); }
+	auto end() { return trees.end(); }
+	auto begin() const { return trees.begin(); }
+	auto end() const { return trees.end(); }
+	
+	size_t treesCount() const { return trees.size(); }
+	size_t recursiveAllNodesCount() const;
+	
+	void autoSetParents();
+	
 	forest<keyT> inverseK(unsigned int k);
-
-	void local_join(node<keyT> &t2);
-	void local_join(forest<keyT> &f2);
-	void local_joinByVal(node<keyT> t2) { local_join(t2); }
-
-	//code omitted [...]
-
-	inline forest<keyT> &operator=(forest<keyT> f);
+	
+	void join(const node<keyT>& t2);
+	void join(const forest<keyT>& f2);
 };
 
 \end{lstlisting}
@@ -2778,14 +2768,10 @@ ancestors of the node on which the method is called.
 	label=joinop, frame=leftline]
 
 template <typename keyT>
-void forest<keyT>::joinSubtrees(node<keyT> &t1, node<keyT> &t2) {
-
-    t1.setCounter(t1.getCounter() + t2.getCounter());
-
-	for (auto& t2_child : t2) {
-
+void forest<keyT>::joinSubtrees(node<keyT> &t1, const node<keyT> &t2) {
+	t1.setCounter(t1.getCounter() + t2.getCounter());
+	for (const auto& t2_child : t2) {
 		node<keyT> *t = t1.getChildRef(t2_child.getKey());
-
 		if (!t)
 			t1.addChild(t2_child);
 		else
@@ -2794,10 +2780,10 @@ void forest<keyT>::joinSubtrees(node<keyT> &t1, node<keyT> &t2) {
 }
 
 template <typename keyT>
-void forest<keyT>::local_join(node<keyT> &t2) {
-
+void forest<keyT>::join(const node<keyT>& t2)
+{
 	node<keyT> *t = getTreeRef(t2.getKey());
-
+	
 	if (t)
 		joinSubtrees(*t, t2);
 	else
@@ -2810,19 +2796,21 @@ void forest<keyT>::local_join(node<keyT> &t2) {
 	caption={the implementation of the $inv_k$ operation},
 	label=invk, frame=leftline]
 template <typename keyT>
-forest<keyT> forest<keyT>::inverseK(unsigned int k) {
-
-    forest<keyT> res;
-
+forest<keyT> forest<keyT>::inverseK(unsigned int k)
+{
+	forest res;
+	
 	for (auto& tree : *this) {
-
+	
+		std::vector< node<keyT> * > nodes;
+		
 		tree.autoSetParents();
-		const vector< node<keyT> * >& tmp = tree.getAllTreeNodesRef();
-
-		for (node<keyT> *other_tree : tmp)
-			res.local_joinByVal(other_tree->kpathR(k));
+		tree.getAllTreeNodesRef(nodes);
+		
+		for (node<keyT> *other_tree : nodes)
+			res.join(other_tree->kpathR(k));
 	}
-
+	
 	return res;
 }
 \end{lstlisting}
@@ -2987,8 +2975,8 @@ at runtime in \verb|funcMode|: \verb|FunctionObjTrace()| and \verb|funcMode_ret(
 
 void FunctionObjTrace(FunctionObj *fc, /* code omitted */) {
 
-	ihppNode *treeTop=0;
-	ihppNode *treeBottom=0;
+	ihppNode *treeTop = nullptr;
+	ihppNode *treeBottom = nullptr;
 	ThreadContext *ctx;
 	GlobalContext *globalCtx = globalSharedContext;
 
@@ -3000,8 +2988,7 @@ void FunctionObjTrace(FunctionObj *fc, /* code omitted */) {
 	fc->incSimpleCounter();
 
 	//code omitted [...]
-
-	/* code about stack ptr check omitted */
+	//code about stack ptr check omitted
 
 	if (ctx->shadowStack.size()) {
 		treeTop = ctx->shadowStack.top().treeTop;
@@ -3009,14 +2996,11 @@ void FunctionObjTrace(FunctionObj *fc, /* code omitted */) {
 	}
 
 	//code omitted [...]
-
 	traceObject(fc, ctx, treeTop, treeBottom);
-
 	//code omitted [...]
 
 	ctx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom));
-
-	/* code about forward jump recognition omitted */
+	//code about forward jump recognition omitted
 }
 
 \end{lstlisting}
@@ -3434,8 +3418,8 @@ implementation of \verb|intraModeBlockTrace()|.
 void intraModeBlockTrace(BasicBlock *bb, /* omitted */) {
 
 	IntraModeContext *intraCtx;
-	ihppNode *treeTop=0
-	ihppNode *treeBottom=0;
+	ihppNode *treeTop = nullptr;
+	ihppNode *treeBottom = nullptr;
 	ThreadContext *ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
 
 	bb->incSimpleCounter();
@@ -3449,6 +3433,7 @@ void intraModeBlockTrace(BasicBlock *bb, /* omitted */) {
 		intraMode_ret();
 		ctx->setCurrentFunction(bb->functionAddr());
 	}
+
 
 	intraCtx = ctx->getCurrentFunctionCtx();
 
@@ -3473,7 +3458,7 @@ void intraModeBlockTrace(BasicBlock *bb, /* omitted */) {
 
 				if (parent->getKey() == bb->getKey()) {
 
-					treeTop=parent; treeBottom=0;
+					treeTop=parent; treeBottom=nullptr;
 					found=true;
 					treeTop->incCounter();
 					break;
@@ -3499,7 +3484,7 @@ void intraModeBlockTrace(BasicBlock *bb, /* omitted */) {
 		//Rootkey is null, so this is the first time
 		//the function is called (in this thread): everything is very simple.
 
-		treeTop=0; treeBottom=0;
+		treeTop=nullptr; treeBottom=nullptr;
 		traceObject(bb, intraCtx, treeTop, treeBottom);
 
 		//asserts omitted
@@ -3660,7 +3645,7 @@ intraCtx->shadowStack.push(ShadowStackItemType(treeTop,treeBottom));
 INTRAMODE_SET_TOP_BOTTOM_TO_ROOT():
 intraCtx->counter=1;
 treeTop=intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey);
-treeBottom=0;
+treeBottom=nullptr;
 
 INTRAMODE_TOP_BOTTOM_ARE_POINTING_TO_ROOT():
 (treeTop==intraCtx->kSlabForest.getTreeRef(intraCtx->rootKey) && !treeBottom)
@@ -3682,17 +3667,13 @@ is show in the \cref{interTrace} below.
 	label=interTrace, frame=leftline, showstringspaces=false]
 void interModeBlockTrace(TracingObject<ADDRINT> *to) {
 
-	ThreadContext *ctx;
 	BasicBlock *bb = static_cast<BasicBlock*>(to);
-
-	ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
+	ThreadContext *ctx = globalSharedContext->getThreadCtx(PIN_ThreadUid());
 
 	//code omitted [...]
-
 	bb->incSimpleCounter();
 
 	if (!globalSharedContext->options.rollLoops) {
-
 		traceObject(bb, ctx, ctx->treeTop, ctx->treeBottom);
 		return;
 	}
@@ -3702,9 +3683,8 @@ void interModeBlockTrace(TracingObject<ADDRINT> *to) {
 	while (parent) {
 
 		if (parent->getKey() == bb->getKey()) {
-
 			ctx->treeTop=parent;
-			ctx->treeBottom=0;
+			ctx->treeBottom=nullptr;
 			ctx->treeTop->incCounter();
 			return;
 		}
